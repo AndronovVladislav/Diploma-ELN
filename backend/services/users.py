@@ -1,7 +1,9 @@
+from sqlalchemy import select
+
 from models import async_session_factory
 from models.users import User
-from schemas.users import UserCreate, UserResponse
-from sqlalchemy import select
+from schemas.users import UserCreate
+
 
 async def get_user(email: str) -> User | None:
     async with async_session_factory() as session:

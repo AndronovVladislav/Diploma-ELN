@@ -7,10 +7,10 @@ from routes.users import router as users_router
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI):  # pylint: disable=W0613
     await setup_db()
     yield
 
 
-app = FastAPI(lifespan=lifespan)
-app.include_router(users_router)
+main_app = FastAPI(lifespan=lifespan)
+main_app.include_router(users_router)

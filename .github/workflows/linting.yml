@@ -1,0 +1,31 @@
+name: Pylint
+
+on:
+  - push
+  - pull_request
+  - workflow_dispatch
+
+jobs:
+  build:
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        python-version:
+          - '3.12'
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        curl -sSL https://install.python-poetry.org | python${{ matrix.python-version }} -
+        PATH="$HOME/.local/bin:$PATH" poetry -C backend add pylint
+
+    - name: Analysing the code with pylint
+      run: |
+        PATH="$HOME/.local/bin:$PATH" poetry -C backend run pylint $(git ls-files '*.py')

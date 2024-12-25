@@ -1,13 +1,13 @@
-from fastapi import Form, APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException
 
 from schemas.users import UserCreate, UserResponse
-from services.users import get_user, create_user
+from services.users import create_user, get_user
 
 router = APIRouter(prefix='/users')
 
-@router.post("/login")
-async def login(username: str = Form(...), password: str = Form(...)):
-    ...
+# @router.post("/login")
+# async def login(username: str = Form(...), password: str = Form(...)):
+#     ...
 
 
 @router.post("/signup")

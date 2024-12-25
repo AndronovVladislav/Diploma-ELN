@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, mapped_column
 
 from config import settings
+
 # from models.users import User  # noqa
 
 Id = Annotated[int, mapped_column(primary_key=True)]
