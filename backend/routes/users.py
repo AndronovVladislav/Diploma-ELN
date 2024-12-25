@@ -1,13 +1,19 @@
-from fastapi import Form
+from fastapi import Form, APIRouter, HTTPException
 
-from main import app
+from schemas.users import UserCreate, UserResponse
+from services.users import get_user, create_user
 
+router = APIRouter(prefix='/users')
 
-@app.post("/login")
+@router.post("/login")
 async def login(username: str = Form(...), password: str = Form(...)):
     ...
 
 
-@app.post("/signup")
-async def signup(username: str = Form(...), password: str = Form(...)):
-    return {"message": f"Пользователь {username} зарегистрирован!"}
+@router.post("/signup")
+async def signup(form: UserCreate) -> UserResponse:
+    user = await get_user(form.email)
+    if not user:
+        await create_user(form)
+        return UserResponse.model_validate(user, from_attributes=True)
+    return HTTPException(400, 'Пользователь с указанным email уже существует!')

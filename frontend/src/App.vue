@@ -1,11 +1,12 @@
 <template>
-  <div id="app">
+  <Layout id="app">
     <SignUpForm />
-  </div>
+  </Layout>
 </template>
-  
+
 <script>
 import SignUpForm from './components/SignUp/SignUpForm.vue';
+import { Layout } from 'ant-design-vue';
 
 export default {
   components: {

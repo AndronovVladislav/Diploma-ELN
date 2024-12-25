@@ -22,14 +22,14 @@ class UserCreate(BaseModel):
 
 class UserUpdate(BaseModel):
     """
-    Схема запроса создания нового пользователя.
+    Схема запроса обновления данных существующего пользователя.
     """
     username: str | None = Field(description='Новое имя пользователя')
     email: EmailStr | None = Field(description='Новая электронная почта пользователя')
     password: str | None = Field(description='Новый пароль пользователя')
 
 
-class UserResponse(UserCreate):
+class UserResponse(BaseModel):
     """
     Схема ответа с данными пользователя клиенту.
     """

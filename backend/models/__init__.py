@@ -50,4 +50,4 @@ async_session_factory = async_sessionmaker(engine)
 
 async def setup_db() -> None:
     async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all(engine))
+        await conn.run_sync(Base.metadata.create_all)
