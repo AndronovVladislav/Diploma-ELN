@@ -167,6 +167,7 @@ poetry.lock
 # Stuff
 .vscode
 sandbox
+certs
 
 # JS
 node_modules

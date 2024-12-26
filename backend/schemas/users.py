@@ -9,7 +9,7 @@ class Role(Enum):
     SCIENTIST = 'scientist'
 
 
-class UserCreate(BaseModel):
+class UserSignup(BaseModel):
     """
     Схема запроса создания нового пользователя.
     """
@@ -17,6 +17,14 @@ class UserCreate(BaseModel):
     surname: str = Field(description='Фамилия')
     email: EmailStr = Field(description='Электронная почта')
     role: Role = Field(description='Роль')
+    password: str = Field(description='Пароль пользователя')
+
+
+class UserLogin(BaseModel):
+    """
+    Схема запроса входа существующего пользователя.
+    """
+    email: EmailStr = Field(description='Электронная почта')
     password: str = Field(description='Пароль пользователя')
 
 

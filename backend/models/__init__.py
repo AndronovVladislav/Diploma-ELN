@@ -4,7 +4,7 @@ from typing import Annotated
 
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
-from sqlalchemy.orm import DeclarativeBase, mapped_column
+from sqlalchemy.orm import DeclarativeBase, declared_attr, mapped_column
 
 from config import settings
 
@@ -25,6 +25,8 @@ UpdatableNow = Annotated[
 
 
 class Base(DeclarativeBase):
+    id: Id
+
     repr_cols_num = 3
     repr_cols = tuple()
 
@@ -39,6 +41,11 @@ class Base(DeclarativeBase):
                 cols.append(f"{col}={getattr(self, col)}")
 
         return f"<{self.__class__.__name__} {', '.join(cols)}>"
+
+    # @declared_attr.directive
+    def __tablename__(cls) -> str:
+        return f"{cls.__name__.lower()}s"
+
 
 
 engine = create_async_engine(

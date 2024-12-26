@@ -1,8 +1,9 @@
+from datetime import datetime
 from enum import Enum
 
 from sqlalchemy.orm import Mapped
 
-from models import Base, Id, NonUpdatableNow
+from models import Base, NonUpdatableNow
 
 
 class Role(Enum):
@@ -12,11 +13,10 @@ class Role(Enum):
 
 
 class User(Base):
-    __tablename__ = 'users'
-
-    id: Mapped[Id]
     name: Mapped[str]
     surname: Mapped[str]
     hashed_password: Mapped[str]
-    registrated_at: Mapped[NonUpdatableNow]
+    registered_at: Mapped[NonUpdatableNow]
     role: Mapped[Role]
+
+    session_expires_at: Mapped[datetime]
