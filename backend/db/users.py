@@ -18,5 +18,3 @@ class User(Base):
     hashed_password: Mapped[str]
     registered_at: Mapped[NonUpdatableNow]
     role: Mapped[Role]
-
-    session_expires_at: Mapped[datetime]

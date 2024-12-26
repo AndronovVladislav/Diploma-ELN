@@ -34,8 +34,8 @@ unauthorized = HTTPException(
 
 
 @router.post("/login")
-async def login(credentials: UserLogin) -> bool:
-    user = await get_user(credentials.email)  # how to provide email?
+async def login(credentials: UserLogin) -> dict:
+    user = await get_user(credentials.email)
     if user is None:
         raise unauthorized
 
@@ -49,7 +49,7 @@ async def login(credentials: UserLogin) -> bool:
 
 
 @router.post("/signup")
-async def signup(form: UserSignup) -> str:
+async def signup(form: UserSignup) -> dict:
     user = await get_user(form.email)
     if not user:
         await create_user(form)
