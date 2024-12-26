@@ -17,4 +17,4 @@ RUN poetry install --without=dev --no-root
 
 COPY . .
 
-CMD ["poetry", "run", "uvicorn", "main:app"]
+CMD ["poetry", "run", "python", "main.py"]

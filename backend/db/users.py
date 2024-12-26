@@ -3,7 +3,7 @@ from enum import Enum
 
 from sqlalchemy.orm import Mapped
 
-from models import Base, NonUpdatableNow
+from db import Base, NonUpdatableNow
 
 
 class Role(Enum):
