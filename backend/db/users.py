@@ -3,7 +3,7 @@ from enum import Enum
 
 from sqlalchemy.orm import Mapped
 
-from models import Base, NonUpdatableNow
+from db import Base, NonUpdatableNow
 
 
 class Role(Enum):
@@ -18,5 +18,3 @@ class User(Base):
     hashed_password: Mapped[str]
     registered_at: Mapped[NonUpdatableNow]
     role: Mapped[Role]
-
-    session_expires_at: Mapped[datetime]
