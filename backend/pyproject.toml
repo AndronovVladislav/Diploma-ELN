@@ -19,6 +19,8 @@ greenlet = "^3.1.1"
 pydantic = {extras = ["email"], version = "^2.10.4"}
 bcrypt = "^4.2.1"
 pyjwt = "^2.10.1"
+alembic = "^1.14.0"
+psycopg2-binary = "^2.9.10"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.4"
@@ -35,6 +37,6 @@ line_length = 120
 multi_line_output = 3
 include_trailing_comma = true
 known_first_party = ["backend"]
-known_third_party = ["fastapi", "pydantic", "sqlalchemy"]
+known_third_party = ["fastapi", "pydantic", "sqlalchemy", "alembic", "pyjwt", "bcrypt"]
 sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
 default_section = "THIRDPARTY"
