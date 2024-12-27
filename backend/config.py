@@ -1,11 +1,10 @@
 import os
-from functools import cached_property
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, cast
 
-from pydantic import Field
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import Field, computed_field
 from pydantic.types import SecretStr
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 def get_env_file() -> str:
@@ -31,9 +30,15 @@ class DBSettings(ConfigBase):
     password: SecretStr
     name: Annotated[str, "Name of database"]
 
-    @cached_property
-    def url(self):
-        return f'postgresql+asyncpg://{self.user}:{self.password.get_secret_value()}@{self.host}:{self.port}/{self.name}'
+    @computed_field
+    def url(self) -> str:
+        prefix = 'postgresql+asyncpg'
+        return f'{prefix}://{self.user}:{self.password.get_secret_value()}@{self.host}:{self.port}/{self.name}'
+
+    @computed_field
+    def migrations_url(self) -> str:
+        prefix = 'postgresql+psycopg2'
+        return f'{prefix}://{self.user}:{self.password.get_secret_value()}@{self.host}:{self.port}/{self.name}'
 
     model_config = SettingsConfigDict(env_prefix='db_')
 

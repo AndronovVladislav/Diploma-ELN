@@ -43,8 +43,9 @@ class Base(DeclarativeBase):
         return f"<{self.__class__.__name__} {', '.join(cols)}>"
 
     @declared_attr.directive
+    @classmethod
     def __tablename__(cls) -> str:
-        return f"{cls.__name__.lower()}s"
+        return f'{cls.__name__.lower()}s'
 
 
 
