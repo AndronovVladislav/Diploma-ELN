@@ -19,6 +19,9 @@ class UserSignup(BaseModel):
     role: Role = Field(description='Роль')
     password: str = Field(description='Пароль пользователя')
 
+    class Config:
+        use_enum_values = True
+
 
 class UserLogin(BaseModel):
     """
