@@ -12,9 +12,7 @@ from db.users import User
 
 
 def hash_password(password: str) -> str:
-    salt = bcrypt.gensalt()
-    pwd_bytes: bytes = password.encode()
-    return bcrypt.hashpw(pwd_bytes, salt)
+    return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
 
 def validate_password(password: str, hashed_password: bytes) -> bool:
@@ -53,13 +51,14 @@ def decode_jwt(token: str | bytes,
 async def get_user(email: str) -> User | None:
     async with async_session_factory() as session:
         q = select(User).filter_by(email=email)
-        return (await session.execute(q)).one_or_none()
+        if user := (await session.execute(q)).scalar_one_or_none():
+            return user
 
 
 async def create_user(signup_form: UserSignup) -> User:
     async with async_session_factory() as session:
-        data = {**signup_form, 'hashed_password': hash_password(signup_form.password)}
+        data = {**signup_form.model_dump(exclude=['password']), 'hashed_password': hash_password(signup_form.password)}
         user = User(**data)
         session.add(user)
-        session.commit()
+        await session.commit()
         return user

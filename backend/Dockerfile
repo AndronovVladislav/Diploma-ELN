@@ -17,4 +17,6 @@ RUN poetry install --without=dev --no-root
 
 COPY . .
 
+ENV ENV_TYPE=stable
+
 CMD ["poetry", "run", "python", "main.py"]
