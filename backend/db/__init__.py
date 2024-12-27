@@ -4,7 +4,7 @@ from typing import Annotated
 
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
-from sqlalchemy.orm import DeclarativeBase, declared_attr, mapped_column, Mapped
+from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr, mapped_column
 
 from config import settings
 
