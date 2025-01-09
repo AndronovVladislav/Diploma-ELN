@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 import uvicorn
 from fastapi import FastAPI
 
-from config import settings
+from backend.config import settings
 from backend.db.utils import db_helper
 from backend.auth.auth import router as auth_router
 

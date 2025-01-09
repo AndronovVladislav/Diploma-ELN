@@ -3,12 +3,14 @@ from datetime import datetime, timedelta, timezone
 
 import bcrypt
 import jwt
+from fastapi import Depends
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth.models import UserSignup
 from config import settings
-from db import async_session_factory
 from db.users import User
+from db.utils import get_session
 
 
 def hash_password(password: str) -> str:
@@ -48,17 +50,15 @@ def decode_jwt(token: str | bytes,
     return decoded
 
 
-async def get_user(email: str) -> User | None:
-    async with async_session_factory() as session:
-        q = select(User).filter_by(email=email)
-        if user := (await session.execute(q)).scalar_one_or_none():
-            return user
-
-
-async def create_user(signup_form: UserSignup) -> User:
-    async with async_session_factory() as session:
-        data = {**signup_form.model_dump(exclude=['password']), 'hashed_password': hash_password(signup_form.password)}
-        user = User(**data)
-        session.add(user)
-        await session.commit()
+async def get_user(email: str, session: AsyncSession = Depends(get_session)) -> User | None:
+    q = select(User).filter_by(email=email)
+    if user := (await session.execute(q)).scalar_one_or_none():
         return user
+
+
+async def create_user(signup_form: UserSignup, session: AsyncSession = Depends(get_session)) -> User:
+    data = {**signup_form.model_dump(exclude=['password']), 'hashed_password': hash_password(signup_form.password)}
+    user = User(**data)
+    session.add(user)
+    await session.commit()
+    return user

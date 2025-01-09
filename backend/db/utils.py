@@ -3,6 +3,7 @@ from typing import AsyncGenerator
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
+
 from backend.config import settings
 from backend.db.base import Base
 

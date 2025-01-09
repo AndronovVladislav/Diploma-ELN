@@ -3,6 +3,8 @@ from enum import StrEnum
 from sqlalchemy.orm import Mapped
 
 from backend.db.base import Base, NonUpdatableNow
+from db.base import Base, NonUpdatableNow
+
 
 
 class Role(StrEnum):
