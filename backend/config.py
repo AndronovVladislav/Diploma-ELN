@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-from typing import Annotated, cast
 
 from pydantic import Field, computed_field
 from pydantic.types import SecretStr
@@ -23,24 +22,32 @@ class ConfigBase(BaseSettings):
     model_config = SettingsConfigDict(env_file=ENV_FILE, env_file_encoding='utf-8', extra='ignore')
 
 
-class DBSettings(ConfigBase):
+class UvicornSettings(ConfigBase):
+    host: str = '0.0.0.0'
+    port: int = 8000
+    workers: int = 1
+    timeout: int = 900
+
+    model_config = SettingsConfigDict(env_prefix='uvi_')
+
+
+class PostgresSettings(ConfigBase):
     host: str
     port: int
     user: str
     password: SecretStr
-    name: Annotated[str, "Name of database"]
+    db: str
+    echo: bool = True
+    echo_pool: bool = True
+    pool_size: int = 5
+    max_overflow: int = 10
 
     @computed_field
     def url(self) -> str:
         prefix = 'postgresql+asyncpg'
-        return f'{prefix}://{self.user}:{self.password.get_secret_value()}@{self.host}:{self.port}/{self.name}'
+        return f'{prefix}://{self.user}:{self.password.get_secret_value()}@{self.host}:{self.port}/{self.db}'
 
-    @computed_field
-    def migrations_url(self) -> str:
-        prefix = 'postgresql+psycopg2'
-        return f'{prefix}://{self.user}:{self.password.get_secret_value()}@{self.host}:{self.port}/{self.name}'
-
-    model_config = SettingsConfigDict(env_prefix='db_')
+    model_config = SettingsConfigDict(env_prefix='pg_')
 
 
 class AuthJWTSettings(ConfigBase):
@@ -54,9 +61,9 @@ class AuthJWTSettings(ConfigBase):
 
 
 class Settings(ConfigBase):
-    DEBUG: bool
-    db: DBSettings = Field(default_factory=DBSettings)
+    db: PostgresSettings = Field(default_factory=PostgresSettings)
     jwt: AuthJWTSettings = Field(default_factory=AuthJWTSettings)
+    uvicorn: UvicornSettings = Field(default_factory=UvicornSettings)
 
 
 settings = Settings()

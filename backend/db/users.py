@@ -2,7 +2,7 @@ from enum import StrEnum
 
 from sqlalchemy.orm import Mapped
 
-from db import Base, NonUpdatableNow
+from backend.db.base import Base, NonUpdatableNow
 
 
 class Role(StrEnum):
