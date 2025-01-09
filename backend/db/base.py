@@ -29,7 +29,8 @@ class Base(DeclarativeBase):
 
     def __repr__(self):
         """
-        Relationships не используются в repr(), т.к. могут вести к дополнительным неожиданным подгрузкам"""
+        Relationships не используются в repr(), так как могут вести к дополнительным неожиданным запросам.
+        """
         cols = []
         for i, col in enumerate(self.__table__.columns.keys()):
             if col in self.repr_cols or i < self.repr_cols_num:
@@ -37,7 +38,7 @@ class Base(DeclarativeBase):
 
         return f"<{self.__class__.__name__} {', '.join(cols)}>"
 
-    @declared_attr.directive
     @classmethod
+    @declared_attr.directive
     def __tablename__(cls) -> str:
         return f'{cls.__name__.lower()}s'

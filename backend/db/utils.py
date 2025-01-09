@@ -3,19 +3,19 @@ from typing import AsyncGenerator
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from config import settings
-from db.base import Base
+
+from backend.config import settings
+from backend.db.base import Base
 
 
 class DatabaseHelper:
-    def __init__(
-        self,
-        url: str,
-        echo: bool = False,
-        echo_pool: bool = False,
-        pool_size: int = 5,
-        max_overflow: int = 10,
-    ) -> None:
+    def __init__(self,
+                 url: str,
+                 echo: bool,
+                 echo_pool: bool,
+                 pool_size: int,
+                 max_overflow: int,
+                 ):
         self.engine = create_async_engine(
             url=url,
             echo=echo,

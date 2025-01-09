@@ -3,8 +3,9 @@ from contextlib import asynccontextmanager
 import uvicorn
 from fastapi import FastAPI
 
-from auth.auth import router as auth_router
-from db.utils import db_helper
+from backend.config import settings
+from backend.db.utils import db_helper
+from backend.auth.auth import router as auth_router
 
 
 @asynccontextmanager
@@ -19,4 +20,9 @@ app.include_router(auth_router)
 
 
 if __name__ == '__main__':
-    uvicorn.run(app)
+    uvicorn.run(app,
+                host=settings.uvicorn.host,
+                port=settings.uvicorn.port,
+                workers=settings.uvicorn.workers,
+                timeout_keep_alive=settings.uvicorn.timeout,
+                )

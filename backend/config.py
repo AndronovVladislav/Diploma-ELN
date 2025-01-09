@@ -31,26 +31,16 @@ class UvicornSettings(ConfigBase):
     model_config = SettingsConfigDict(env_prefix='uvi_')
 
 
-class Neo4jSettings(ConfigBase):
-    host: str
-    port: int
-    user: str
-    password: SecretStr
-    db: str
-
-    model_config = SettingsConfigDict(env_prefix='neo4j')
-
-
 class PostgresSettings(ConfigBase):
     host: str
     port: int
     user: str
     password: SecretStr
     db: str
-    echo: bool | None = None
-    echo_pool: bool | None = None
-    pool_size: int | None = None
-    max_overflow: int | None = None
+    echo: bool = True
+    echo_pool: bool = True
+    pool_size: int = 5
+    max_overflow: int = 10
 
     @computed_field
     def url(self) -> str:
@@ -71,10 +61,9 @@ class AuthJWTSettings(ConfigBase):
 
 
 class Settings(ConfigBase):
-    DEBUG: bool
     db: PostgresSettings = Field(default_factory=PostgresSettings)
     jwt: AuthJWTSettings = Field(default_factory=AuthJWTSettings)
-    neo4j: Neo4jSettings = Field(default_factory=Neo4jSettings)
+    uvicorn: UvicornSettings = Field(default_factory=UvicornSettings)
 
 
 settings = Settings()
