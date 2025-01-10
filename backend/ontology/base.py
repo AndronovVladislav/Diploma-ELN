@@ -25,7 +25,7 @@ class Neo4jHelper:
                 yield session
             except Exception as e:
                 # TODO: поменять на logging
-                print(f'Query failed: {e}') 
+                print(f'Query failed: {e}')
             finally:
                 if session is not None:
                     await session.close()

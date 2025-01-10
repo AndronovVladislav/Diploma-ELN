@@ -5,7 +5,7 @@ from pydantic import BaseModel, BeforeValidator, Field
 ENG_LANGTAG = '@en'
 
 
-def select_only_english_version(v) -> str:
+def select_only_english_version(v) -> str | None:
     """
     Выбирает из списка одинаковых строк на разных языках только англоязычную версию, используйте с умом.
     """
@@ -13,11 +13,13 @@ def select_only_english_version(v) -> str:
         for elem in v:
             if isinstance(elem, str) and elem.endswith(ENG_LANGTAG):
                 return elem
+    return
 
 
 def select_only_first(v) -> Any:
     if isinstance(v, list) and len(v) > 0:
         return v[0]
+    return
 
 
 SelectOnlyEnglishVersion = BeforeValidator(select_only_english_version)

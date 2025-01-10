@@ -29,14 +29,3 @@ async def import_experiment(data: ExperimentDescription, session: AsyncSession) 
     df.columns.remove(pk)
     df.columns.insert(0, pk)
     return result
-
-
-async def main() -> None:
-    with open('/Users/v-andronov/PycharmProjects/Tests/dataset.json', 'r') as file:
-        async with neo4j_helper.get_session('neo4j') as session:
-            # print(await import_experiment(ExperimentDescription(**json.load(file)), session))
-            await import_experiment(ExperimentDescription(**json.load(file)), session)
-
-
-if __name__ == '__main__':
-    asyncio.run(main())
