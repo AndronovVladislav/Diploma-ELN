@@ -1,38 +1,31 @@
-import copy
-from types import GenericAlias
+import asyncio
+import json
 
 from neo4j import AsyncSession
-from polars import DataFrame
+from polars import DataFrame, col
+from pydantic import BaseModel
 
-from ontology.base import ExperimentDescription
-from ontology.om2.queries import get_all_units
-
-
-def _get_schema(objects: list[dict]) -> dict[str, GenericAlias]:
-    scheme = {}
-    for obj in objects:
-        for k, v in obj.items():
-            if isinstance(v, list):
-                scheme[k] = type(v)[type(v[0])]
-            elif k not in scheme:
-                scheme[k] = type(v)
-    return scheme
+from backend.ontology.base import neo4j_helper
+from backend.ontology.models import ExperimentDescription
+from backend.ontology.om2.queries import DIMENSION_KEY, get_all_units
 
 
-def _convert_to_schema(objects: list[dict], schema: dict[str, GenericAlias]) -> list[dict]:
-    result = copy.deepcopy(objects)
-    for obj in result:
-        for k, v in obj.items():
-            if type(schema[k]) is GenericAlias and schema[k].__origin__ is list and not isinstance(v, list):
-                obj[k] = [v]
-    return result
+class ColumnDescriptionDTO(BaseModel):
+    uri: str
+    dimension: str
 
 
-async def import_experiment(data: ExperimentDescription, session: AsyncSession) -> dict:
-    units = [_get_only_english_versions(unit) for unit in await get_all_units(session)]
-    schema = _get_schema(data.body)
-    headers = DataFrame(_convert_to_schema(data.headers.ontological_description.columns))
-    
+async def import_experiment(data: ExperimentDescription, session: AsyncSession) -> dict[str, ColumnDescriptionDTO]:
+    units = await get_all_units(session)
+    result: dict[str, ColumnDescriptionDTO] = {}
+
+    for column, props in data.headers.ontological_description.columns.items():
+        filter_col = 'label' if props.key.endswith('@en') else 'symbol'
+        unit_spec = units.filter(col(filter_col) == props.key).to_dict()
+        result[column] = ColumnDescriptionDTO(uri=unit_spec['uri'][0], dimension=unit_spec[DIMENSION_KEY][0])
+
+    pk = data.headers.ontological_description.primary_key
     df = DataFrame(data.body)
-    # TODO: convert df to narrow form
-    # df.write_database()
+    df.columns.remove(pk)
+    df.columns.insert(0, pk)
+    return result

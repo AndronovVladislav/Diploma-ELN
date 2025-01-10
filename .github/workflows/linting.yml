@@ -19,11 +19,18 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
+    - name: Set env
+      run: |
+        echo "PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
+
     - name: Install dependencies
+      working-directory: ./backend
       run: |
         curl -sSL https://install.python-poetry.org | python${{ matrix.python-version }} -
-        PATH="$HOME/.local/bin:$PATH" poetry -C backend add pylint
+        poetry install
+        poetry add pylint
 
     - name: Analysing the code with pylint
+      working-directory: ./backend
       run: |
-        PATH="$HOME/.local/bin:$PATH" poetry -C backend run pylint $(git ls-files '*.py')
+        poetry run pylint $(git ls-files '*.py')

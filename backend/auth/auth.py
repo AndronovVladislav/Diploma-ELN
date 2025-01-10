@@ -4,8 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import HTMLResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
-from auth.models import UserLogin, UserResponse, UserSignup
-from auth.utils import create_user, get_user, validate_password
+from backend.auth.models import UserLogin, UserResponse, UserSignup
+from backend.auth.utils import create_user, get_user, validate_password
 
 router = APIRouter(prefix='/auth', tags=['Auth'])
 
@@ -50,4 +50,4 @@ async def signup(form: UserSignup) -> dict:
     if not user:
         await create_user(form)
         return {'message': 'Новый пользователь успешно зарегистрирован!'}
-    return HTTPException(status.HTTP_409_CONFLICT, 'Пользователь с указанным email уже существует!')
+    raise HTTPException(status.HTTP_409_CONFLICT, 'Пользователь с указанным email уже существует!')
