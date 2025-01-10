@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 from pathlib import Path
 
 from pydantic import Field, computed_field
@@ -49,6 +50,19 @@ class PostgresSettings(ConfigBase):
 
     model_config = SettingsConfigDict(env_prefix='pg_')
 
+class Neo4jSettings(ConfigBase):
+    host: str
+    port: int
+    user: str
+    password: SecretStr
+    db: str
+
+    model_config = SettingsConfigDict(env_prefix='neo4j_')
+
+    @cached_property
+    def uri(self) -> str:
+        return f'neo4j://{self.host}:{self.port}'
+
 
 class AuthJWTSettings(ConfigBase):
     algorithm: str = 'RS256'
@@ -63,6 +77,7 @@ class AuthJWTSettings(ConfigBase):
 class Settings(ConfigBase):
     db: PostgresSettings = Field(default_factory=PostgresSettings)
     jwt: AuthJWTSettings = Field(default_factory=AuthJWTSettings)
+    neo4j: Neo4jSettings = Field(default_factory=Neo4jSettings)
     uvicorn: UvicornSettings = Field(default_factory=UvicornSettings)
 
 

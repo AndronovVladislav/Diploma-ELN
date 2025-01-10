@@ -7,10 +7,10 @@ from fastapi import Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from auth.models import UserSignup
-from config import settings
-from db.users import User
-from db.utils import get_session
+from backend.auth.models import UserSignup
+from backend.config import settings
+from backend.db.users import User
+from backend.db.utils import get_session
 
 
 def hash_password(password: str) -> str:

@@ -1,52 +1,46 @@
-from typing import Annotated
+from typing import Annotated, Any
 
-from pydantic import BaseModel, BeforeValidator, ConfigDict, Field, field_validator, with_config
-from pydantic.alias_generators import to_snake
+from pydantic import BaseModel, BeforeValidator, Field
+
+ENG_LANGTAG = '@en'
 
 
-def select_only_english_version(texts) -> str | None:
+def select_only_english_version(v) -> str:
     """
     Выбирает из списка одинаковых строк на разных языках только англоязычную версию, используйте с умом.
     """
-    if texts is None:
-        return
-    elif isinstance(texts, list):
-        for string in texts:
-            if string.endswith('@en'):
-                return string
+    if isinstance(v, list):
+        for elem in v:
+            if isinstance(elem, str) and elem.endswith(ENG_LANGTAG):
+                return elem
 
 
-OnlyEnglishValidator = BeforeValidator(select_only_english_version)
+def select_only_first(v) -> Any:
+    if isinstance(v, list) and len(v) > 0:
+        return v[0]
 
 
-@with_config(ConfigDict(alias_generator=to_snake))
+SelectOnlyEnglishVersion = BeforeValidator(select_only_english_version)
+SelectOnlyFirst = BeforeValidator(select_only_first)
+
+
 class Unit(BaseModel):
-    comment: Annotated[str | None, OnlyEnglishValidator] = None
+    comment: Annotated[str | None, SelectOnlyEnglishVersion, Field(None)]
     uri: str
 
-    symbol: str | None = None
+    symbol: Annotated[str | None, SelectOnlyFirst, Field(None)]
     alternative_symbol: list[str] | None = Field(None, alias='alternativeSymbol')
 
-    label: Annotated[str | None, OnlyEnglishValidator] = None
-    alternative_label: Annotated[str | None, OnlyEnglishValidator] = Field(None, alias='alternativeLabel')
+    label: Annotated[str | None, SelectOnlyEnglishVersion, Field(None)]
+    alternative_label: Annotated[str | None, SelectOnlyEnglishVersion, Field(None, alias='alternativeLabel')]
 
-    laTeXCommand: Annotated[str | None, OnlyEnglishValidator] = Field(None, alias='latex_command')
-    longcomment: Annotated[str | None, OnlyEnglishValidator] = None
-    unofficialAbbreviation: list[str] | None = Field(None, alias='unofficial_abbreviation')
+    latex_command: Annotated[str | None, SelectOnlyFirst, Field(None, alias='laTeXCommand')]
+    long_comment: Annotated[str | None, SelectOnlyEnglishVersion, Field(None, alias='longcomment')]
+    unofficial_abbreviation: list[str] | None = Field(None, alias='unofficialAbbreviation')
 
-    hasFactor: float | None = Field(None, alias='has_factor')
-    hasExponent: float | None = Field(None, alias='has_exponent')
+    has_factor: Annotated[float | None, SelectOnlyFirst, Field(None, alias='hasFactor')]
+    has_exponent: Annotated[float | None, SelectOnlyFirst, Field(None, alias='hasExponent')]
 
-    @field_validator('symbol', mode='before')
-    def select_only_first(cls, v) -> str | None:
-        if isinstance(v, list):
-            return v[0]
-        elif isinstance(v, (str, None)):
-            return v
 
-    @field_validator('label', mode='before')
-    def select_only_english_version(cls, v) -> str:
-        if isinstance(v, list):
-            for string in v:
-                if string.endswith('@en'):
-                    return string
+class UnitWithDimension(Unit):
+    dimension: Annotated[str, SelectOnlyEnglishVersion]

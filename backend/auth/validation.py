@@ -1,12 +1,14 @@
-from api_v1.demo_auth.crud import users_db
-from api_v1.demo_auth.helpers import ACCESS_TOKEN_TYPE, REFRESH_TOKEN_TYPE, TOKEN_TYPE_FIELD
+# from api_v1.demo_auth.crud import users_db
+# from api_v1.demo_auth.helpers import ACCESS_TOKEN_TYPE, REFRESH_TOKEN_TYPE, TOKEN_TYPE_FIELD
 from fastapi import Depends, Form, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from jwt import InvalidTokenError
 from starlette import status
-from users.schemas import UserSchema
 
-from auth import utils as auth_utils
+from backend.auth import utils as auth_utils
+
+# from users.schemas import UserSchema
+
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl='/api/v1/demo-auth/jwt/login/',
@@ -41,9 +43,7 @@ def get_user_by_token_sub(payload: dict) -> UserSchema:
 
 
 def get_auth_user_from_token_of_type(token_type: str):
-    def get_auth_user_from_token(
-        payload: dict = Depends(get_current_token_payload),
-    ) -> UserSchema:
+    def get_auth_user_from_token(payload: dict = Depends(get_current_token_payload)) -> UserSchema:
         validate_token_type(payload, token_type)
         return get_user_by_token_sub(payload)
 
@@ -63,10 +63,7 @@ def get_current_active_auth_user(user: UserSchema = Depends(get_current_auth_use
     )
 
 
-def validate_auth_user(
-    username: str = Form(),
-    password: str = Form(),
-):
+def validate_auth_user(username: str = Form(), password: str = Form()):
     unauthed_exc = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail='invalid username or password',
@@ -74,10 +71,7 @@ def validate_auth_user(
     if not (user := users_db.get(username)):
         raise unauthed_exc
 
-    if not auth_utils.validate_password(
-        password=password,
-        hashed_password=user.password,
-    ):
+    if not auth_utils.validate_password(password=password, hashed_password=user.password):
         raise unauthed_exc
 
     if not user.active:

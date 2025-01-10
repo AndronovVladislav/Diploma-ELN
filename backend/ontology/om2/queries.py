@@ -1,6 +1,9 @@
-from neo4j import AsyncSession
+from pprint import pprint
 
-from ontology.om2.models import Unit
+from neo4j import AsyncSession
+from polars import DataFrame
+
+from backend.ontology.om2.models import Unit, UnitWithDimension
 
 ALL_UNIT_LABELS = (
     'CubicPrefixedMetre',
@@ -25,12 +28,19 @@ ALL_UNIT_LABELS = (
 )
 ALL_UNIT_LABELS = tuple(map(lambda x: f'`{x}`', ALL_UNIT_LABELS))
 
-RESULT_KEY = 'result'
+NODE_KEY = 'node'
+DIMENSION_KEY = 'dimension'
 
 MATCH_ALL_UNITS = f'''
-MATCH (n:{'|'.join(ALL_UNIT_LABELS)})
-RETURN n AS {RESULT_KEY};
+MATCH (n:{'|'.join(ALL_UNIT_LABELS)})-[:HASDIMENSION]->(m)
+RETURN n AS {NODE_KEY}, m.label AS {DIMENSION_KEY};
 '''
 
-async def get_all_units(session: AsyncSession) -> list[Unit]:
-    return [Unit(unit.data()[RESULT_KEY]) for unit in await session.run(MATCH_ALL_UNITS)]
+
+async def get_all_units(session: AsyncSession) -> DataFrame:
+    # pprint([UnitWithDimension.model_validate({**unit.data()[NODE_KEY], DIMENSION_KEY: unit.data()[DIMENSION_KEY]})
+    #         async for unit in await session.run(MATCH_ALL_UNITS)])
+    return DataFrame(
+        [UnitWithDimension.model_validate({**unit.data()[NODE_KEY], DIMENSION_KEY: unit.data()[DIMENSION_KEY]})
+         async for unit in await session.run(MATCH_ALL_UNITS)]
+    )
