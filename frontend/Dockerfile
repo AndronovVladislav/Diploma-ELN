@@ -1,4 +1,4 @@
-FROM node:23-alpine AS dev
+FROM node:23-alpine AS base
 
 WORKDIR /app
 
@@ -12,6 +12,6 @@ RUN npm run build
 
 FROM nginx AS stable
 
-COPY --from=dev /app/dist /etc/nginx/html/
+COPY --from=base /app/dist /etc/nginx/html/
 
 CMD ["nginx", "-g", "daemon off;"]
