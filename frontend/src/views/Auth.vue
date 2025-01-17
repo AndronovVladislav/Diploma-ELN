@@ -1,5 +1,5 @@
 <template>
-  <ConfigProvider :theme="{ token: { colorPrimary: '#ff6060' } }" />
+  <ConfigProvider :theme="{ token: { colorPrimary: '#ff6060' } }"/>
 
   <Card title="Вход или регистрация" bordered style="width: 400px; margin: 50px auto;">
     <Tabs v-model:activeKey="activeTab">
@@ -7,12 +7,12 @@
         <Form layout="vertical" @submit.prevent="handleLogin">
           <FormItem label="Электронная почта">
             <Input :value="loginForm.email" @input="loginForm.email = $event.target.value!" type="email"
-              placeholder="Введите email" />
+                   placeholder="Введите email"/>
           </FormItem>
 
           <FormItem label="Пароль">
             <InputPassword :value="loginForm.password" @input="loginForm.password = $event.target.value!"
-              placeholder="Введите пароль" />
+                           placeholder="Введите пароль"/>
           </FormItem>
 
           <FormItem>
@@ -25,17 +25,17 @@
         <Form layout="vertical" @submit.prevent="handleRegister">
           <FormItem label="Электронная почта">
             <Input :value="signupForm.email" @input="signupForm.email = $event.target.value!" type="email"
-              placeholder="Введите email" />
+                   placeholder="Введите email"/>
           </FormItem>
 
           <FormItem label="Пароль">
             <InputPassword :value="signupForm.password" @input="signupForm.password = $event.target.value!"
-              placeholder="Введите пароль" />
+                           placeholder="Введите пароль"/>
           </FormItem>
 
           <FormItem label="Подтвердите пароль">
             <InputPassword :value="signupForm.confirmPassword"
-              @input="signupForm.confirmPassword = $event.target.value!" placeholder="Повторите пароль" />
+                           @input="signupForm.confirmPassword = $event.target.value!" placeholder="Повторите пароль"/>
           </FormItem>
 
           <FormItem>
@@ -48,8 +48,19 @@
 </template>
 
 <script lang="ts" setup>
-import { Reactive, reactive, ref } from 'vue';
-import { message, FormItem, Form, Tabs, Card, TabPane, Button, Input, InputPassword, ConfigProvider } from 'ant-design-vue';
+import {Reactive, reactive, ref} from 'vue'
+import {
+  Button,
+  Card,
+  ConfigProvider,
+  Form,
+  FormItem,
+  Input,
+  InputPassword,
+  message,
+  TabPane,
+  Tabs
+} from 'ant-design-vue'
 
 interface SignupForm {
   email: string,
@@ -62,44 +73,44 @@ interface LoginForm {
   password: string,
 }
 
-const activeTab = ref('login');
+const activeTab = ref('login')
 
 const loginForm: Reactive<LoginForm> = reactive({
   email: '',
   password: '',
-});
+})
 
 const signupForm: Reactive<SignupForm> = reactive({
   email: '',
   password: '',
   confirmPassword: '',
-});
+})
 
 function handleLogin(): void {
   if (!(loginForm.email && loginForm.password)) {
-    message.error('Пожалуйста, заполните все поля для входа');
-    return;
+    message.error('Пожалуйста, заполните все поля для входа')
+    return
   }
 
-  message.success('Вход успешно выполнен!');
-  console.log('Login data:', loginForm);
-};
+  message.success('Вход успешно выполнен!')
+  console.log('Login data:', loginForm)
+}
 
 function handleRegister(): void {
   if (!(signupForm.email && signupForm.password && signupForm.confirmPassword)) {
-    message.error('Пожалуйста, заполните все поля для регистрации');
+    message.error('Пожалуйста, заполните все поля для регистрации')
     console.log(signupForm.email, signupForm.password, signupForm.confirmPassword)
-    return;
+    return
   }
 
   if (signupForm.password !== signupForm.confirmPassword) {
-    message.error('Пароли не совпадают!');
-    return;
+    message.error('Пароли не совпадают!')
+    return
   }
 
-  message.success('Регистрация успешно выполнена!');
-  console.log('Register data:', signupForm);
-};
+  message.success('Регистрация успешно выполнена!')
+  console.log('Register data:', signupForm)
+}
 </script>
 
 <style scoped>

@@ -16,14 +16,16 @@ services:
   frontend:
     build:
       context: ./frontend
-
-    depends_on:
-      - backend
+#    command: ["npm", "install", "&&", "npm", "run", "preview"]
+    restart: always
+#    depends_on:
+#      - backend
     ports:
-      # - "80:80"
+      - "80:80"
       - "443:443"
 
     volumes:
+      - .:/app
       - /app/node_modules
       - ./nginx/frontend.nginx:/etc/nginx/conf.d/default.conf
 
