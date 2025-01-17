@@ -1,5 +1,4 @@
 <template>
-  <ConfigProvider :theme="{ token: { colorPrimary: '#ff6060' } }"/>
   <ALayout style="min-height: 100vh">
     <!-- Сайдбар -->
     <ExperimentSidebar

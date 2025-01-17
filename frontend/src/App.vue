@@ -1,10 +1,14 @@
 <template>
-  <ALayout id="app">
-    <Home/>
-  </ALayout>
+  <AConfigProvider :theme="{ token: { colorPrimary: '#ff6060' } }">
+    <ALayout id="app">
+      <Home/>
+    </ALayout>
+  </AConfigProvider>
 </template>
 
 <script setup lang="ts">
+import {ConfigProvider as AConfigProvider} from 'ant-design-vue';
+
 import Home from './views/Home.vue';
 </script>
 
