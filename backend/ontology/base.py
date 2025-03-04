@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 from functools import partial
-from typing import Annotated
+from typing import Annotated, AsyncIterator
 
 from neo4j import AsyncGraphDatabase, AsyncSession
 
@@ -19,7 +19,7 @@ class Neo4jHelper:
             await self.driver.close()
 
     @asynccontextmanager
-    async def get_session(self, db: str) -> AsyncSession:
+    async def get_session(self, db: str) -> AsyncIterator[AsyncSession]:
         async with self.driver.session(database=db) as session:
             try:
                 yield session
