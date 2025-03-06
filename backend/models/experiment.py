@@ -57,34 +57,42 @@ class Schema(Base):
 class SchemaLinkedTable(Base):
     __abstract__ = True
 
+    @classmethod
     @declared_attr
     def input_schema_id(cls) -> Mapped[Id]:
         return mapped_column(ForeignKey('schemas.id'))
 
+    @classmethod
     @declared_attr
     def output_schema_id(cls) -> Mapped[Id]:
         return mapped_column(ForeignKey('schemas.id'))
 
+    @classmethod
     @declared_attr
     def parameters_schema_id(cls) -> Mapped[Id]:
         return mapped_column(ForeignKey('schemas.id'))
 
+    @classmethod
     @declared_attr
     def context_schema_id(cls) -> Mapped[Id]:
         return mapped_column(ForeignKey('schemas.id'))
 
+    @classmethod
     @declared_attr
     def input(cls) -> Mapped[Schema]:
         return relationship('Schema', foreign_keys=[cls.input_schema_id])
 
+    @classmethod
     @declared_attr
     def output(cls) -> Mapped[Schema]:
         return relationship('Schema', foreign_keys=[cls.output_schema_id])
 
+    @classmethod
     @declared_attr
     def parameters(cls) -> Mapped[Schema]:
         return relationship('Schema', foreign_keys=[cls.parameters_schema_id])
 
+    @classmethod
     @declared_attr
     def context(cls) -> Mapped[Schema]:
         return relationship('Schema', foreign_keys=[cls.context_schema_id])
