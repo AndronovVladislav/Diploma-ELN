@@ -24,10 +24,10 @@ class ConfigBase(BaseSettings):
 
 
 class UvicornSettings(ConfigBase):
-    host: str = '0.0.0.0'
-    port: int = 8000
-    workers: int = 1
-    timeout: int = 900
+    host: str
+    port: int
+    workers: int
+    timeout: int
 
     model_config = SettingsConfigDict(env_prefix='uvi_')
 
@@ -38,10 +38,10 @@ class PostgresSettings(ConfigBase):
     user: str
     password: SecretStr
     db: str
-    echo: bool = True
-    echo_pool: bool = True
-    pool_size: int = 5
-    max_overflow: int = 10
+    echo: bool
+    echo_pool: bool
+    pool_size: int
+    max_overflow: int
 
     @computed_field
     def url(self) -> str:
@@ -65,11 +65,11 @@ class Neo4jSettings(ConfigBase):
 
 
 class AuthJWTSettings(ConfigBase):
-    algorithm: str = 'RS256'
-    access_token_expire_minutes: int = 15
-    private_key_path: Path = BASE_DIR / 'certs' / 'jwt-private.pem'
-    public_key_path: Path = BASE_DIR / 'certs' / 'jwt-public.pem'
-    refresh_token_expire_days: int = 7
+    algorithm: str
+    access_token_expire_minutes: int
+    private_key_path: Path
+    public_key_path: Path
+    refresh_token_expire_days: int
 
     model_config = SettingsConfigDict(env_prefix='jwt_')
 

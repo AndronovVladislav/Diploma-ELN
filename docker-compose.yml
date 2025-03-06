@@ -8,10 +8,8 @@ services:
     depends_on:
       - db
       - neo4j
-#   expose:
-      # - 8000
-    ports:
-      - "8000:8000"
+    expose:
+      - 8000
 
   frontend:
     build:
@@ -40,6 +38,13 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data
 
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${PG_USER} -d ${PG_DB}" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
   backend-nginx:
     image: nginx:latest
     volumes:
@@ -59,18 +64,15 @@ services:
       NEO4J_server_memory_heap_initial__size: 512M
       NEO4J_server_memory_heap_max__size: 1G
       NEO4J_ACCEPT_LICENSE_AGREEMENT: 'yes'
-#    expose:
-#      - "7687"
-    ports:
-      - "7474:7474"
-      - "7687:7687"
+    expose:
+      - "7687"
     volumes:
       - neo4j_data:/data
       - neo4j_logs:/logs
       - neo4j_import:/import
       - neo4j_plugins:/plugins
     healthcheck:
-      test: ["CMD-SHELL", "curl -fs http://localhost:7474 || exit 1"]
+      test: [ "CMD-SHELL", "curl -fs http://localhost:7474 || exit 1" ]
       interval: 30s
       timeout: 10s
       retries: 5
