@@ -1,10 +1,7 @@
-from typing import AsyncGenerator
-
-from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from backend.config import settings
-from backend.db.base import Base
+from backend.models.base import Base
 
 
 class DatabaseHelper:
@@ -36,11 +33,6 @@ class DatabaseHelper:
     async def dispose(self) -> None:
         await self.engine.dispose()
 
-    async def get_session(self) -> AsyncGenerator[AsyncSession, None]:
-        async with self.session_factory() as session:
-            yield session
-            await session.commit()
-
 
 db_helper = DatabaseHelper(
     url=settings.db.url,
@@ -49,4 +41,16 @@ db_helper = DatabaseHelper(
     pool_size=settings.db.pool_size,
     max_overflow=settings.db.max_overflow,
 )
-get_session = Depends(db_helper.get_session)
+
+def connection(method):
+    async def wrapper(*args, **kwargs):
+        async with db_helper.session_factory() as session:
+            try:
+                return await method(*args, session=session, **kwargs)
+            except Exception as e:
+                await session.rollback()
+                raise e
+            finally:
+                await session.close()
+
+    return wrapper

@@ -1,7 +1,7 @@
 from neo4j import AsyncSession
 from polars import DataFrame
 
-from backend.ontology.om2.models import UnitWithDimension
+from backend.models.ontology.om2.models import UnitWithDimension
 
 ALL_UNIT_LABELS = (
     'CubicPrefixedMetre',

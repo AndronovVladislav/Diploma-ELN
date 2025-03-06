@@ -1,11 +1,10 @@
 import datetime
+import re
 from functools import partial
 from typing import Annotated
 
 from sqlalchemy import text
-from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr, mapped_column
-
-# from models.users import User  # noqa
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 Id = Annotated[int, mapped_column(primary_key=True)]
 NonUpdatableNow = Annotated[
@@ -22,6 +21,8 @@ UpdatableNow = Annotated[
 
 
 class Base(DeclarativeBase):
+    __abstract__ = True
+
     id: Mapped[Id]
 
     repr_cols_num = 3
@@ -38,7 +39,9 @@ class Base(DeclarativeBase):
 
         return f"<{self.__class__.__name__} {', '.join(cols)}>"
 
-    @classmethod
-    @declared_attr.directive
-    def __tablename__(cls) -> str:
-        return f'{cls.__name__.lower()}s'
+    def __init_subclass__(cls, **kwargs):
+        # Если класс не определяет __tablename__ явно,
+        # вычисляем его из имени класса (CamelCase -> snake_case + 's')
+        if '__tablename__' not in cls.__dict__:
+            cls.__tablename__ = f"{re.sub(r'(.)([A-Z][a-z]+)', r'\\1_\\2', cls.__name__).lower()}s"
+        super().__init_subclass__(**kwargs)

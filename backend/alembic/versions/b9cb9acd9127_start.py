@@ -26,7 +26,7 @@ def upgrade() -> None:
                     sa.Column('hashed_password', sa.String(), nullable=False),
                     sa.Column('registered_at', sa.DateTime(), server_default=sa.text("TIMEZONE('utc', now())"),
                               nullable=False),
-                    sa.Column('role', sa.Enum('ADMIN', 'ANALYST', 'SCIENTIST', name='role'), nullable=False),
+                    sa.Column('role', sa.Enum('ADMIN', 'RESEARCHER', name='role'), nullable=False),
                     sa.Column('id', sa.Integer(), nullable=False),
                     sa.PrimaryKeyConstraint('id')
                     )

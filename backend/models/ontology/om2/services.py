@@ -1,13 +1,9 @@
-import asyncio
-import json
-
 from neo4j import AsyncSession
 from polars import DataFrame, col
 from pydantic import BaseModel
 
-from backend.ontology.base import neo4j_helper
-from backend.ontology.models import ExperimentDescription
-from backend.ontology.om2.queries import DIMENSION_KEY, get_all_units
+from backend.models.ontology.models import ExperimentDescription
+from backend.models.ontology.om2.queries import DIMENSION_KEY, get_all_units
 
 
 class ColumnDescriptionDTO(BaseModel):
