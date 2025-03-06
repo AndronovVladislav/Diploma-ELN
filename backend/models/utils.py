@@ -1,7 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from backend.config import settings
-from backend.models.base import Base
 
 
 class DatabaseHelper:
@@ -26,10 +25,6 @@ class DatabaseHelper:
             expire_on_commit=False,
         )
 
-    async def setup(self) -> None:
-        async with self.engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
-
     async def dispose(self) -> None:
         await self.engine.dispose()
 
@@ -41,6 +36,7 @@ db_helper = DatabaseHelper(
     pool_size=settings.db.pool_size,
     max_overflow=settings.db.max_overflow,
 )
+
 
 def connection(method):
     async def wrapper(*args, **kwargs):

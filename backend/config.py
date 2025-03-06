@@ -28,7 +28,6 @@ class UvicornSettings(ConfigBase):
     port: int
     workers: int
     timeout: int
-    reload: bool
 
     model_config = SettingsConfigDict(env_prefix='uvi_')
 

@@ -3,8 +3,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.models import User
 from backend.models.utils import connection
-from backend.routes.auth.utils import get_user_by_username, hash_password, validate_password, create_access_token, \
-    create_refresh_token
+from backend.routes.auth.utils import (
+    get_user_by_username,
+    hash_password,
+    validate_password,
+    create_access_token,
+    create_refresh_token,
+)
 from backend.schemas.auth import UserSignup, UserLogin
 
 

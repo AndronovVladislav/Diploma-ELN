@@ -14,7 +14,7 @@ router = APIRouter(prefix='/auth', tags=['Auth'])
 
 
 @router.post('/signup')
-async def signup(user_data: UserSignup):
+async def signup(user_data: UserSignup) -> dict:
     """
     Регистрация нового пользователя.
     """
@@ -41,7 +41,7 @@ async def refresh_token(refresh_payload: dict = Depends(get_current_refresh_payl
 
 
 @router.get('/me')
-async def get_profile(current_user: User = Depends(get_current_auth_user)):
+async def get_profile(current_user: User = Depends(get_current_auth_user)) -> dict:
     """
     Пример защищённого эндпоинта, где требуется access-токен.
     """

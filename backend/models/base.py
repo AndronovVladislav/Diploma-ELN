@@ -40,8 +40,6 @@ class Base(DeclarativeBase):
         return f"<{self.__class__.__name__} {', '.join(cols)}>"
 
     def __init_subclass__(cls, **kwargs):
-        # Если класс не определяет __tablename__ явно,
-        # вычисляем его из имени класса (CamelCase -> snake_case + 's')
         if '__tablename__' not in cls.__dict__:
             cls.__tablename__ = f"{re.sub(r'(.)([A-Z][a-z]+)', r'\\1_\\2', cls.__name__).lower()}s"
         super().__init_subclass__(**kwargs)

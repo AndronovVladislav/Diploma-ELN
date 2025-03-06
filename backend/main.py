@@ -11,7 +11,6 @@ from backend.routes.experiments import router as experiments_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):  # pylint: disable=W0621,W0613
-    # await db_helper.setup()
     yield
     await db_helper.dispose()
 
@@ -26,5 +25,4 @@ if __name__ == '__main__':
                 port=settings.uvicorn.port,
                 workers=settings.uvicorn.workers,
                 timeout_keep_alive=settings.uvicorn.timeout,
-                reload=settings.uvicorn.reload,
                 )

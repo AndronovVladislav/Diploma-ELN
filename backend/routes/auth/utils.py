@@ -105,7 +105,7 @@ def create_refresh_token(subject: str, additional_claims: dict | None = None) ->
 @connection
 async def get_user_by_username(username: str, session: AsyncSession) -> User | None:
     """
-    Ищем пользователя по username в БД.
+    Ищет пользователя в БД по username.
     """
     q = select(User).where(User.username == username)
     result = await session.execute(q)

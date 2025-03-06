@@ -14,7 +14,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/auth/login')
 
 def get_current_token_payload(token: str = Depends(oauth2_scheme)) -> dict:
     """
-    Декодирует любой access или refresh токены.
+    Декодирует access или refresh токен.
     """
     try:
         payload = decode_jwt(token)
@@ -29,7 +29,7 @@ def get_current_token_payload(token: str = Depends(oauth2_scheme)) -> dict:
 
 def validate_token_type(payload: dict, expected_type: str) -> None:
     """
-    Проверяет, что в декодированном токене нужный тип (access или refresh).
+    Проверяет, что в декодированном токене нужный тип.
     """
     current_type = payload.get(TOKEN_TYPE_FIELD)
     if current_type != expected_type:
@@ -61,7 +61,7 @@ async def get_current_auth_user(payload: dict = Depends(get_current_token_payloa
 
 def get_current_refresh_payload(token: str = Depends(oauth2_scheme)) -> dict:
     """
-    Зависимость для эндпоинта обновления токена, где проверяется, что токен валиден.
+    Зависимость для эндпоинта обновления токена. Проверяет, что токен валиден.
     """
     try:
         print(token)
