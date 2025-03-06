@@ -3,7 +3,7 @@ from enum import StrEnum
 from sqlalchemy import String, ForeignKey
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 
-from backend.models.base import Base, NonUpdatableNow
+from backend.models.base import Base, NonUpdatableNow, Id
 
 
 class Role(StrEnum):
@@ -17,6 +17,12 @@ class User(Base):
     role: Mapped[Role]
 
     profile: Mapped['Profile'] = relationship(back_populates='user')
+    lab_experiments = relationship('LaboratoryExperiment', back_populates='user')
+    computational_experiments = relationship('ComputationalExperiment', back_populates='user')
+
+    @property
+    def experiments(self) -> list['Experiment']:
+        return self.lab_experiments + self.computational_experiments
 
 
 class Profile(Base):
@@ -24,5 +30,5 @@ class Profile(Base):
     surname: Mapped[str]
     registered_at: Mapped[NonUpdatableNow]
 
-    user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
+    user_id: Mapped[Id] = mapped_column(ForeignKey('users.id'))
     user: Mapped['User'] = relationship(back_populates='profile')
