@@ -66,11 +66,11 @@ def get_current_refresh_payload(token: str = Depends(oauth2_scheme)) -> dict:
     try:
         print(token)
         payload = decode_jwt(token)
-    except InvalidTokenError:
+    except InvalidTokenError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail='Невалидный токен',
-        )
+        ) from e
 
     validate_token_type(payload, TokenType.REFRESH)
     return payload

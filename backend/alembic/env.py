@@ -27,7 +27,6 @@ target_metadata = Base.metadata
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 config.set_main_option("sqlalchemy.url", settings.db.url)
-# ... etc.
 
 
 def run_migrations_offline() -> None:

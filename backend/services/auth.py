@@ -32,9 +32,9 @@ async def login(credentials: UserLogin) -> tuple[str, str]:
     if not (user and validate_password(credentials.password, user.hashed_password)):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Неверные username или пароль')
 
-    access_token = create_access_token(subject=user.username)
-    refresh_token = create_refresh_token(subject=user.username)
-    return access_token, refresh_token
+    access = create_access_token(subject=user.username)
+    refresh = create_refresh_token(subject=user.username)
+    return access, refresh
 
 
 async def refresh_token(refresh_payload: dict) -> tuple[str, str]:
