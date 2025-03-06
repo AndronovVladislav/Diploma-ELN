@@ -169,6 +169,7 @@ poetry.lock
 sandbox
 certs
 frontend/src/sakai
+docker-compose-dev.yml
 
 # JS
 node_modules

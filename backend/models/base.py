@@ -41,5 +41,5 @@ class Base(DeclarativeBase):
 
     def __init_subclass__(cls, **kwargs):
         if '__tablename__' not in cls.__dict__:
-            cls.__tablename__ = f"{re.sub(r'(.)([A-Z][a-z]+)', r'\\1_\\2', cls.__name__).lower()}s"
+            cls.__tablename__ = f"{re.sub(r'(?<!^)(?=[A-Z])', '_', cls.__name__).lower()}s"
         super().__init_subclass__(**kwargs)
