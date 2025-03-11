@@ -20,7 +20,11 @@ class Experiment(Base):
 
     user_id: Mapped[Id] = mapped_column(ForeignKey('users.id'))
 
-    kind: Mapped[ExperimentKind]
+    # @declared_attr
+    # def user(cls) -> Mapped['User']:
+    #     return relationship('User', back_populates='experiments')
+
+    kind: Mapped[ExperimentKind] = mapped_column('ExperimentKind')
     name: Mapped[str]
     description: Mapped[str]
     created_at: Mapped[NonUpdatableNow]
@@ -39,6 +43,7 @@ class Measurement(Base):
 
 
 class LaboratoryExperiment(Experiment):
+    user: Mapped['User'] = relationship(back_populates='lab_experiments')
     measurements: Mapped[list['Measurement']] = relationship()
 
 
@@ -99,15 +104,17 @@ class SchemaLinkedTable(Base):
 
 
 class ComputationalExperimentTemplate(SchemaLinkedTable):
-    pass
+    experiments: Mapped[list['ComputationalExperiment']] = relationship(back_populates='template')
 
 
 class ComputationalExperimentData(SchemaLinkedTable):
     experiment_id: Mapped[Id] = mapped_column(ForeignKey('computational_experiments.id'))
+    experiment: Mapped['ComputationalExperiment'] = relationship(back_populates='data')
 
 
 class ComputationalExperiment(Experiment):
     template_id: Mapped[Id] = mapped_column(ForeignKey('computational_experiment_templates.id'))
 
     template: Mapped['ComputationalExperimentTemplate'] = relationship(back_populates='experiments')
-    data: Mapped[list['ComputationalExperimentData']] = relationship()
+    data: Mapped[list['ComputationalExperimentData']] = relationship(back_populates='experiment')
+    user: Mapped['User'] = relationship(back_populates='computational_experiments')

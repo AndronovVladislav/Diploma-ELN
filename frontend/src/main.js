@@ -1,9 +1,9 @@
-import {createApp} from 'vue';
+import { createApp } from 'vue';
 import Aura from '@primevue/themes/aura';
 import PrimeVue from 'primevue/config';
+import { createPinia } from 'pinia';
 import ConfirmationService from 'primevue/confirmationservice';
 import ToastService from 'primevue/toastservice';
-import {createPinia} from 'pinia';
 import persist from 'pinia-plugin-persistedstate';
 
 import '@/assets/styles.scss';
@@ -12,6 +12,10 @@ import router from '@/router';
 
 const app = createApp(App);
 
+const pinia = createPinia();
+pinia.use(persist);
+
+app.use(pinia);
 app.use(router);
 app.use(PrimeVue, {
     theme: {
@@ -23,9 +27,5 @@ app.use(PrimeVue, {
 });
 app.use(ToastService);
 app.use(ConfirmationService);
-
-const pinia = createPinia();
-pinia.use(persist);
-app.use(pinia);
 
 app.mount('#app');

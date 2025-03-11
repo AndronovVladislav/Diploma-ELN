@@ -93,7 +93,7 @@ def create_refresh_token(subject: str, additional_claims: dict | None = None) ->
     """
     Создаём refresh-токен с более долгим сроком жизни.
     """
-    expires_delta = timedelta(days=settings.jwt.refresh_token_expire_days)
+    expires_delta = timedelta(minutes=settings.jwt.refresh_token_expire_minutes)
     return create_jwt(
         subject=subject,
         token_type=TokenType.REFRESH,

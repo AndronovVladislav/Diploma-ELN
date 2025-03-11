@@ -124,9 +124,7 @@ celerybeat.pid
 # Environments
 .env
 .venv
-env/
 venv/
-ENV/
 env.bak/
 venv.bak/
 
@@ -167,8 +165,10 @@ poetry.lock
 # Stuff
 .vscode
 sandbox
-certs
+backend/certs/*
+backend/env/*
 frontend/src/sakai
+frontend/ssl/*
 docker-compose-dev.yml
 
 # JS

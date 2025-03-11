@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from enum import StrEnum
 
 from sqlalchemy import String, ForeignKey
@@ -17,8 +19,8 @@ class User(Base):
     role: Mapped[Role]
 
     profile: Mapped['Profile'] = relationship(back_populates='user')
-    lab_experiments = relationship('LaboratoryExperiment', back_populates='user')
-    computational_experiments = relationship('ComputationalExperiment', back_populates='user')
+    lab_experiments: Mapped['LaboratoryExperiment'] = relationship(back_populates='user')
+    computational_experiments: Mapped['ComputationalExperiment'] = relationship(back_populates='user')
 
     @property
     def experiments(self) -> list['Experiment']:
