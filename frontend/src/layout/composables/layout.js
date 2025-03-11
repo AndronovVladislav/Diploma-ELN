@@ -1,24 +1,11 @@
-import { computed, reactive } from 'vue';
-
-const layoutConfig = reactive({
-    preset: 'Aura',
-    primary: 'emerald',
-    surface: null,
-    darkTheme: false,
-    menuMode: 'static'
-});
-
-const layoutState = reactive({
-    staticMenuDesktopInactive: false,
-    overlayMenuActive: false,
-    profileSidebarVisible: false,
-    configSidebarVisible: false,
-    staticMenuMobileActive: false,
-    menuHoverActive: false,
-    activeMenuItem: null
-});
+import { computed } from 'vue';
+import { useCoreStore } from '@/stores/core';
 
 export function useLayout() {
+    const coreStore = useCoreStore();
+    const layoutConfig = coreStore.layoutConfig;
+    const layoutState = coreStore.layoutState;
+
     const setActiveMenuItem = (item) => {
         layoutState.activeMenuItem = item.value || item;
     };

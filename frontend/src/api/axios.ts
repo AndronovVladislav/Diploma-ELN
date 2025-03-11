@@ -3,7 +3,7 @@ import { useCoreStore } from '@/stores/core';
 import router from '@/router';
 
 const api = axios.create({
-    baseURL: '/',
+    baseURL: 'http://localhost:8000/',
     timeout: 5000
 });
 
