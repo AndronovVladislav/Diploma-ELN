@@ -23,11 +23,11 @@ async def signup(user_data: UserSignup) -> dict:
 
 
 @router.post('/login')
-async def login(form_data: OAuth2PasswordRequestForm = Depends()) -> TokenResponse:
+async def login(user_data: UserLogin) -> TokenResponse:
     """
     Вход в систему. Возвращает access и refresh токены.
     """
-    access, refresh = await login_service(UserLogin(username=form_data.username, password=form_data.password))
+    access, refresh = await login_service(user_data)
     return TokenResponse(access_token=access, refresh_token=refresh)
 
 

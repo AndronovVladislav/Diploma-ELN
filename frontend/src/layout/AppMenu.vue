@@ -7,7 +7,7 @@ const model = ref([
     {
         label: 'AlChem pages',
         items: [
-            {label: 'Main'}
+            {label: 'Main', icon: 'pi pi-home', 'to': '/'}
         ]
     },
     {
@@ -59,7 +59,7 @@ const model = ref([
                             {
                                 label: 'Access Denied',
                                 icon: 'pi pi-fw pi-lock',
-                                to: '/auth/access'
+                                to: '/auth/accessdenied'
                             }
                         ]
                     },

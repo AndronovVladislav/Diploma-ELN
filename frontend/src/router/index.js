@@ -1,5 +1,6 @@
 import AppLayout from '@/layout/AppLayout.vue';
 import { createRouter, createWebHistory } from 'vue-router';
+import { useCoreStore } from '@/stores/core';
 
 const router = createRouter({
     history: createWebHistory(),
@@ -111,23 +112,48 @@ const router = createRouter({
             name: 'notfound',
             component: () => import('@/sakai/views/pages/NotFound.vue')
         },
-
         {
             path: '/auth/login',
             name: 'login',
-            component: () => import('@/sakai/views/pages/auth/Login.vue')
+            component: () => import('@/views/Auth/SignIn.vue'),
+            meta: { public: true }
         },
         {
-            path: '/auth/access',
+            path: '/auth/signup',
+            name: 'signup',
+            component: () => import('@/views/Auth/SignUp.vue'),
+            meta: { public: true }
+        },
+        {
+            path: '/auth/accessdenied',
             name: 'accessDenied',
-            component: () => import('@/sakai/views/pages/auth/Access.vue')
+            component: () => import('@/views/Utils/AccessDenied.vue'),
+            meta: { public: true }
         },
         {
             path: '/auth/error',
             name: 'error',
-            component: () => import('@/sakai/views/pages/auth/Error.vue')
+            component: () => import('@/views/Utils/Error.vue')
         }
     ]
 });
+
+router.beforeEach((to) => {
+    const coreStore = useCoreStore();
+
+    if (!(isPublic(to) || isAuthenticated(coreStore))) {
+        return { name: 'accessDenied' };
+    }
+
+    return true;
+});
+
+function isAuthenticated(coreStore) {
+    return !!coreStore.access_token;
+}
+
+function isPublic(to) {
+    return 'meta' in to && 'public' in to.meta && to.meta.public;
+}
 
 export default router;

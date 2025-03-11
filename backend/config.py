@@ -28,6 +28,7 @@ class UvicornSettings(ConfigBase):
     port: int
     workers: int
     timeout: int
+    debug: bool
 
     model_config = SettingsConfigDict(env_prefix='uvi_')
 
@@ -69,7 +70,7 @@ class AuthJWTSettings(ConfigBase):
     access_token_expire_minutes: int
     private_key_path: Path
     public_key_path: Path
-    refresh_token_expire_days: int
+    refresh_token_expire_minutes: int
 
     model_config = SettingsConfigDict(env_prefix='jwt_')
 
