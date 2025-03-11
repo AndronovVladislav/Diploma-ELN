@@ -20,10 +20,6 @@ class Experiment(Base):
 
     user_id: Mapped[Id] = mapped_column(ForeignKey('users.id'))
 
-    # @declared_attr
-    # def user(cls) -> Mapped['User']:
-    #     return relationship('User', back_populates='experiments')
-
     kind: Mapped[ExperimentKind] = mapped_column('ExperimentKind')
     name: Mapped[str]
     description: Mapped[str]

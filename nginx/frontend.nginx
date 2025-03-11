@@ -17,5 +17,6 @@ server {
         try_files $uri $uri/ /index.html;
     }
 
-    error_log /var/log/nginx/frontend_error.log;
+    access_log /var/log/nginx/access.log;
+    error_log /var/log/nginx/error.log;
 }

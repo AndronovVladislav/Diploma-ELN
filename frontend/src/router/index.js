@@ -141,7 +141,6 @@ const router = createRouter({
 router.beforeEach((to) => {
     const coreStore = useCoreStore();
 
-    console.log(isPublic(to), isAuthenticated(coreStore))
     if (!(isPublic(to) || isAuthenticated(coreStore))) {
         return { name: 'accessDenied' };
     }

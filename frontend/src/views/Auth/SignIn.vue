@@ -61,13 +61,6 @@
                             </FloatLabel>
                         </InputGroup>
 
-                        <!--                        <div class="flex items-center justify-between mt-2 mb-8 gap-8">-->
-                        <!--                            <div class="flex items-center">-->
-                        <!--                                <Checkbox v-model="checked" id="rememberme1" binary class="mr-2"></Checkbox>-->
-                        <!--                                <label for="rememberme1">Remember me</label>-->
-                        <!--                            </div>-->
-                        <!--                            <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">Forgot password?</span>-->
-                        <!--                        </div>-->
                         <Button label="Войти" class="w-full" @click="signIn"></Button>
                     </div>
                 </div>
@@ -88,16 +81,18 @@ const username = ref('');
 const password = ref('');
 const coreStore = useCoreStore();
 
-const signIn = () => {
-    api.post('/auth/login', { username: username.value, password: password.value })
-        .then(response => {
-            coreStore.access_token = response.data.access_token;
-            coreStore.refresh_token = response.data.refresh_token;
-            console.log(response.data);
-            router.push('/');
-        })
-        .catch(error => console.error(error));
-};
+async function signIn() {
+    try {
+        await api.post('/auth/login', { username: username.value, password: password.value })
+            .then(response => {
+                coreStore.access_token = response.data.access_token;
+                coreStore.refresh_token = response.data.refresh_token;
+            });
+        await router.push('/');
+    } catch (error) {
+        console.error(error);
+    }
+}
 
 </script>
 

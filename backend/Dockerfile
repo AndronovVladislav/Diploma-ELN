@@ -9,8 +9,7 @@ WORKDIR /backend
 ENV PATH="/root/.local/bin:$PATH" \
     POETRY_NO_INTERACTION=1 \
     POETRY_VIRTUALENVS_IN_PROJECT=true \
-    PYTHONPATH="/" \
-    ENV_TYPE=dev
+    PYTHONPATH="/"
 
 COPY pyproject.toml poetry.lock* ./
 

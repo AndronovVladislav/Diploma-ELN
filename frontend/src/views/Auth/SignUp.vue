@@ -76,8 +76,15 @@ const username = ref('');
 const password = ref('');
 
 async function signUp() {
-    await api.post('/auth/signup', { username: username.value, password: password.value, role: 'researcher' })
-        .catch(error => console.error(error));
-    await router.push('/auth/login');
+    try {
+        await api.post('/auth/signup', {
+            username: username.value,
+            password: password.value,
+            role: 'researcher'
+        });
+        await router.push('/auth/login');
+    } catch (error) {
+        console.error(error);
+    }
 }
 </script>

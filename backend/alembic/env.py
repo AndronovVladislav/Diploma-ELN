@@ -28,6 +28,7 @@ target_metadata = Base.metadata
 # can be acquired:
 config.set_main_option("sqlalchemy.url", settings.db.url)
 
+
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
 

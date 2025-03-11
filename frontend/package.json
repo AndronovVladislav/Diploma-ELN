@@ -2,7 +2,7 @@
     "name": "alchem",
     "version": "0.0.1",
     "scripts": {
-        "dev": "vite --host",
+        "dev": "vite",
         "build": "vite build",
         "preview": "vite preview",
         "lint": "eslint --fix . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"

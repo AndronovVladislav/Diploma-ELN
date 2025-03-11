@@ -25,10 +25,7 @@ api.interceptors.response.use(response => response, async error => {
     const originalRequest = error.config;
     const coreStore = useCoreStore();
 
-    if (error.response.status === 401 &&
-        // !originalRequest._retry &&
-        !error.request.baseURL.includes(TOKEN_REFRESH_URL)) {
-        // originalRequest._retry = true;
+    if (error.response.status === 401 && !error.request.baseURL.includes(TOKEN_REFRESH_URL)) {
 
         try {
             const response = await api.post('/auth/refresh', {
