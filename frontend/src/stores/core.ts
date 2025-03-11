@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia';
-import { primaryColors } from '@/layout/composables/themeManager';
 
 interface LayoutConfig {
     preset: string,
@@ -28,7 +27,7 @@ export const useCoreStore = defineStore('core',
             layoutConfig: {
                 preset: 'Aura',
                 primary: 'emerald',
-                surface: null,
+                surface: 'zinc',
                 darkTheme: false,
                 menuMode: 'static'
             } as LayoutConfig,

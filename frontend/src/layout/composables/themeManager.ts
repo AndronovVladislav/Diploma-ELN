@@ -541,5 +541,4 @@ export {
     updateColors,
     applyTheme,
     onPresetChange
-    // onMenuModeChange
 };
