@@ -22,6 +22,7 @@ interface LayoutState {
 export const useCoreStore = defineStore('core',
     {
         state: () => ({
+            username: null as (string | null),
             access_token: null as (string | null),
             refresh_token: null as (string | null),
             layoutConfig: {

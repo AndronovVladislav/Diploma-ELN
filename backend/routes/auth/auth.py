@@ -1,9 +1,7 @@
 from fastapi import APIRouter, Depends
-from fastapi.security import OAuth2PasswordRequestForm
 
-from backend.models.user import User
-from backend.routes.auth.validation import get_current_refresh_payload, get_current_auth_user
-from backend.schemas.auth import UserSignup, UserLogin, TokenResponse
+from backend.routes.auth.validation import get_current_refresh_payload
+from backend.schemas.auth import UserSignup, UserLogin, UserResponse
 from backend.services.auth import (
     signup as signup_service,
     login as login_service,
@@ -23,28 +21,18 @@ async def signup(user_data: UserSignup) -> dict:
 
 
 @router.post('/login')
-async def login(user_data: UserLogin) -> TokenResponse:
+async def login(user_data: UserLogin) -> UserResponse:
     """
     Вход в систему. Возвращает access и refresh токены.
     """
     access, refresh = await login_service(user_data)
-    return TokenResponse(access_token=access, refresh_token=refresh)
+    return UserResponse(username=user_data.username, access_token=access, refresh_token=refresh)
 
 
 @router.post('/refresh')
-async def refresh_token(refresh_payload: dict = Depends(get_current_refresh_payload)) -> TokenResponse:
+async def refresh_token(refresh_payload: dict = Depends(get_current_refresh_payload)) -> UserResponse:
     """
     Эндпоинт для получения нового access/refresh токена по действующему refresh токену.
     """
     access, refresh = await refresh_token_service(refresh_payload)
-    return TokenResponse(access_token=access, refresh_token=refresh)
-
-
-@router.get('/me')
-async def get_profile(current_user: User = Depends(get_current_auth_user)) -> dict:
-    """
-    Пример защищённого эндпоинта, где требуется access-токен.
-    """
-    return {
-        'username': current_user.username,
-    }
+    return UserResponse(username=refresh_payload.get('sub'), access_token=access, refresh_token=refresh)
