@@ -1,5 +1,5 @@
 <template>
-    <FloatingConfigurator />
+<!--    <FloatingConfigurator />-->
     <div
         class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-[100vw] overflow-hidden">
         <div class="flex flex-col items-center justify-center">
@@ -66,7 +66,7 @@
 </template>
 
 <script setup lang="ts">
-import FloatingConfigurator from '@/sakai/components/FloatingConfigurator.vue';
+// import FloatingConfigurator from '@/sakai/components/FloatingConfigurator.vue';
 import { ref } from 'vue';
 import { FloatLabel, InputGroup, InputGroupAddon, InputText } from 'primevue';
 import api from '@/api/axios';

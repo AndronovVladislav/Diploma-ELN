@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.config import settings
 from backend.models.utils import db_helper
 from backend.routes.auth.auth import router as auth_router
-from backend.routes.experiments import router as experiments_router
+from backend.routes.experiments.experiments import router as experiments_router
 
 
 @asynccontextmanager

@@ -27,10 +27,10 @@ def upgrade() -> None:
                               nullable=False),
                     sa.Column('user_id', sa.Integer(), nullable=False),
                     sa.Column('id', sa.Integer(), nullable=False),
-                    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+                    sa.ForeignKeyConstraint(['user_id'], ['users.id']),
                     sa.PrimaryKeyConstraint('id')
                     )
-    op.create_unique_constraint(None, 'users', ['email'])
+    op.create_unique_constraint('uq_users_email', 'users', ['email'])
     op.drop_column('users', 'registered_at')
     op.drop_column('users', 'name')
     op.drop_column('users', 'surname')
@@ -44,6 +44,6 @@ def downgrade() -> None:
     op.add_column('users', sa.Column('registered_at', postgresql.TIMESTAMP(),
                                      server_default=sa.text("timezone('utc'::text, now())"), autoincrement=False,
                                      nullable=False))
-    op.drop_constraint(None, 'users', type_='unique')
+    op.drop_constraint('uq_users_email', 'users', type_='unique')
     op.drop_table('profiles')
     # ### end Alembic commands ###

@@ -2,6 +2,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jwt import InvalidTokenError
 
+from backend.models import User
 from backend.routes.auth.utils import (
     decode_jwt,
     TokenType,
@@ -39,7 +40,7 @@ def validate_token_type(payload: dict, expected_type: str) -> None:
         )
 
 
-async def get_current_auth_user(payload: dict = Depends(get_current_token_payload)):
+async def get_current_auth_user(payload: dict = Depends(get_current_token_payload)) -> User:
     """
     Используется для эндпоинтов, требующих access-токен.
     """
@@ -64,7 +65,6 @@ def get_current_refresh_payload(token: str = Depends(oauth2_scheme)) -> dict:
     Зависимость для эндпоинта обновления токена. Проверяет, что токен валиден.
     """
     try:
-        print(token)
         payload = decode_jwt(token)
     except InvalidTokenError as e:
         raise HTTPException(

@@ -3,11 +3,6 @@ from pydantic import BaseModel, Field
 from backend.models.user import Role
 
 
-class TokenResponse(BaseModel):
-    access_token: str
-    refresh_token: str
-
-
 class UserSignup(BaseModel):
     """
     Схема запроса создания нового пользователя.
@@ -40,4 +35,6 @@ class UserResponse(BaseModel):
     """
     Схема ответа с данными пользователя клиенту.
     """
-    id: int = Field(description='Уникальный идентификатор пользователя')
+    username: str = Field(description='Уникальное имя пользователя')
+    access_token: str = Field(description='Токен для доступа к ресурсам системы')
+    refresh_token: str = Field(description='Токен в течение жизни которого есть ')
