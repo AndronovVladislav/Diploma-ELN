@@ -37,4 +37,4 @@ class UserResponse(BaseModel):
     """
     username: str = Field(description='Уникальное имя пользователя')
     access_token: str = Field(description='Токен для доступа к ресурсам системы')
-    refresh_token: str = Field(description='Токен в течение жизни которого есть ')
+    refresh_token: str = Field(description='Токен, в течение жизни которого возможно получить access-токен')

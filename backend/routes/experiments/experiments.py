@@ -11,10 +11,8 @@ router = APIRouter(prefix="/experiment", tags=["Experiments"])
 
 
 @router.get('/')
-async def get_user_experiments(username: str, desired_keys: list[str] = Query(...)) -> list[dict]:
-    result = flat_to_tree(await get_user_experiments_service(username), desired_keys)
-    print(result)
-    return result
+async def get_user_experiments(username: str, desired_keys: list[str] = Query()) -> list[dict]:
+    return flat_to_tree(await get_user_experiments_service(username), desired_keys)
 
 
 @router.post('/import')
