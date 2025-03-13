@@ -1,7 +1,7 @@
 <template>
     <div class="mb-6">
         <TreeTable
-            v-if="dashboardStore.experimentFS"
+            v-if="dashboardStore.experimentFS.length"
             :value="dashboardStore.experimentFS"
             class="w-full"
             data-key="path"
@@ -41,20 +41,15 @@
 </template>
 
 <script lang="ts" setup>
-import { Button, Column, TreeTable } from 'primevue';
+import {Button, Column, TreeTable} from 'primevue'
 
-import ExperimentActions from '@/views/Dashboard/ExperimentActions.vue';
-import { ExperimentKind } from '@/views/Dashboard/typing';
-import { useDashboardStore } from '@/stores/dashboard';
-import { onBeforeMount } from 'vue';
+import ExperimentActions from '@/views/Dashboard/ExperimentActions.vue'
+import {ExperimentKind} from '@/views/Dashboard/typing'
+import {useDashboardStore} from '@/stores/dashboard'
 
-const dashboardStore = useDashboardStore();
+const dashboardStore = useDashboardStore()
 
 const goToExperiment = (id: string) => {
-    if (!id) return;
-};
-
-onBeforeMount(async () => {
-    await dashboardStore.fetchExperimentFS();
-});
+    if (!id) return
+}
 </script>

@@ -9,6 +9,8 @@
     },
     "dependencies": {
         "@primevue/themes": "^4.2.4",
+        "@tiptap/starter-kit": "^2.11.5",
+        "@tiptap/vue-3": "^2.11.5",
         "axios": "^1.8.1",
         "chart.js": "3.3.2",
         "pinia": "^3.0.1",
