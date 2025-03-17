@@ -8,7 +8,7 @@
 </template>
 
 <script lang="ts" setup>
-import {findById, removeExperiment} from "@/views/Dashboard/utils";
+import {findById, removeExperiment} from "@/views/utils";
 import {Experiment} from "@/views/Dashboard/typing";
 import {useDashboardStore} from '@/stores/dashboard'
 

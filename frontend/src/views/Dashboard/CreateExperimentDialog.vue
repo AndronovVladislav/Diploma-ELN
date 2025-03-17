@@ -71,7 +71,7 @@ import {computed, ref} from 'vue'
 
 import {useDashboardStore} from '@/stores/dashboard'
 import {Experiment, ExperimentKind, Folder, SimplifiedView} from '@/views/Dashboard/typing'
-import {findById} from "@/views/Dashboard/utils";
+import {findById} from "@/views/utils";
 
 const dashboardStore = useDashboardStore()
 

@@ -40,22 +40,43 @@
             <EditorContent :editor="editor" class="min-h-[300px] bg-primary-contrast p-4 rounded-md" />
         </div>
     </div>
-    <Table :columns="[{name: 'Length', ontology: 'www.youtube.com'}, {name: 'Mass', ontology: 'www.instagram.com'}]"/>
 </template>
 
 <script setup lang="ts">
 import { Button } from 'primevue';
 import { BubbleMenu, Editor, EditorContent } from '@tiptap/vue-3';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import StarterKit from '@tiptap/starter-kit';
-import Table from '@/components/Table.vue';
 
 const editor = ref(null);
 
+interface Props {
+    description: string,
+}
+
+const props = defineProps<Props>();
+
+// const editorModules = ref({
+//     toolbar: [
+//         [{ header: [1, 2, 3, false] }],
+//         ['bold', 'italic', 'underline'],
+//         [{ list: 'ordered' }, { list: 'bullet' }],
+//         ['clean']
+//     ]
+// });
+
+watch(() => props.description, (newValue) => {
+    if (editor.value) {
+        editor.value.commands.setContent('<p>' + newValue + '</p>');
+    }
+});
+
 onMounted(() => {
+    console.log(props.description);
     editor.value = new Editor({
-        content: '<p>Привет, мир!</p>',
+        content: '<p>' + props.description + '</p>',
         extensions: [StarterKit]
+        // modules: editorModules.value,
     });
 });
 </script>

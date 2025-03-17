@@ -70,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import FloatingConfigurator from '@/sakai/components/FloatingConfigurator.vue';
+import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
 import { ref } from 'vue';
 import { FloatLabel, InputGroup, InputGroupAddon, InputText } from 'primevue';
 import api from '@/api/axios';

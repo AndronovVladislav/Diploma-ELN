@@ -1,5 +1,4 @@
 from contextlib import asynccontextmanager
-from functools import partial
 from typing import Annotated, AsyncIterator
 
 from neo4j import AsyncGraphDatabase, AsyncSession
@@ -19,8 +18,8 @@ class Neo4jHelper:
             await self.driver.close()
 
     @asynccontextmanager
-    async def get_session(self, db: str) -> AsyncIterator[AsyncSession]:
-        async with self.driver.session(database=db) as session:
+    async def get_session(self) -> AsyncIterator[AsyncSession]:
+        async with self.driver.session(database=settings.neo4j.db) as session:
             try:
                 yield session
             except Exception as e:
@@ -31,9 +30,22 @@ class Neo4jHelper:
                     await session.close()
 
 
-neo4j_helper = Neo4jHelper(
+db_helper = Neo4jHelper(
     uri=settings.neo4j.uri,
     user=settings.neo4j.user,
     password=settings.neo4j.password.get_secret_value(),
 )
-get_session = partial(neo4j_helper.get_session, db=settings.neo4j.db)
+
+
+def connection(method):
+    async def wrapper(*args, **kwargs):
+        async with db_helper.get_session() as session:
+            try:
+                return await method(*args, session=session, **kwargs)
+            except Exception as e:
+                await session.rollback()
+                raise e
+            finally:
+                await session.close()
+
+    return wrapper

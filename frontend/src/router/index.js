@@ -55,7 +55,6 @@ const router = createRouter({
                     name: 'panel',
                     component: () => import('@/sakai/views/uikit/PanelsDoc.vue')
                 },
-
                 {
                     path: '/uikit/overlay',
                     name: 'overlay',

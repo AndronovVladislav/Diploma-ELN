@@ -22,7 +22,7 @@ import {ref, watch} from 'vue'
 
 import {Folder, SimplifiedView} from '@/views/Dashboard/typing'
 import {useDashboardStore} from '@/stores/dashboard'
-import {findById, removeExperiment} from "@/views/Dashboard/utils";
+import {findById, removeExperiment} from "@/views/utils";
 
 const dashboardStore = useDashboardStore()
 const visibleModel = dashboardStore.getVisibleModel(dashboardStore.moveExperimentDialog)
