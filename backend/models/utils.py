@@ -42,7 +42,9 @@ def connection(method):
     async def wrapper(*args, **kwargs):
         async with db_helper.session_factory() as session:
             try:
-                return await method(*args, session=session, **kwargs)
+                result = await method(*args, session=session, **kwargs)
+                await session.commit()
+                return result
             except Exception as e:
                 await session.rollback()
                 raise e

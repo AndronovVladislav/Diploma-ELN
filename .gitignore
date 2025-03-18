@@ -170,7 +170,6 @@ backend/env/*
 frontend/src/sakai
 frontend/ssl/*
 frontend/.env*
-docker-compose-dev.yml
 
 # JS
 node_modules

@@ -11,6 +11,8 @@ def get_env_file() -> str:
     match os.getenv('ENV_TYPE'):
         case 'stable':
             return '.stable.env'
+        case 'testing':
+            return '.test.env'
         case _:
             return '.env'
 
@@ -50,6 +52,7 @@ class PostgresSettings(ConfigBase):
         return f'{prefix}://{self.user}:{self.password.get_secret_value()}@{self.host}:{self.port}/{self.db}'
 
     model_config = SettingsConfigDict(env_prefix='pg_')
+
 
 class Neo4jSettings(ConfigBase):
     host: str

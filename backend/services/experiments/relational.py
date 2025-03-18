@@ -29,22 +29,6 @@ class Column(BaseModel):
     value: str
 
 
-def enhanced_obj_to_dict(obj):
-    data = to_dict(obj)
-    inspect_manager = inspect(obj.__class__)
-    relationships = inspect_manager.relationships
-
-    for rel in relationships:
-        value = getattr(obj, rel.key)
-        data[rel.key] = to_dict(value) if value else None
-
-        if isinstance(value, list):
-            data[rel.key] = [to_dict(child) for child in value]
-        else:
-            data[rel.key] = None
-    return data
-
-
 @connection
 async def get_user_experiments(username: str, session: AsyncSession) -> ...:
     q = (

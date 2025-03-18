@@ -1,17 +1,7 @@
 import uuid
 from collections import defaultdict
-from typing import Any
 
 infinite_defaultdict = lambda: defaultdict(infinite_defaultdict)
-
-
-def find_or_create_node(children: list[dict[str, Any]], path_part: str) -> dict[str, Any]:
-    for child in children:
-        if child['path'] == path_part:
-            return child
-    new_node = {'path': path_part, 'children': []}
-    children.append(new_node)
-    return new_node
 
 
 def add_uuid(nodes: list[dict]) -> None:
