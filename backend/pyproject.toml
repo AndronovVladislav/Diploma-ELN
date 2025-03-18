@@ -15,7 +15,7 @@ sqlalchemy = "^2.0.36"
 pydantic-settings = "^2.7.0"
 asyncpg = "^0.30.0"
 greenlet = "^3.1.1"
-pydantic = {extras = ["email"], version = "^2.10.4"}
+pydantic = { extras = ["email"], version = "^2.10.4" }
 bcrypt = "^4.2.1"
 pyjwt = "^2.10.1"
 alembic = "^1.14.0"
@@ -29,6 +29,10 @@ pytest = "^8.3.4"
 mypy = "^1.13.0"
 isort = "^5.13.2"
 pylint = "^3.3.3"
+httpx = "^0.28.1"
+pytest-cov = "^6.0.0"
+pytest-asyncio = "^0.25.3"
+pytest-mock = "^3.14.0"
 
 [build-system]
 requires = ["poetry-core"]
@@ -43,3 +47,11 @@ known_first_party = ["backend"]
 known_third_party = ["fastapi", "pydantic", "sqlalchemy", "alembic", "pyjwt", "bcrypt", "neo4j"]
 sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
 default_section = "THIRDPARTY"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = "tests"
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = "-vvv --cov-report=html --cov=routes --cov=services --strict-markers --tb=short"

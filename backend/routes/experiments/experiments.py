@@ -27,8 +27,6 @@ async def get_experiment_data(experiment_id: int, kind: ExperimentKind = Query()
     elif kind == ExperimentKind.COMPUTATIONAL:
         return await ...
 
-    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Incorrect experiment kind')
-
 
 @router.post('/import')
 async def import_experiment(experiment: ExperimentDescription) -> dict[str, ColumnDescription]:

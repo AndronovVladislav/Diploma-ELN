@@ -28,7 +28,6 @@ async def signup(user_data: UserSignup, session: AsyncSession) -> User:
         role=user_data.role,
     )
     session.add(new_user)
-    await session.commit()
     return new_user
 
 

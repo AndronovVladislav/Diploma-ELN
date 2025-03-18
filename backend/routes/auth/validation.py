@@ -46,10 +46,7 @@ async def get_current_auth_user(payload: dict = Depends(get_current_token_payloa
     """
     validate_token_type(payload, TokenType.ACCESS)
 
-    username: str | None = payload.get('sub')
-    if not username:
-        raise HTTPException(status_code=401, detail='Токен без sub (username)')
-
+    username: str = payload['sub']
     user = await get_user_by_username(username)
     if not user:
         raise HTTPException(
