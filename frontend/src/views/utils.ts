@@ -1,4 +1,4 @@
-import {ExperimentKind, FileSystem, FileSystemItem, Folder, SimplifiedView} from '@/views/Dashboard/typing';
+import { ExperimentKind, FileSystem, FileSystemItem, Folder, SimplifiedView } from '@/views/Dashboard/typing';
 
 export const findById = (folders: FileSystem, id: string): FileSystemItem | null => {
     for (const folder of folders) {
@@ -18,7 +18,7 @@ const traverse = (result: SimplifiedView[], folder: Folder, kind: ExperimentKind
 
     if (!folder.children.length) {
         if (!result.some(project => project.id == folder.id)) {
-            result.push({id: folder.id, path: folder.path});
+            result.push({ id: folder.id, path: folder.path });
             found = true;
         }
     }
@@ -26,7 +26,7 @@ const traverse = (result: SimplifiedView[], folder: Folder, kind: ExperimentKind
     for (const child of folder.children) {
         if ('kind' in child && (kind === ExperimentKind.ANY || child.kind === kind)) {
             if (!result.some(project => project.id == folder.id)) {
-                result.push({id: folder.id, path: folder.path});
+                result.push({ id: folder.id, path: folder.path });
                 found = true;
 
             }
@@ -34,7 +34,7 @@ const traverse = (result: SimplifiedView[], folder: Folder, kind: ExperimentKind
 
         if ('children' in child && traverse(result, child as Folder, kind)) {
             if (!result.some(project => project.id == folder.id)) {
-                result.push({id: folder.id, path: folder.path});
+                result.push({ id: folder.id, path: folder.path });
                 found = true;
             }
         }
@@ -66,7 +66,7 @@ export const findParent = (root: FileSystem, childId: string): Folder | null => 
 
 export const getFullPath = (fs: FileSystem, folder: SimplifiedView): string => {
     const parent = findParent(fs, folder.id);
-    return parent ? `${getFullPath(fs, {id: parent.id, path: parent.path})}/${folder.path}` : folder.path;
+    return parent ? `${getFullPath(fs, { id: parent.id, path: parent.path })}/${folder.path}` : folder.path;
 };
 
 export const removeExperiment = (fs: FileSystem, id: string): boolean => {

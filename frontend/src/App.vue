@@ -7,15 +7,11 @@ import { onBeforeMount } from 'vue';
 import { useCoreStore } from '@/stores/core';
 import { onPresetChange, primaryColors, surfaces, updateColors } from '@/layout/composables/themeManager';
 import { useLayout } from '@/layout/composables/layout';
-import { useDashboardStore } from '@/stores/dashboard';
 
 const coreStore = useCoreStore();
-const dashboardStore = useDashboardStore();
 const { toggleDarkMode } = useLayout();
 
-onBeforeMount(async () => {
-    await dashboardStore.fetchExperimentFS();
-
+onBeforeMount(() => {
     const primaryColor = primaryColors.value.find((c) => c.name === coreStore.layoutConfig.primary);
     const surfaceColor = surfaces.value.find((c) => c.name === coreStore.layoutConfig.surface);
 

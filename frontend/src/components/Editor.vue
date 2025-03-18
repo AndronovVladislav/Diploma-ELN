@@ -1,37 +1,37 @@
 <template>
     <div class="flex flex-col bg-surface-800 gap-0 rounded-lg shadow-md">
         <BubbleMenu
+            v-if="editor"
             :editor="editor"
             :tippy-options="{ duration: 100 }"
-            v-if="editor"
         >
             <div class="bubble-menu flex gap-2 bg-surface-800 p-2 rounded-lg shadow-md">
-                <Button @click="editor.chain().focus().toggleBold().run()"
-                        class="text-white hover:bg-gray-700 px-3 py-1 rounded font">
+                <Button class="text-white hover:bg-gray-700 px-3 py-1 rounded font"
+                        @click="editor.chain().focus().toggleBold().run()">
                     Bold
                 </Button>
-                <Button @click="editor.chain().focus().toggleItalic().run()"
-                        class="text-white hover:bg-gray-700 px-3 py-1 rounded">
+                <Button class="text-white hover:bg-gray-700 px-3 py-1 rounded"
+                        @click="editor.chain().focus().toggleItalic().run()">
                     Italic
                 </Button>
-                <Button @click="editor.chain().focus().toggleStrike().run()"
-                        class="text-white hover:bg-gray-700 px-3 py-1 rounded">
+                <Button class="text-white hover:bg-gray-700 px-3 py-1 rounded"
+                        @click="editor.chain().focus().toggleStrike().run()">
                     Strike
                 </Button>
             </div>
         </BubbleMenu>
         <div class="bg-surface-800 text-surface-300 flex justify-between p-3 rounded-t-lg">
             <div class="flex gap-2">
-                <Button @click="editor.chain().focus().toggleBold().run()"
-                        :class="['px-3 py-1 min-w-[32px] min-h-[32px] flex items-center justify-center rounded', {'font-bold': editor?.isActive('bold') }]">
+                <Button :class="['px-3 py-1 min-w-[32px] min-h-[32px] flex items-center justify-center rounded', {'font-bold': editor?.isActive('bold') }]"
+                        @click="editor.chain().focus().toggleBold().run()">
                     B
                 </Button>
-                <Button @click="editor.chain().focus().toggleItalic().run()"
-                        :class="['px-3 py-1 min-w-[32px] min-h-[32px] flex items-center justify-center rounded', {'font-bold': editor?.isActive('italic') }]">
+                <Button :class="['px-3 py-1 min-w-[32px] min-h-[32px] flex items-center justify-center rounded', {'font-bold': editor?.isActive('italic') }]"
+                        @click="editor.chain().focus().toggleItalic().run()">
                     I
                 </Button>
-                <Button @click="editor.chain().focus().toggleStrike().run()"
-                        :class="['px-3 py-1 min-w-[32px] min-h-[32px] flex items-center justify-center rounded', {'font-bold': editor?.isActive('strike') }]">
+                <Button :class="['px-3 py-1 min-w-[32px] min-h-[32px] flex items-center justify-center rounded', {'font-bold': editor?.isActive('strike') }]"
+                        @click="editor.chain().focus().toggleStrike().run()">
                     S
                 </Button>
             </div>
@@ -42,7 +42,7 @@
     </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { Button } from 'primevue';
 import { BubbleMenu, Editor, EditorContent } from '@tiptap/vue-3';
 import { onMounted, ref, watch } from 'vue';
@@ -56,15 +56,6 @@ interface Props {
 
 const props = defineProps<Props>();
 
-// const editorModules = ref({
-//     toolbar: [
-//         [{ header: [1, 2, 3, false] }],
-//         ['bold', 'italic', 'underline'],
-//         [{ list: 'ordered' }, { list: 'bullet' }],
-//         ['clean']
-//     ]
-// });
-
 watch(() => props.description, (newValue) => {
     if (editor.value) {
         editor.value.commands.setContent('<p>' + newValue + '</p>');
@@ -72,16 +63,14 @@ watch(() => props.description, (newValue) => {
 });
 
 onMounted(() => {
-    console.log(props.description);
     editor.value = new Editor({
         content: '<p>' + props.description + '</p>',
         extensions: [StarterKit]
-        // modules: editorModules.value,
     });
 });
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .ProseMirror:focus {
     outline: none;
 }

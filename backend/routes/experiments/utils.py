@@ -1,3 +1,4 @@
+import uuid
 from collections import defaultdict
 from typing import Any
 
@@ -11,6 +12,14 @@ def find_or_create_node(children: list[dict[str, Any]], path_part: str) -> dict[
     new_node = {'path': path_part, 'children': []}
     children.append(new_node)
     return new_node
+
+
+def add_uuid(nodes: list[dict]) -> None:
+    for node in nodes:
+        if 'id' not in node:
+            node['id'] = uuid.uuid4().hex
+        if 'children' in node:
+            add_uuid(node['children'])
 
 
 def dict_to_list(d) -> list[dict]:
@@ -45,4 +54,7 @@ def flat_to_tree(flat: list[dict], desired_keys: list[str]) -> list[dict]:
     if '' in root:
         root = root['']['children']
 
-    return dict_to_list(root)
+    result = dict_to_list(root)
+
+    add_uuid(result)
+    return result

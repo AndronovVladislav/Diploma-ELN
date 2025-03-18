@@ -1,0 +1,94 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    environment:
+      - DATABASE_URL=postgresql://${PG_USER}:${PG_PASSWORD}@db:5432/${PG_DB}
+      - ENV_TYPE=dev
+
+    depends_on:
+      - db
+      - neo4j
+    ports:
+      - '8000:8000'
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./backend
+          target: /backend
+          ignore:
+            - .venv
+
+  frontend:
+    build:
+      context: ./frontend
+      target: dev
+
+    depends_on:
+      - backend
+    ports:
+      - '80:5173'
+      - '443:443'
+
+    volumes:
+      - /app/node_modules
+      - ./nginx/frontend.nginx:/etc/nginx/conf.d/default.conf
+      - ./frontend/ssl:/etc/nginx/ssl
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./frontend
+          target: /app
+          ignore:
+            - node_modules
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+      POSTGRES_DB: ${PG_DB}
+
+    ports:
+      - '5432:5432'
+
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: [ 'CMD-SHELL', 'pg_isready -U ${PG_USER} -d ${PG_DB}' ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
+  neo4j:
+    image: neo4j:5.20.0
+    environment:
+      NEO4J_AUTH: ${NEO4J_USER}/${NEO4J_PASSWORD}
+      NEO4J_PLUGINS: '["n10s"]'
+      NEO4J_server_memory_pagecache_size: 128M
+      NEO4J_server_memory_heap_initial__size: 128M
+      NEO4J_server_memory_heap_max__size: 128M
+      NEO4J_ACCEPT_LICENSE_AGREEMENT: 'yes'
+    ports:
+      - '7474:7474'
+      - '7687:7687'
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+      - neo4j_import:/import
+      - neo4j_plugins:/plugins
+    healthcheck:
+      test: [ 'CMD-SHELL', 'curl -fs http://0.0.0.0:7474 || exit 1' ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  pg_data:
+  neo4j_data:
+  neo4j_logs:
+  neo4j_import:
+  neo4j_plugins:
+

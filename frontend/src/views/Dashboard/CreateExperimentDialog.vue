@@ -1,27 +1,27 @@
 <template>
     <Dialog
         v-model:visible="visible"
-        header="Создать эксперимент"
         class="w-fit"
+        header="Создать эксперимент"
         modal
         @hide="onHide"
     >
         <div class="flex flex-col gap-3 px-3 py-4">
             <div class="flex justify-center">
                 <i
-                    class="pi"
                     :class="selectedKind === ExperimentKind.LABORATORY ? 'pi-bolt' : 'pi-microchip'"
+                    class="pi"
                     style="font-size: 3rem"
                 />
             </div>
 
             <div class="text-center text-xl">
-                <label for="experimentKind" class="block font-bold mb-1">Тип эксперимента</label>
+                <label class="block font-bold mb-1" for="experimentKind">Тип эксперимента</label>
                 <SelectButton
                     id="experimentKind"
                     v-model="selectedKind"
-                    :options="experimentKinds"
                     :allowEmpty=false
+                    :options="experimentKinds"
                     optionLabel="label"
                     optionValue="value"
                 />
@@ -37,7 +37,7 @@
                         v-model="experimentName"
                         class="w-full"
                     />
-                    <label for="experimentName" class="block font-bold mb-1">Название эксперимента</label>
+                    <label class="block font-bold mb-1" for="experimentName">Название эксперимента</label>
                 </FloatLabel>
             </InputGroup>
 
@@ -50,47 +50,47 @@
                         id="experimentFolder"
                         v-model="selectedFolder"
                         :options="dashboardStore.formattedFolders(ExperimentKind.ANY).value"
-                        optionLabel="path"
                         class="w-full"
+                        optionLabel="path"
                     />
-                    <label for="experimentFolder" class="block font-bold mb-1">Путь</label>
+                    <label class="block font-bold mb-1" for="experimentFolder">Путь</label>
                 </FloatLabel>
             </InputGroup>
         </div>
 
         <template #footer>
-            <Button label="Отмена" class="p-button-text" @click="onHide"/>
-            <Button label="Создать" class="p-button p-button-success" @click="onCreateExperiment"/>
+            <Button class="p-button-text" label="Отмена" @click="onHide" />
+            <Button class="p-button p-button-success" label="Создать" @click="onCreateExperiment" />
         </template>
     </Dialog>
 </template>
 
-<script setup lang="ts">
-import {Button, Dialog, FloatLabel, InputGroup, InputGroupAddon, InputText, Select} from "primevue"
-import {computed, ref} from 'vue'
+<script lang="ts" setup>
+import { Button, Dialog, FloatLabel, InputGroup, InputGroupAddon, InputText, Select } from 'primevue';
+import { ref } from 'vue';
 
-import {useDashboardStore} from '@/stores/dashboard'
-import {Experiment, ExperimentKind, Folder, SimplifiedView} from '@/views/Dashboard/typing'
-import {findById} from "@/views/utils";
+import { useDashboardStore } from '@/stores/dashboard';
+import { Experiment, ExperimentKind, Folder, SimplifiedView } from '@/views/Dashboard/typing';
+import { findById } from '@/views/utils';
 
-const dashboardStore = useDashboardStore()
+const dashboardStore = useDashboardStore();
 
-const visible = dashboardStore.getVisibleModel(dashboardStore.createExperimentDialog)
+const visible = dashboardStore.getVisibleModel(dashboardStore.createExperimentDialog);
 
-const experimentName = ref('')
-const selectedKind = ref(ExperimentKind.LABORATORY)
-const selectedFolder = ref<SimplifiedView | null>(null)
+const experimentName = ref('');
+const selectedKind = ref(ExperimentKind.LABORATORY);
+const selectedFolder = ref<SimplifiedView | null>(null);
 
 const experimentKinds = [
-    {label: 'Лабораторный', value: ExperimentKind.LABORATORY},
-    {label: 'Вычислительный', value: ExperimentKind.COMPUTATIONAL}
-]
+    { label: 'Лабораторный', value: ExperimentKind.LABORATORY },
+    { label: 'Вычислительный', value: ExperimentKind.COMPUTATIONAL }
+];
 
 function onHide() {
-    visible.value = false
-    experimentName.value = ''
-    selectedKind.value = ExperimentKind.LABORATORY
-    selectedFolder.value = null
+    visible.value = false;
+    experimentName.value = '';
+    selectedKind.value = ExperimentKind.LABORATORY;
+    selectedFolder.value = null;
 }
 
 function onCreateExperiment() {
@@ -102,14 +102,14 @@ function onCreateExperiment() {
     };
 
     if (selectedFolder.value) {
-        const parentFolder = findById(dashboardStore.experimentFS, selectedFolder.value.id) as Folder
+        const parentFolder = findById(dashboardStore.experimentFS, selectedFolder.value.id) as Folder;
         if (parentFolder) {
-            parentFolder.children.push(newExperiment)
+            parentFolder.children.push(newExperiment);
         }
     } else {
-        dashboardStore.experimentFS.push(newExperiment)
+        dashboardStore.experimentFS.push(newExperiment);
     }
 
-    onHide()
+    onHide();
 }
 </script>

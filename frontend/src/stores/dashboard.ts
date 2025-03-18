@@ -47,7 +47,7 @@ export const useDashboardStore = defineStore('dashboard',
             },
             async fetchExperimentFS() {
                 if (this.experimentFS) {
-                    return
+                    return;
                 }
 
                 try {
@@ -57,7 +57,7 @@ export const useDashboardStore = defineStore('dashboard',
 
                     params.append('username', coreStore.username);
                     for (const key of desired_keys) {
-                        params.append('desired_keys', key)
+                        params.append('desired_keys', key);
                     }
 
                     const response = await api.get<FileSystem>(`experiment/?${params.toString()}`);
