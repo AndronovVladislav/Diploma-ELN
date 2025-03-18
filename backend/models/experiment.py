@@ -27,14 +27,34 @@ class Measurement(Base):
     """
     row: Mapped[int]
     column: Mapped[int]
-    value: Mapped[str]  # TODO: возможно такой тип будет проблемой, но пока он такой не забывать парсить в порядке [(float | bool), str]
+    value: Mapped[
+        str]  # TODO: возможно такой тип будет проблемой, но пока он такой не забывать парсить в порядке [(float | bool), str]
+
+    experiment_id: Mapped[Id] = mapped_column(ForeignKey('laboratory_experiments.id'))
+
+
+class Ontology(Base):
+    __tablename__ = 'ontologies'
+
+    name: Mapped[str]
+    label: Mapped[str]
+
+
+class ColumnDescription(Base):
+    name: Mapped[str]
+    ontology_element: Mapped[str]
+
+    ontology_id: Mapped[Id] = mapped_column(ForeignKey('ontologies.id'))
+    ontology: Mapped['Ontology'] =  relationship('Ontology')
 
     experiment_id: Mapped[Id] = mapped_column(ForeignKey('laboratory_experiments.id'))
 
 
 class LaboratoryExperiment(Experiment):
     user: Mapped['User'] = relationship(back_populates='lab_experiments')
+
     measurements: Mapped[list['Measurement']] = relationship()
+    columns: Mapped[list['ColumnDescription']] = relationship()
 
 
 class SchemaKind(StrEnum):

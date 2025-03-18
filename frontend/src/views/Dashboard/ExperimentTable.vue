@@ -46,15 +46,13 @@ import { Button, Column, TreeTable } from 'primevue';
 import ExperimentActions from '@/views/Dashboard/ExperimentActions.vue';
 import { ExperimentKind } from '@/views/Dashboard/typing';
 import { useDashboardStore } from '@/stores/dashboard';
-import { onBeforeMount } from 'vue';
+import router from '@/router';
 
 const dashboardStore = useDashboardStore();
 
 const goToExperiment = (id: string) => {
     if (!id) return;
-};
 
-onBeforeMount(async () => {
-    await dashboardStore.fetchExperimentFS();
-});
+    router.push(`/experiment/${id}`);
+};
 </script>

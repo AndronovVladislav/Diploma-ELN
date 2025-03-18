@@ -9,7 +9,6 @@ class ColumnOntologicalDescription(BaseModel):
 
 
 class OntologicalDescription(BaseModel):
-    # database: Annotated[list[str], 'Set of databases for queries to neo4j, in most cases name of ontologies']
     primary_key: Annotated[str, 'A unique column in each row.'
                                 'URI of each value from this column will be requested from database.']
     columns: dict[str, ColumnOntologicalDescription]
@@ -22,3 +21,23 @@ class HeadersDescription(BaseModel):
 class ExperimentDescription(BaseModel):
     headers: HeadersDescription
     body: Annotated[dict, 'Any dict compatible with polars']
+
+
+class ColumnDescription(BaseModel):
+    name: str
+    ontology: str
+    ontology_element: str
+
+
+class LaboratoryExperiment(BaseModel):
+    name: str
+    description: str
+
+    data: list[dict]
+    columns: list[ColumnDescription]
+
+
+
+# class ColumnDescription(BaseModel):
+#     uri: str
+#     dimension: str

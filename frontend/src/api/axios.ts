@@ -7,7 +7,7 @@ const api = axios.create({
     timeout: 5000
 });
 
-const TOKEN_REFRESH_URL = '/auth/refresh'
+const TOKEN_REFRESH_URL = '/auth/refresh';
 
 api.interceptors.request.use(config => {
     const coreStore = useCoreStore();
@@ -40,7 +40,7 @@ api.interceptors.response.use(response => response, async error => {
         } catch (refreshError) {
             coreStore.access_token = null;
             coreStore.refresh_token = null;
-            router.push('/auth/login')
+            router.push('/auth/login');
         }
     }
 

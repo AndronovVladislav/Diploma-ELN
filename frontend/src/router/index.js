@@ -1,6 +1,7 @@
 import AppLayout from '@/layout/AppLayout.vue';
 import { createRouter, createWebHistory } from 'vue-router';
 import { useCoreStore } from '@/stores/core';
+import LabExperiment from '@/views/Editors/LabExperiment.vue';
 
 const router = createRouter({
     history: createWebHistory(),
@@ -13,6 +14,11 @@ const router = createRouter({
                     path: '/',
                     name: 'dashboard',
                     component: () => import('@/views/Dashboard/Dashboard.vue')
+                },
+                {
+                    path: '/experiment/:id',
+                    component: LabExperiment,
+                    props: true
                 },
                 {
                     path: '/uikit/formlayout',
@@ -49,7 +55,6 @@ const router = createRouter({
                     name: 'panel',
                     component: () => import('@/sakai/views/uikit/PanelsDoc.vue')
                 },
-
                 {
                     path: '/uikit/overlay',
                     name: 'overlay',

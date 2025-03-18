@@ -1,5 +1,5 @@
 <script setup>
-import FloatingConfigurator from '@/sakai/components/FloatingConfigurator.vue';
+import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
 </script>
 
 <template>
@@ -20,7 +20,7 @@ import FloatingConfigurator from '@/sakai/components/FloatingConfigurator.vue';
                             Доступ запрещён
                         </h1>
                         <span class="text-muted-color mb-8">Для получения доступа к системе авторизуйтесь</span>
-                        <img src="/demo/images/access/asset-access.svg" alt="Access denied" class="mb-8" width="80%" />
+                        <img alt="Access denied" class="mb-8" src="/demo/images/access/asset-access.svg" width="80%" />
                         <div class="col-span-12 mt-8 text-center">
                             <Button as="router-link" label="Войти в систему" to="/auth/login" />
                         </div>

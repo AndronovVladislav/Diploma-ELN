@@ -16,29 +16,29 @@
                     label="Создать"
                     @click="toggleCreateMenu"
                 />
-                <Menu id="createMenu" ref="createMenu" :model="createOptions" popup/>
+                <Menu id="createMenu" ref="createMenu" :model="createOptions" popup />
             </div>
         </div>
 
-        <ExperimentTable/>
+        <ExperimentTable />
 
-        <CreateExperimentDialog/>
-        <CreateFolderDialog/>
-        <MoveExperimentDialog/>
+        <CreateExperimentDialog />
+        <CreateFolderDialog />
+        <MoveExperimentDialog />
     </div>
 </template>
 
 <script lang="ts" setup>
-import {ref} from 'vue';
-import {Button, Menu} from 'primevue';
+import { ref } from 'vue';
+import { Button, Menu } from 'primevue';
 
 import ExperimentTable from '@/views/Dashboard/ExperimentTable.vue';
 import MoveExperimentDialog from '@/views/Dashboard/MoveExperimentDialog.vue';
-import {useDashboardStore} from "@/stores/dashboard";
-import CreateFolderDialog from "@/views/Dashboard/CreateFolderDialog.vue";
-import CreateExperimentDialog from "@/views/Dashboard/CreateExperimentDialog.vue";
+import { useDashboardStore } from '@/stores/dashboard';
+import CreateFolderDialog from '@/views/Dashboard/CreateFolderDialog.vue';
+import CreateExperimentDialog from '@/views/Dashboard/CreateExperimentDialog.vue';
 
-const dashboardStore = useDashboardStore()
+const dashboardStore = useDashboardStore();
 
 const createMenu = ref<InstanceType<typeof Menu> | null>(null);
 
@@ -47,14 +47,14 @@ const createOptions = ref([
         label: 'Эксперимент',
         icon: 'pi pi-book',
         command: () => {
-            dashboardStore.createExperimentDialog.visible = true
+            dashboardStore.createExperimentDialog.visible = true;
         }
     },
     {
         label: 'Папка',
         icon: 'pi pi-folder',
         command: () => {
-            dashboardStore.createFolderDialog.visible = true
+            dashboardStore.createFolderDialog.visible = true;
         }
     }
 ]);

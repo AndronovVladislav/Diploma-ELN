@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { computed, ComputedRef, ref, watch } from 'vue';
 import { Experiment, ExperimentKind, FileSystem, Folder, SimplifiedView } from '@/views/Dashboard/typing';
-import { findParent, getFullPath, getSuggestedFolders } from '@/views/Dashboard/utils';
+import { findParent, getFullPath, getSuggestedFolders } from '@/views/utils';
 import api from '@/api/axios';
 import { useCoreStore } from '@/stores/core';
 
@@ -46,6 +46,10 @@ export const useDashboardStore = defineStore('dashboard',
                 });
             },
             async fetchExperimentFS() {
+                if (this.experimentFS) {
+                    return;
+                }
+
                 try {
                     const coreStore = useCoreStore();
                     const params = new URLSearchParams();
@@ -53,7 +57,7 @@ export const useDashboardStore = defineStore('dashboard',
 
                     params.append('username', coreStore.username);
                     for (const key of desired_keys) {
-                        params.append('desired_keys', key)
+                        params.append('desired_keys', key);
                     }
 
                     const response = await api.get<FileSystem>(`experiment/?${params.toString()}`);

@@ -33,7 +33,7 @@ class Base(DeclarativeBase):
 
     id: Mapped[Id]
 
-    repr_cols_num = 3
+    repr_cols_num = 7
     repr_cols = tuple()
 
     def __repr__(self):
