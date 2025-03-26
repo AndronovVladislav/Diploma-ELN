@@ -169,7 +169,7 @@ backend/certs/*
 backend/env/*
 frontend/src/sakai
 frontend/ssl/*
-frontend/.env*
+frontend/.env.development
 
 # JS
 node_modules
