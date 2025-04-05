@@ -7,11 +7,11 @@ from sqlalchemy import NullPool, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
+from backend.common.enums import Role, ExperimentKind
 from backend.config import settings
 from backend.main import app
 from backend.models import User
-from backend.models.experiment import LaboratoryExperiment, ColumnDescription, Measurement, Ontology
-from backend.models.user import Role
+from backend.models.experiment import LaboratoryExperiment, Column, Measurement, Ontology, Experiment
 from backend.models.utils import connection
 from backend.models.utils import db_helper
 from backend.routes.auth.utils import hash_password
@@ -44,8 +44,8 @@ async def override_db_helper():
     @connection
     async def truncate_all_tables(session: AsyncSession) -> None:
         await session.execute(text('''
-            DO $$ 
-            DECLARE 
+            DO $$
+            DECLARE
                 r RECORD;
             BEGIN
                 SET session_replication_role = 'replica';
@@ -60,7 +60,7 @@ async def override_db_helper():
 
 
 @pytest.fixture
-async def test_user() -> User:
+async def user() -> User:
     """Создаёт тестового пользователя в БД перед тестом"""
 
     @connection
@@ -71,42 +71,78 @@ async def test_user() -> User:
             role=Role.ADMIN,
         )
         session.add(user)
+        await session.flush()
+        await session.refresh(user)
+        print(user)
         return user
 
     return await create_user()
 
 
 @pytest.fixture
-async def lab_experiment(test_user: User) -> LaboratoryExperiment:
+async def ontology() -> Ontology:
+    """Создаёт онтологию в БД перед тестом"""
+
+    @connection
+    async def create_ontology(session: AsyncSession) -> Ontology:
+        ontology = Ontology(name='OM2', label='...')
+        session.add(ontology)
+
+        return ontology
+
+    return await create_ontology()
+
+
+# @pytest.fixture
+# async def experiment(user: User) -> Experiment:
+#     """Создаёт эксперимент в БД перед тестом"""
+#
+#     @connection
+#     async def create_experiment(session: AsyncSession) -> Experiment:
+#         print(user)
+#         experiment = Experiment(
+#             user_id=user.id,
+#             path=f'/experiments/{user.username}/lab_exp_1',
+#             description='Test Lab Experiment',
+#             kind=ExperimentKind.LABORATORY,
+#         )
+#
+#         session.add(experiment)
+#         return experiment
+#
+#     return await create_experiment()
+
+
+@pytest.fixture
+async def lab_experiment(user: User, ontology: Ontology) -> LaboratoryExperiment:
     """Создаёт лабораторный эксперимент в БД перед тестом"""
 
     @connection
     async def create_lab_experiment(session: AsyncSession) -> LaboratoryExperiment:
         experiment = LaboratoryExperiment(
-            id=1,
-            path=f'/experiments/{test_user.username}/lab_exp_1',
+            # id=experiment.id,
+            user_id=user.id,
+            path=f'/experiments/{user.username}/lab_exp_1',
             description='Test Lab Experiment',
-            user_id=test_user.id
+            kind=ExperimentKind.LABORATORY,
         )
-        ontology = Ontology(name='OM2', label='...')
-
         session.add(experiment)
-        session.add(ontology)
-        await session.commit()
+        await session.flush()
 
-        column = ColumnDescription(
-            id=1,
+        column = Column(
             name='Temperature',
             ontology_element='degreeCelsius',
             experiment_id=experiment.id,
             ontology_id=ontology.id,
         )
-        session.add(column)
-        await session.commit()
+        session.add_all([experiment, column])
+        await session.flush()
 
         measurement = Measurement(row=1, column=column.id, value='25', experiment_id=experiment.id)
         session.add(measurement)
 
+        # await session.flush()
+        # await session.refresh(experiment)
         return experiment
 
     return await create_lab_experiment()

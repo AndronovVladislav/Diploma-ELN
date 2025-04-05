@@ -7,9 +7,9 @@
 </template>
 
 <script lang="ts" setup>
-import { findById, removeExperiment } from '@/views/utils';
 import { Experiment } from '@/views/Dashboard/typing';
 import { useDashboardStore } from '@/stores/dashboard';
+import { findById, removeExperiment } from '@/utils/fileSystem';
 
 const dashboardStore = useDashboardStore();
 

@@ -1,24 +1,33 @@
 <template>
-    <div class="table-container relative">
-        <DataTable :value="data">
-            <Column v-for="col of columns" :key="col.name" :header="col.name">
+    <div class="card relative">
+        <DataTable v-model:value="tableData" edit-mode="cell" @cell-edit-complete="onCellEditComplete" striped-rows>
+            <Column class="!text-center">
                 <template #header>
-                    <div class="flex items-center gap-2">
-                        <Button class="p-button-text p-button-sm" icon="pi pi-link" @click="openDialog(col)" />
+                    <div class="w-full">
+                        <Button class="p-button-sm p-button-outlined" icon="pi pi-plus" @click="addColumn" />
                     </div>
                 </template>
                 <template #body="slotProps">
-                    <InputText
-                        v-model="slotProps.data[col.name]"
-                        class="w-fit"
-                        @update:modelValue="updateValue(slotProps.data, col.name, $event)"
-                    />
+                    <Button icon="pi pi-trash" @click="deleteRow(slotProps.index)" />
                 </template>
             </Column>
 
-            <Column>
+            <Column v-for="col of columnsInfo" :key="col.id" :field="col.name">
                 <template #header>
-                    <Button class="p-button-sm p-button-outlined" icon="pi pi-plus" @click="addColumn" />
+                    <div class="flex items-center justify-between">
+                        <span>{{ col.name }}</span>
+                        <div class="flex items-center gap-1">
+                            <Menu :ref="el => columnMenus[col.id] = el" :model="getColumnMenuItems(col)" popup />
+                            <Button
+                                icon="pi pi-ellipsis-v"
+                                class="p-button-text p-button-sm"
+                                @click="columnMenus[col.id]?.toggle($event)"
+                            />
+                        </div>
+                    </div>
+                </template>
+                <template #editor="{ data, field }">
+                    <InputText v-model="data[field]" />
                 </template>
             </Column>
         </DataTable>
@@ -28,40 +37,28 @@
         </div>
     </div>
 
-    <Dialog v-model:visible="showDialog" :modal="true" class="w-1/2" header="Настройки столбца">
-        <div v-if="selectedColumn" class="flex flex-col gap-4 w-full">
-            <div class="field flex flex-col gap-2 w-full">
-                <label for="column_name">Название столбца</label>
-                <InputText id="column_name" v-model="selectedColumn.name" class="w-full" />
-            </div>
-            <div class="field flex flex-col gap-2 w-full">
-                <label for="ontology">Онтология</label>
-                <InputText id="ontology" v-model="selectedColumn.ontology" class="w-full" />
-            </div>
-            <div class="field flex flex-col gap-2 w-full">
-                <label for="ontology_element">Элемент онтологии</label>
-                <InputText id="ontology_element" v-model="selectedColumn.ontology_element" class="w-full" />
-            </div>
-        </div>
-        <template #footer>
-            <Button icon="pi pi-times" label="Закрыть" @click="closeDialog()" />
-        </template>
-    </Dialog>
+    <EditColumnDialog
+        v-if="selectedColumn"
+        v-model:visible="showDialog"
+        :column="selectedColumn"
+        @update="onColumnUpdate"
+        @delete="deleteColumn"
+        @close="closeDialog"
+    />
 </template>
 
 <script lang="ts" setup>
+import { Button, InputText, Menu } from 'primevue';
+import EditColumnDialog from '@/views/Editors/LabExperiment/EditColumnDialog.vue';
+import type { Column } from '@/views/Editors/LabExperiment/typing';
+import { useTableEditor } from '@/composables/useTableEditor';
 import { ref } from 'vue';
-import { Button, Dialog, InputText } from 'primevue';
+import { RowData } from '@/typing';
 
-interface Column {
-    name: string;
-    ontology: string;
-    ontology_element: string;
-}
-
-interface RowData {
-    [key: string]: string;
-}
+const emit = defineEmits<{
+    (e: 'update:columns', value: Column[]): void;
+    (e: 'update:data', value: RowData[]): void;
+}>();
 
 interface Props {
     columns: Column[];
@@ -69,53 +66,34 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const columns = ref([...props.columns]);
-const data = ref([...props.data]);
+const tableData = ref(props.data);
+const columnsInfo = ref(props.columns);
 
-const showDialog = ref(false);
-const selectedColumn = ref<Column | null>(null);
+const {
+    showDialog,
+    selectedColumn,
+    columnMenus,
+    addColumn,
+    addRow,
+    deleteRow,
+    deleteColumn,
+    closeDialog,
+    getColumnMenuItems
+} = useTableEditor(columnsInfo, tableData, emit);
 
-const openDialog = (column: Column) => {
-    selectedColumn.value = column;
-    showDialog.value = true;
-};
-
-const updateValue = (row: RowData, columnName: string, newValue: string) => {
-    row[columnName] = newValue;
-};
-
-const addColumn = () => {
-    console.log(columns);
-    const newColumn = { name: `column_${columns.value.length + 1}`, ontology: '', ontology_element: '' };
-    columns.value.push(newColumn);
-
-    data.value.forEach(row => {
-        row[newColumn.name] = '';
-    });
-
-    openDialog(newColumn);
-};
-
-const addRow = () => {
-    const newRow: RowData = {};
-    columns.value.forEach(col => {
-        newRow[col.name] = '';
-    });
-    data.value.push(newRow);
-};
-
-const updateColumnName = () => {
-    if (!selectedColumn.value) return;
-
-    const columnIndex = columns.value.findIndex(col => col.name === selectedColumn.value!.oldName);
-
+const onColumnUpdate = (updated: Column) => {
+    const columnIndex = columnsInfo.value.findIndex(col => col.id === updated.id);
     if (columnIndex !== -1) {
-        Object.assign(columns.value[columnIndex], { name: selectedColumn.value!.name });
+        columnsInfo.value[columnIndex] = updated;
+        emit('update:columns', columnsInfo.value);
     }
 };
 
-const closeDialog = () => {
-    updateColumnName();
-    showDialog.value = false;
+const onCellEditComplete = (e: any) => {
+    const { data, field, newValue } = e;
+    if (data[field] !== newValue) {
+        data[field] = newValue;
+        emit('update:data', tableData.value);
+    }
 };
 </script>

@@ -8,31 +8,39 @@
             <div class="bubble-menu flex gap-2 bg-surface-800 p-2 rounded-lg shadow-md">
                 <Button class="text-white hover:bg-gray-700 px-3 py-1 rounded font"
                         @click="editor.chain().focus().toggleBold().run()">
-                    Bold
+                    <b>Bold</b>
                 </Button>
                 <Button class="text-white hover:bg-gray-700 px-3 py-1 rounded"
                         @click="editor.chain().focus().toggleItalic().run()">
-                    Italic
+                    <i>Italic</i>
                 </Button>
                 <Button class="text-white hover:bg-gray-700 px-3 py-1 rounded"
                         @click="editor.chain().focus().toggleStrike().run()">
-                    Strike
+                    <s>Strike</s>
                 </Button>
             </div>
         </BubbleMenu>
         <div class="bg-surface-800 text-surface-300 flex justify-between p-3 rounded-t-lg">
             <div class="flex gap-2">
-                <Button :class="['px-3 py-1 min-w-[32px] min-h-[32px] flex items-center justify-center rounded', {'font-bold': editor?.isActive('bold') }]"
-                        @click="editor.chain().focus().toggleBold().run()">
-                    B
+                <Button
+                    :class="['px-3 py-1 min-w-[32px] min-h-[32px] flex items-center justify-center rounded text-primary-contrast', {'font-bold': editor?.isActive('heading') }]"
+                    @click="editor.chain().focus().toggleHeading({level: 1}).run()">
+                    <p>H<sub>1</sub></p>
                 </Button>
-                <Button :class="['px-3 py-1 min-w-[32px] min-h-[32px] flex items-center justify-center rounded', {'font-bold': editor?.isActive('italic') }]"
-                        @click="editor.chain().focus().toggleItalic().run()">
-                    I
+                <Button
+                    :class="['px-3 py-1 min-w-[32px] min-h-[32px] flex items-center justify-center rounded text-primary-contrast', {'bg-surface-600': editor?.isActive('code') }]"
+                    @click="editor.chain().focus().toggleCode().run()">
+                    <>
                 </Button>
-                <Button :class="['px-3 py-1 min-w-[32px] min-h-[32px] flex items-center justify-center rounded', {'font-bold': editor?.isActive('strike') }]"
-                        @click="editor.chain().focus().toggleStrike().run()">
-                    S
+                <Button
+                    class="px-3 py-1 min-w-[32px] min-h-[32px] flex items-center justify-center rounded text-color"
+                    @click="editor.chain().focus().toggleBulletList().run()">
+                    •
+                </Button>
+                <Button
+                    class="px-3 py-1 min-w-[32px] min-h-[32px] flex items-center justify-center rounded text-color"
+                    @click="editor.chain().focus().toggleOrderedList().run()">
+                    1.
                 </Button>
             </div>
         </div>
@@ -45,10 +53,11 @@
 <script lang="ts" setup>
 import { Button } from 'primevue';
 import { BubbleMenu, Editor, EditorContent } from '@tiptap/vue-3';
-import { onMounted, ref, watch } from 'vue';
+import { onBeforeMount, ref } from 'vue';
 import StarterKit from '@tiptap/starter-kit';
+import type { Optional } from '@/typing';
 
-const editor = ref(null);
+const editor = ref<Optional<Editor>>(null);
 
 interface Props {
     description: string,
@@ -56,21 +65,44 @@ interface Props {
 
 const props = defineProps<Props>();
 
-watch(() => props.description, (newValue) => {
-    if (editor.value) {
-        editor.value.commands.setContent('<p>' + newValue + '</p>');
-    }
-});
+const emit = defineEmits<{
+    (e: 'update:description', value: string): void
+}>();
 
-onMounted(() => {
+
+onBeforeMount(() => {
     editor.value = new Editor({
-        content: '<p>' + props.description + '</p>',
+        content: props.description,
         extensions: [StarterKit]
+    });
+
+    editor.value.on('update', () => {
+        emit('update:description', editor.value?.getHTML() ?? '');
     });
 });
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
+.ProseMirror {
+    ul, ol {
+        margin: 0.5rem 0;
+        padding-left: 1.5rem;
+        color: var(--text-color);
+    }
+
+    ul {
+        list-style-type: disc;
+    }
+
+    ol {
+        list-style-type: decimal;
+    }
+
+    li {
+        margin-bottom: 0.25rem;
+    }
+}
+
 .ProseMirror:focus {
     outline: none;
 }
