@@ -4,7 +4,7 @@ import router from '@/router';
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
-    timeout: 500000
+    timeout: 5000,
 });
 
 const TOKEN_REFRESH_URL = '/auth/refresh';

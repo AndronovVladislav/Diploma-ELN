@@ -11,7 +11,7 @@ from backend.common.enums import Role, ExperimentKind
 from backend.config import settings
 from backend.main import app
 from backend.models import User
-from backend.models.experiment import LaboratoryExperiment, Column, Measurement, Ontology, Experiment
+from backend.models.experiment import LaboratoryExperiment, Column, Measurement, Ontology
 from backend.models.utils import connection
 from backend.models.utils import db_helper
 from backend.routes.auth.utils import hash_password
@@ -71,9 +71,6 @@ async def user() -> User:
             role=Role.ADMIN,
         )
         session.add(user)
-        await session.flush()
-        await session.refresh(user)
-        print(user)
         return user
 
     return await create_user()
@@ -93,26 +90,6 @@ async def ontology() -> Ontology:
     return await create_ontology()
 
 
-# @pytest.fixture
-# async def experiment(user: User) -> Experiment:
-#     """Создаёт эксперимент в БД перед тестом"""
-#
-#     @connection
-#     async def create_experiment(session: AsyncSession) -> Experiment:
-#         print(user)
-#         experiment = Experiment(
-#             user_id=user.id,
-#             path=f'/experiments/{user.username}/lab_exp_1',
-#             description='Test Lab Experiment',
-#             kind=ExperimentKind.LABORATORY,
-#         )
-#
-#         session.add(experiment)
-#         return experiment
-#
-#     return await create_experiment()
-
-
 @pytest.fixture
 async def lab_experiment(user: User, ontology: Ontology) -> LaboratoryExperiment:
     """Создаёт лабораторный эксперимент в БД перед тестом"""
@@ -120,11 +97,9 @@ async def lab_experiment(user: User, ontology: Ontology) -> LaboratoryExperiment
     @connection
     async def create_lab_experiment(session: AsyncSession) -> LaboratoryExperiment:
         experiment = LaboratoryExperiment(
-            # id=experiment.id,
             user_id=user.id,
             path=f'/experiments/{user.username}/lab_exp_1',
             description='Test Lab Experiment',
-            kind=ExperimentKind.LABORATORY,
         )
         session.add(experiment)
         await session.flush()
@@ -135,14 +110,12 @@ async def lab_experiment(user: User, ontology: Ontology) -> LaboratoryExperiment
             experiment_id=experiment.id,
             ontology_id=ontology.id,
         )
-        session.add_all([experiment, column])
+        session.add(column)
         await session.flush()
 
         measurement = Measurement(row=1, column=column.id, value='25', experiment_id=experiment.id)
         session.add(measurement)
 
-        # await session.flush()
-        # await session.refresh(experiment)
         return experiment
 
     return await create_lab_experiment()

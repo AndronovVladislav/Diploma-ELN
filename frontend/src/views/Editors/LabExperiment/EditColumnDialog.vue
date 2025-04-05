@@ -35,7 +35,6 @@ const props = defineProps<Props>();
 
 const emit = defineEmits<{
     (e: 'update', updated: Column): void;
-    (e: 'delete'): void;
     (e: 'close'): void;
 }>();
 

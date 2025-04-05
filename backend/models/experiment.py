@@ -16,7 +16,7 @@ class Experiment(Base):
 
     path: Mapped[str]
     description: Mapped[str]
-    kind: Mapped[ExperimentKind]
+    kind: Mapped[ExperimentKind] = mapped_column()
 
     created_at: Mapped[NonUpdatableNow]
     updated_at: Mapped[UpdatableNow]
@@ -29,6 +29,10 @@ class Experiment(Base):
     def name(self, new_name: str) -> None:
         self.path = '/'.join((self.path.split('/')[:-1], new_name))
 
+    __mapper_args__ = {
+        'polymorphic_on': kind,
+        'polymorphic_identity': 'base'
+    }
 
 class Ontology(Base):
     __tablename__ = 'ontologies'
@@ -67,6 +71,9 @@ class LaboratoryExperiment(Experiment):
 
     info: Mapped['Experiment'] = relationship(passive_deletes=True)
 
+    __mapper_args__ = {
+        'polymorphic_identity': ExperimentKind.LABORATORY
+    }
 
 class SchemaKind(StrEnum):
     INPUT = 'input'
@@ -131,3 +138,7 @@ class ComputationalExperiment(Experiment):
                                                                      )
 
     info: Mapped['Experiment'] = relationship(passive_deletes=True)
+
+    __mapper_args__ = {
+        'polymorphic_identity': ExperimentKind.COMPUTATIONAL
+    }

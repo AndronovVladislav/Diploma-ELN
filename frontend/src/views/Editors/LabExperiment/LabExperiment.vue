@@ -14,7 +14,7 @@
 import { onBeforeMount, onBeforeUnmount, ref, watchEffect } from 'vue';
 import Editor from '@/components/Editor.vue';
 import api from '@/api/axios';
-import Table from '@/components/Table.vue';
+import Table from '@/views/Editors/LabExperiment/Table.vue';
 import ProgressSpinner from 'primevue/progressspinner';
 import { Button } from 'primevue';
 import { useNotifier } from '@/composables/useNotifier';
