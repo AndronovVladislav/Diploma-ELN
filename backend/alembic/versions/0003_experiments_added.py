@@ -1,7 +1,7 @@
 """Experiments added
 
-Revision ID: 8e5cd8a0116f
-Revises: 7e6f7fbd3be0
+Revision ID: 0003
+Revises: 0002
 Create Date: 2025-03-07 01:09:41.789807
 
 """
@@ -12,8 +12,8 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision: str = '8e5cd8a0116f'
-down_revision: Union[str, None] = '7e6f7fbd3be0'
+revision: str = '0003'
+down_revision: Union[str, None] = '0002'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -25,7 +25,7 @@ def upgrade() -> None:
                               nullable=False),
                     sa.Column('data', postgresql.JSONB(astext_type=sa.Text()), nullable=False),
                     sa.Column('id', sa.Integer(), nullable=False),
-                    sa.PrimaryKeyConstraint('id')
+                    sa.PrimaryKeyConstraint('id', name=op.f('pk_schemas'))
                     )
     op.create_table('computational_experiment_templates',
                     sa.Column('input_schema_id', sa.Integer(), nullable=False),
@@ -33,11 +33,11 @@ def upgrade() -> None:
                     sa.Column('parameters_schema_id', sa.Integer(), nullable=False),
                     sa.Column('context_schema_id', sa.Integer(), nullable=False),
                     sa.Column('id', sa.Integer(), nullable=False),
-                    sa.ForeignKeyConstraint(['context_schema_id'], ['schemas.id'], ),
-                    sa.ForeignKeyConstraint(['input_schema_id'], ['schemas.id'], ),
-                    sa.ForeignKeyConstraint(['output_schema_id'], ['schemas.id'], ),
-                    sa.ForeignKeyConstraint(['parameters_schema_id'], ['schemas.id'], ),
-                    sa.PrimaryKeyConstraint('id')
+                    sa.ForeignKeyConstraint(['context_schema_id'], ['schemas.id'], name=op.f('fk_computational_experiment_templates_context_schema_id_schemas')),
+                    sa.ForeignKeyConstraint(['input_schema_id'], ['schemas.id'], name=op.f('fk_computational_experiment_templates_input_schema_id_schemas')),
+                    sa.ForeignKeyConstraint(['output_schema_id'], ['schemas.id'], name=op.f('fk_computational_experiment_templates_output_schema_id_schemas')),
+                    sa.ForeignKeyConstraint(['parameters_schema_id'], ['schemas.id'], name=op.f('fk_computational_experiment_templates_parameters_schema_id_schemas')),
+                    sa.PrimaryKeyConstraint('id', name=op.f('pk_computational_experiment_templates'))
                     )
     op.create_table('laboratory_experiments',
                     sa.Column('user_id', sa.Integer(), nullable=False),
@@ -50,7 +50,7 @@ def upgrade() -> None:
                               nullable=False),
                     sa.Column('id', sa.Integer(), nullable=False),
                     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
-                    sa.PrimaryKeyConstraint('id')
+                    sa.PrimaryKeyConstraint('id', name=op.f('pk_laboratory_experiments'))
                     )
     op.create_table('computational_experiments',
                     sa.Column('template_id', sa.Integer(), nullable=False),
@@ -65,7 +65,7 @@ def upgrade() -> None:
                     sa.Column('id', sa.Integer(), nullable=False),
                     sa.ForeignKeyConstraint(['template_id'], ['computational_experiment_templates.id'], ),
                     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
-                    sa.PrimaryKeyConstraint('id')
+                    sa.PrimaryKeyConstraint('id', name=op.f('pk_computational_experiments'))
                     )
     op.create_table('measurements',
                     sa.Column('row', sa.Integer(), nullable=False),
@@ -74,7 +74,7 @@ def upgrade() -> None:
                     sa.Column('experiment_id', sa.Integer(), nullable=False),
                     sa.Column('id', sa.Integer(), nullable=False),
                     sa.ForeignKeyConstraint(['experiment_id'], ['laboratory_experiments.id'], ),
-                    sa.PrimaryKeyConstraint('id')
+                    sa.PrimaryKeyConstraint('id', name=op.f('pk_measurements'))
                     )
     op.create_table('computational_experiment_datas',
                     sa.Column('experiment_id', sa.Integer(), nullable=False),
@@ -83,12 +83,12 @@ def upgrade() -> None:
                     sa.Column('parameters_schema_id', sa.Integer(), nullable=False),
                     sa.Column('context_schema_id', sa.Integer(), nullable=False),
                     sa.Column('id', sa.Integer(), nullable=False),
-                    sa.ForeignKeyConstraint(['context_schema_id'], ['schemas.id'], ),
-                    sa.ForeignKeyConstraint(['experiment_id'], ['computational_experiments.id'], ),
-                    sa.ForeignKeyConstraint(['input_schema_id'], ['schemas.id'], ),
-                    sa.ForeignKeyConstraint(['output_schema_id'], ['schemas.id'], ),
-                    sa.ForeignKeyConstraint(['parameters_schema_id'], ['schemas.id'], ),
-                    sa.PrimaryKeyConstraint('id')
+                    sa.ForeignKeyConstraint(['context_schema_id'], ['schemas.id'], name=op.f('fk_computational_experiment_datas_context_schema_id_schemas')),
+                    sa.ForeignKeyConstraint(['experiment_id'], ['computational_experiments.id'], name=op.f('fk_computational_experiment_datas_experiment_id_computational_experiments')),
+                    sa.ForeignKeyConstraint(['input_schema_id'], ['schemas.id'], name=op.f('fk_computational_experiment_datas_input_schema_id_schemas')),
+                    sa.ForeignKeyConstraint(['output_schema_id'], ['schemas.id'], name=op.f('fk_computational_experiment_datas_output_schema_id_schemas')),
+                    sa.ForeignKeyConstraint(['parameters_schema_id'], ['schemas.id'], name=op.f('fk_computational_experiment_datas_parameters_schema_id_schemas')),
+                    sa.PrimaryKeyConstraint('id', name=op.f('pk_computational_experiment_datas'))
                     )
     # ### end Alembic commands ###
 

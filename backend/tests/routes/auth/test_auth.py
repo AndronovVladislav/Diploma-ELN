@@ -1,6 +1,6 @@
 import pytest
 
-from backend.models.user import Role
+from backend.common.enums import Role
 
 
 @pytest.fixture

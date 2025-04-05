@@ -1,7 +1,7 @@
 import AppLayout from '@/layout/AppLayout.vue';
 import { createRouter, createWebHistory } from 'vue-router';
 import { useCoreStore } from '@/stores/core';
-import LabExperiment from '@/views/Editors/LabExperiment.vue';
+import LabExperiment from '@/views/Editors/LabExperiment/LabExperiment.vue';
 
 const router = createRouter({
     history: createWebHistory(),

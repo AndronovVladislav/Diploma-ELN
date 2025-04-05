@@ -1,7 +1,7 @@
 """User reworked, Profile added
 
-Revision ID: 011b4a2a7d81
-Revises: b9cb9acd9127
+Revision ID: 0001
+Revises: 0000
 Create Date: 2025-03-05 15:27:54.168775
 
 """
@@ -12,8 +12,8 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision: str = '011b4a2a7d81'
-down_revision: Union[str, None] = 'b9cb9acd9127'
+revision: str = '0001'
+down_revision: Union[str, None] = '0000'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -27,8 +27,8 @@ def upgrade() -> None:
                               nullable=False),
                     sa.Column('user_id', sa.Integer(), nullable=False),
                     sa.Column('id', sa.Integer(), nullable=False),
-                    sa.ForeignKeyConstraint(['user_id'], ['users.id']),
-                    sa.PrimaryKeyConstraint('id')
+                    sa.ForeignKeyConstraint(['user_id'], ['users.id'], name=op.f('fk_profiles_user_id_users')),
+                    sa.PrimaryKeyConstraint('id', name=op.f('pk_profiles'))
                     )
     op.create_unique_constraint('uq_users_email', 'users', ['email'])
     op.drop_column('users', 'registered_at')

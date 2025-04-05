@@ -1,14 +1,13 @@
-from enum import StrEnum
+from typing import TYPE_CHECKING
 
 from sqlalchemy import String, ForeignKey
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 
+from backend.common.enums import Role
 from backend.models.base import Base, NonUpdatableNow, Id
 
-
-class Role(StrEnum):
-    ADMIN = 'admin'
-    RESEARCHER = 'researcher'
+if TYPE_CHECKING:
+    from backend.models.experiment import Experiment
 
 
 class User(Base):
@@ -16,13 +15,10 @@ class User(Base):
     hashed_password: Mapped[str]
     role: Mapped[Role]
 
-    profile: Mapped['Profile'] = relationship(back_populates='user')
-    lab_experiments: Mapped[list['LaboratoryExperiment']] = relationship(back_populates='user')
-    computational_experiments: Mapped[list['ComputationalExperiment']] = relationship(back_populates='user')
-
-    @property
-    def experiments(self) -> list['Experiment']:
-        return self.lab_experiments + self.computational_experiments
+    profile: Mapped['Profile'] = relationship(back_populates='user', cascade='all, delete-orphan')
+    experiments: Mapped[list['Experiment']] = relationship(cascade='all, delete-orphan',
+                                                           passive_deletes=True,
+                                                           )
 
 
 class Profile(Base):
@@ -30,5 +26,5 @@ class Profile(Base):
     surname: Mapped[str]
     registered_at: Mapped[NonUpdatableNow]
 
-    user_id: Mapped[Id] = mapped_column(ForeignKey('users.id'))
+    user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'))
     user: Mapped['User'] = relationship(back_populates='profile')

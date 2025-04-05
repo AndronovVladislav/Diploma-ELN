@@ -3,17 +3,18 @@ import re
 from functools import partial
 from typing import Annotated
 
-from sqlalchemy import text, MetaData
+from sqlalchemy import text, MetaData, TIMESTAMP
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 Id = Annotated[int, mapped_column(primary_key=True)]
 NonUpdatableNow = Annotated[
     datetime.datetime,
-    mapped_column(server_default=text("TIMEZONE('utc', now())")),
+    mapped_column(TIMESTAMP(timezone=True), server_default=text("TIMEZONE('utc', now())")),
 ]
 UpdatableNow = Annotated[
     datetime.datetime,
     mapped_column(
+        TIMESTAMP(timezone=True),
         server_default=text("TIMEZONE('utc', now())"),
         onupdate=partial(datetime.datetime.now, tz=datetime.UTC),
     ),

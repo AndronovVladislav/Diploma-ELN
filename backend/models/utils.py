@@ -39,16 +39,22 @@ db_helper = DatabaseHelper(
 
 
 def connection(method):
+    """
+    Декоратор, создающий SQLAlchemy-сессию, если она не передана через kwargs.
+
+    :param method: async Callable-объект, имеющий среди параметров session: AsyncSession
+    :return:
+    """
     async def wrapper(*args, **kwargs):
-        async with db_helper.session_factory() as session:
-            try:
-                result = await method(*args, session=session, **kwargs)
-                await session.commit()
-                return result
-            except Exception as e:
-                await session.rollback()
-                raise e
-            finally:
-                await session.close()
+        session = kwargs.pop('session', None) or db_helper.session_factory()
+        try:
+            result = await method(*args, session=session, **kwargs)
+            await session.commit()
+            return result
+        except Exception as e:
+            await session.rollback()
+            raise e
+        finally:
+            await session.close()
 
     return wrapper

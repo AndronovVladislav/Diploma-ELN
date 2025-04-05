@@ -14,31 +14,30 @@ from backend.routes.auth.validation import (
 
 
 @pytest.fixture
-def access_token():
+def access_token() -> str:
     """Создаёт валидный access-токен"""
     return create_jwt('test_user', TokenType.ACCESS, timedelta(minutes=1))
 
 
 @pytest.fixture
-def refresh_token():
+def refresh_token() -> str:
     """Создаёт валидный refresh-токен"""
     return create_jwt('test_user', TokenType.REFRESH, timedelta(minutes=5))
 
 
 @pytest.fixture
-def invalid_token():
+def invalid_token() -> str:
     """Создаёт невалидный токен"""
     return 'invalid.token.payload'
 
 
 @pytest.mark.asyncio
-async def test_get_current_auth_user(mocker, access_token):
+async def test_get_current_auth_user(mocker, access_token: str, user: User):
     """Тестирует получение пользователя по access-токену"""
-    mock_user = User(username='test_user')
-    mocker.patch('backend.routes.auth.validation.get_user_by_username', return_value=mock_user)
+    mocker.patch('backend.routes.auth.validation.get_user_by_username', return_value=user)
 
-    user = await get_current_auth_user(get_current_token_payload(access_token))
-    assert user.username == 'test_user'
+    response = await get_current_auth_user(get_current_token_payload(access_token))
+    assert response.username == 'test_user'
 
 
 @pytest.mark.asyncio

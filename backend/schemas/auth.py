@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-from backend.models.user import Role
+from backend.common.enums import Role
 
 
 class UserSignup(BaseModel):

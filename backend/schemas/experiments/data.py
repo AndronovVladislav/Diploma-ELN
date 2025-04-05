@@ -23,21 +23,16 @@ class ExperimentDescription(BaseModel):
     body: Annotated[dict, 'Any dict compatible with polars']
 
 
-class ColumnDescription(BaseModel):
+class ColumnDetails(BaseModel):
+    id: int
     name: str
     ontology: str
     ontology_element: str
 
 
-class LaboratoryExperiment(BaseModel):
+class LaboratoryExperimentDetails(BaseModel):
     name: str
     description: str
 
-    data: list[dict]
-    columns: list[ColumnDescription]
-
-
-
-# class ColumnDescription(BaseModel):
-#     uri: str
-#     dimension: str
+    measurements: list[dict]
+    columns: list[ColumnDetails]

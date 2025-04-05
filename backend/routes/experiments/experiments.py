@@ -1,33 +1,34 @@
 from typing import Any
 
-from fastapi import APIRouter, Query, HTTPException, status
+from fastapi import APIRouter, Query
 
 from backend.routes.experiments.utils import flat_to_tree
-from backend.schemas.experiments import ColumnDescription
-from backend.schemas.experiments import ExperimentDescription
-from backend.services.experiments.graph import import_experiment as import_experiment_service
-from backend.services.experiments.relational import (
+from backend.schemas.experiments.data import LaboratoryExperimentDetails
+from backend.schemas.experiments.requests import UpdateLaboratoryExperimentRequest
+# from backend.services.experiments.graph import import_experiment as import_experiment_service
+from backend.services.experiments.relational.getters import (
     get_user_experiments as get_user_experiments_service,
-    ExperimentKind,
-    get_lab_experiment_data,
+    get_experiment_data as get_experiment_data_service,
 )
+from backend.services.experiments.relational.updaters import update_experiment_data as update_experiment_data_service
 
 router = APIRouter(prefix="/experiment", tags=["Experiments"])
 
 
-@router.get('/')
-async def get_user_experiments(username: str, desired_keys: list[str] = Query()) -> list[dict]:
+@router.get('/', response_model=list[dict])
+async def get_user_experiments(username: str, desired_keys: list[str] = Query()):
     return flat_to_tree(await get_user_experiments_service(username), desired_keys)
 
 
-@router.get('/{experiment_id}')
-async def get_experiment_data(experiment_id: int, kind: ExperimentKind = Query()) -> Any:
-    if kind == ExperimentKind.LABORATORY:
-        return await get_lab_experiment_data(experiment_id)
-    elif kind == ExperimentKind.COMPUTATIONAL:
-        return await ...
+@router.get('/{experiment_id}', response_model=LaboratoryExperimentDetails | Any)
+async def get_experiment_data(experiment_id: int):
+    return await get_experiment_data_service(experiment_id)
 
 
-@router.post('/import')
-async def import_experiment(experiment: ExperimentDescription) -> dict[str, ColumnDescription]:
-    return await import_experiment_service(experiment)
+@router.patch('/{experiment_id}', response_model=LaboratoryExperimentDetails)
+async def update_experiment_data(experiment_id: int, experiment: UpdateLaboratoryExperimentRequest):
+    return await update_experiment_data_service(experiment_id, experiment)
+
+# @router.post('/import')
+# async def import_experiment(experiment: ExperimentDescription) -> Any:  # TODO: написать схему
+#     return await import_experiment_service(experiment)

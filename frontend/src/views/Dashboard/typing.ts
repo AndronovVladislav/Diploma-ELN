@@ -16,7 +16,6 @@ export interface Folder {
     id: string;
     path: string;
 
-
     children: FileSystemItem[];
 }
 

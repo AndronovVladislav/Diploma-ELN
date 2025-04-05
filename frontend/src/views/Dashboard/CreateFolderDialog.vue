@@ -39,7 +39,7 @@
 import { Button, Dialog, FloatLabel, InputGroup, InputGroupAddon, InputText, Select } from 'primevue';
 import { ref } from 'vue';
 
-import { findById } from '@/views/utils';
+import { findById } from '@/utils/fileSystem';
 import { ExperimentKind, Folder, SimplifiedView } from '@/views/Dashboard/typing';
 import { useDashboardStore } from '@/stores/dashboard';
 
