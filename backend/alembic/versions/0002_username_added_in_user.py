@@ -1,7 +1,7 @@
 """username added in user
 
-Revision ID: 7e6f7fbd3be0
-Revises: 011b4a2a7d81
+Revision ID: 0002
+Revises: 0001
 Create Date: 2025-03-06 01:45:50.632833
 
 """
@@ -13,8 +13,8 @@ from alembic import op
 
 
 # revision identifiers, used by Alembic.
-revision: str = '7e6f7fbd3be0'
-down_revision: Union[str, None] = '011b4a2a7d81'
+revision: str = '0002'
+down_revision: Union[str, None] = '0001'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

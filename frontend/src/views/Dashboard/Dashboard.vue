@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { onBeforeMount, ref } from 'vue';
 import { Button, Menu } from 'primevue';
 
 import ExperimentTable from '@/views/Dashboard/ExperimentTable.vue';
@@ -62,4 +62,8 @@ const createOptions = ref([
 const toggleCreateMenu = (event: Event) => {
     createMenu.value?.toggle(event);
 };
+
+onBeforeMount(async () => {
+    await dashboardStore.fetchExperimentFS();
+});
 </script>

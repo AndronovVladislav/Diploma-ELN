@@ -4,6 +4,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, relationship, mapped_column, declared_attr
 
+from backend.common.enums import ExperimentKind
 from backend.models.base import Base, NonUpdatableNow, UpdatableNow, Id
 
 
@@ -11,27 +12,27 @@ class Experiment(Base):
     """
     Базовые поля, общие для всех экспериментов.
     """
-    __abstract__ = True
-
-    user_id: Mapped[Id] = mapped_column(ForeignKey('users.id'))
+    user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'))
 
     path: Mapped[str]
     description: Mapped[str]
+    kind: Mapped[ExperimentKind] = mapped_column()
+
     created_at: Mapped[NonUpdatableNow]
     updated_at: Mapped[UpdatableNow]
 
+    @property
+    def name(self) -> str:
+        return self.path.rsplit('/', 1)[-1]
 
-class Measurement(Base):
-    """
-    Хранит строки таблицы измерений для лабораторного эксперимента.
-    """
-    row: Mapped[int]
-    column: Mapped[int]
-    value: Mapped[
-        str]  # TODO: возможно такой тип будет проблемой, но пока он такой не забывать парсить в порядке [(float | bool), str]
+    @name.setter
+    def name(self, new_name: str) -> None:
+        self.path = '/'.join((self.path.split('/')[:-1], new_name))
 
-    experiment_id: Mapped[Id] = mapped_column(ForeignKey('laboratory_experiments.id'))
-
+    __mapper_args__ = {
+        'polymorphic_on': kind,
+        'polymorphic_identity': 'base'
+    }
 
 class Ontology(Base):
     __tablename__ = 'ontologies'
@@ -40,22 +41,39 @@ class Ontology(Base):
     label: Mapped[str]
 
 
-class ColumnDescription(Base):
+class Column(Base):
     name: Mapped[str]
     ontology_element: Mapped[str]
 
-    ontology_id: Mapped[Id] = mapped_column(ForeignKey('ontologies.id'))
-    ontology: Mapped['Ontology'] =  relationship('Ontology')
+    ontology_id: Mapped[int] = mapped_column(ForeignKey('ontologies.id', ondelete='RESTRICT'))
+    ontology: Mapped['Ontology'] = relationship()
 
-    experiment_id: Mapped[Id] = mapped_column(ForeignKey('laboratory_experiments.id'))
+    experiment_id: Mapped[int] = mapped_column(ForeignKey('laboratory_experiments.id', ondelete='CASCADE'))
+
+
+class Measurement(Base):
+    """
+    Хранит строки таблицы измерений для лабораторного эксперимента.
+    """
+    row: Mapped[int]
+    column: Mapped[int] = mapped_column(ForeignKey('columns.id', ondelete='CASCADE'))
+    value: Mapped[
+        str]  # TODO: возможно такой тип будет проблемой, но пока он такой не забывать парсить в порядке [(float | bool), str]
+
+    experiment_id: Mapped[int] = mapped_column(ForeignKey('laboratory_experiments.id', ondelete='CASCADE'))
 
 
 class LaboratoryExperiment(Experiment):
-    user: Mapped['User'] = relationship(back_populates='lab_experiments')
+    id: Mapped[Id] = mapped_column(ForeignKey('experiments.id', ondelete='CASCADE'))
 
-    measurements: Mapped[list['Measurement']] = relationship()
-    columns: Mapped[list['ColumnDescription']] = relationship()
+    measurements: Mapped[list['Measurement']] = relationship(cascade='all, delete-orphan', passive_deletes=True)
+    columns: Mapped[list['Column']] = relationship(cascade='all, delete-orphan', passive_deletes=True)
 
+    info: Mapped['Experiment'] = relationship(passive_deletes=True)
+
+    __mapper_args__ = {
+        'polymorphic_identity': ExperimentKind.LABORATORY
+    }
 
 class SchemaKind(StrEnum):
     INPUT = 'input'
@@ -65,36 +83,36 @@ class SchemaKind(StrEnum):
 
 
 class Schema(Base):
-    type: Mapped[SchemaKind]
+    type: Mapped['SchemaKind']
     data: Mapped[dict] = mapped_column(JSONB)
 
 
 class SchemaLinkedTable(Base):
     __abstract__ = True
 
-    input_id: Mapped[Id] = mapped_column(ForeignKey('schemas.id'))
-    output_id: Mapped[Id] = mapped_column(ForeignKey('schemas.id'))
-    parameters_id: Mapped[Id] = mapped_column(ForeignKey('schemas.id'))
-    context_id: Mapped[Id] = mapped_column(ForeignKey('schemas.id'))
+    input_id: Mapped[Id] = mapped_column(ForeignKey('schemas.id', ondelete='RESTRICT'))
+    output_id: Mapped[Id] = mapped_column(ForeignKey('schemas.id', ondelete='RESTRICT'))
+    parameters_id: Mapped[Id] = mapped_column(ForeignKey('schemas.id', ondelete='RESTRICT'))
+    context_id: Mapped[Id] = mapped_column(ForeignKey('schemas.id', ondelete='RESTRICT'))
 
     @classmethod
     @declared_attr
-    def input(cls) -> Mapped[Schema]:
+    def input(cls) -> Mapped['Schema']:
         return relationship('Schema', foreign_keys=[cls.input_id])
 
     @classmethod
     @declared_attr
-    def output(cls) -> Mapped[Schema]:
+    def output(cls) -> Mapped['Schema']:
         return relationship('Schema', foreign_keys=[cls.output_id])
 
     @classmethod
     @declared_attr
-    def parameters(cls) -> Mapped[Schema]:
+    def parameters(cls) -> Mapped['Schema']:
         return relationship('Schema', foreign_keys=[cls.parameters_id])
 
     @classmethod
     @declared_attr
-    def context(cls) -> Mapped[Schema]:
+    def context(cls) -> Mapped['Schema']:
         return relationship('Schema', foreign_keys=[cls.context_id])
 
 
@@ -103,13 +121,24 @@ class ComputationalExperimentTemplate(SchemaLinkedTable):
 
 
 class ComputationalExperimentData(SchemaLinkedTable):
-    experiment_id: Mapped[Id] = mapped_column(ForeignKey('computational_experiments.id'))
-    experiment: Mapped['ComputationalExperiment'] = relationship(back_populates='data')
+    experiment_id: Mapped[Id] = mapped_column(ForeignKey('computational_experiments.id', ondelete='CASCADE'))
+    experiment: Mapped['ComputationalExperiment'] = relationship(back_populates='data', passive_deletes=True)
 
 
 class ComputationalExperiment(Experiment):
-    template_id: Mapped[Id] = mapped_column(ForeignKey('computational_experiment_templates.id'))
+    id: Mapped[Id] = mapped_column(ForeignKey('experiments.id', ondelete='CASCADE'))
+
+    template_id: Mapped[Id] = mapped_column(ForeignKey('computational_experiment_templates.id',
+                                                       ondelete='RESTRICT'),
+                                            )
 
     template: Mapped['ComputationalExperimentTemplate'] = relationship(back_populates='experiments')
-    data: Mapped[list['ComputationalExperimentData']] = relationship(back_populates='experiment')
-    user: Mapped['User'] = relationship(back_populates='computational_experiments')
+    data: Mapped[list['ComputationalExperimentData']] = relationship(back_populates='experiment',
+                                                                     cascade='all, delete-orphan',
+                                                                     )
+
+    info: Mapped['Experiment'] = relationship(passive_deletes=True)
+
+    __mapper_args__ = {
+        'polymorphic_identity': ExperimentKind.COMPUTATIONAL
+    }
