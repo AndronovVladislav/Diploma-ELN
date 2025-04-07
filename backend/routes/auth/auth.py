@@ -1,5 +1,4 @@
-from fastapi import APIRouter, Depends, Response
-from starlette import status
+from fastapi import APIRouter, Depends, Response, status
 
 from backend.routes.auth.validation import get_current_refresh_payload
 from backend.schemas.auth import UserSignup, UserLogin, UserResponse

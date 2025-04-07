@@ -73,8 +73,8 @@ async def update_columns(experiment: LaboratoryExperiment, columns: list[dict], 
         existing = current_columns.get(col_data['name'])
 
         if existing:
-            existing.ontology_element = col_data['ontology_ref']
-            existing.ontology_id = ONTOLOGIES_MAPPING[col_data['ontology']]
+            existing.ontology_ref = col_data['ontology_ref']
+            existing.ontology = ONTOLOGIES_MAPPING[col_data['ontology']]
         else:
             experiment.columns.append(Column(
                 name=col_data['name'],

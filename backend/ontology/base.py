@@ -75,7 +75,6 @@ class CypherQueryBuilder:
             raise ExactlyOneReturnClauseException
 
         self.clear()
-        print('\n'.join(query_parts))
         return '\n'.join(query_parts)
 
 
