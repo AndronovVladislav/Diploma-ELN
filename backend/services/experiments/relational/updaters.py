@@ -3,12 +3,13 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from backend.base import ONTOLOGIES_MAPPING
 from backend.common.enums import ExperimentKind
 from backend.models.experiment import LaboratoryExperiment, Column, Measurement, Experiment
 from backend.models.utils import connection
 from backend.schemas.experiments.data import LaboratoryExperimentDetails
 from backend.schemas.experiments.requests import UpdateLaboratoryExperimentRequest
-from backend.services.experiments.relational.utils import resolve_ontologies, construct_lab_experiment
+from backend.services.experiments.relational.utils import check_ontologies, construct_lab_experiment
 
 INFORMATIONAL_ATTRIBUTES = {'data', 'description'}
 
@@ -37,7 +38,7 @@ async def update_lab_experiment_data(experiment_id: int,
         .options(
             selectinload(LaboratoryExperiment.info),
             selectinload(LaboratoryExperiment.measurements),
-            selectinload(LaboratoryExperiment.columns).selectinload(Column.ontology),
+            selectinload(LaboratoryExperiment.columns),
         )
     )
 
@@ -67,18 +68,18 @@ async def update_columns(experiment: LaboratoryExperiment, columns: list[dict], 
 
     experiment.columns[:] = [col for col in experiment.columns if col.name in incoming_names]
 
-    ontologies_mapping = await resolve_ontologies(columns, session=session)
+    check_ontologies(columns)
     for col_data in columns:
         existing = current_columns.get(col_data['name'])
 
         if existing:
-            existing.ontology_element = col_data['ontology_element']
-            existing.ontology_id = ontologies_mapping[col_data['ontology']]
+            existing.ontology_ref = col_data['ontology_ref']
+            existing.ontology = ONTOLOGIES_MAPPING[col_data['ontology']]
         else:
             experiment.columns.append(Column(
                 name=col_data['name'],
-                ontology_element=col_data['ontology_element'],
-                ontology_id=ontologies_mapping[col_data['ontology']],
+                ontology_ref=col_data['ontology_ref'],
+                ontology=ONTOLOGIES_MAPPING[col_data['ontology']],
                 experiment_id=experiment.id,
             ))
 

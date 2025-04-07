@@ -4,10 +4,9 @@ import polars as pl
 from fastapi import HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy import inspect
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.models.experiment import Column, Measurement, Ontology, LaboratoryExperiment
+from backend.base import ONTOLOGIES_MAPPING
+from backend.models.experiment import Column, Measurement, LaboratoryExperiment
 from backend.schemas.experiments.data import LaboratoryExperimentDetails, ColumnDetails
 
 
@@ -38,19 +37,13 @@ def pivot_measurements(measurements: list[Measurement], columns: list[Column]) -
     return table
 
 
-async def resolve_ontologies(columns: list[dict], session: AsyncSession) -> dict[str, int]:
-    q = select(Ontology).filter(Ontology.name.in_(col['ontology'] for col in columns))
-    ontologies = (await session.execute(q)).scalars()
-    ontologies_mapping: dict[str, int] = {ontology.name: ontology.id for ontology in ontologies}
-
+def check_ontologies(columns: list[dict]) -> None:
     for col in columns:
-        if col['ontology'] not in ontologies_mapping:
+        if col['ontology'] not in ONTOLOGIES_MAPPING:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f'Указана несуществующая онтология "{col['ontology']}" для столбца "{col['name']}"',
             )
-
-    return ontologies_mapping
 
 
 def construct_lab_experiment(experiment: LaboratoryExperiment) -> LaboratoryExperimentDetails:
@@ -61,7 +54,7 @@ def construct_lab_experiment(experiment: LaboratoryExperiment) -> LaboratoryExpe
         description=experiment.info.description,
         measurements=table,
         columns=[
-            ColumnDetails(id=i, name=col.name, ontology=col.ontology.name, ontology_element=col.ontology_element)
+            ColumnDetails(id=i, name=col.name, ontology=col.ontology.name, ontology_ref=col.ontology_ref)
             for i, col in enumerate(experiment.columns)
         ],
     )

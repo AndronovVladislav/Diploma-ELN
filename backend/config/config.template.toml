@@ -1,0 +1,30 @@
+[uvicorn]
+host = '0.0.0.0'
+port = 8000
+workers = 1
+timeout = 900
+debug = false
+
+[db]
+port = 5432
+user = 'postgres'
+database = 'postgres'
+echo = false
+echo_pool = false
+pool_size = 5
+max_overflow = 10
+dbms = 'postgresql'
+driver = 'asyncpg'
+
+[neo4j]
+port = 7687
+user = 'neo4j'
+db = 'neo4j'
+
+[jwt]
+algorithm = 'RS256'
+private_key_path = 'certs/jwt-private.pem'
+public_key_path = 'certs/jwt-public.pem'
+
+[ontologies]
+om2 = '__OntologyOM2__'

@@ -166,7 +166,9 @@ poetry.lock
 .vscode
 sandbox
 backend/certs/*
-backend/env/*
+backend/config/*.toml
+!backend/config/config.example.toml
+!backend/config/config.template.toml
 frontend/src/sakai
 frontend/ssl/*
 frontend/.env.development

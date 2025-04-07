@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response, status
 
 from backend.routes.auth.validation import get_current_refresh_payload
 from backend.schemas.auth import UserSignup, UserLogin, UserResponse
@@ -11,17 +11,17 @@ from backend.services.auth import (
 router = APIRouter(prefix='/auth', tags=['Auth'])
 
 
-@router.post('/signup')
-async def signup(user_data: UserSignup) -> dict:
+@router.post('/signup', response_model=UserSignup)
+async def signup(user_data: UserSignup):
     """
     Регистрация нового пользователя.
     """
-    new_user = await signup_service(user_data)
-    return {'message': f'Новый пользователь {new_user.username} зарегистрирован!'}
+    await signup_service(user_data)
+    return Response(status_code=status.HTTP_201_CREATED)
 
 
-@router.post('/login')
-async def login(user_data: UserLogin) -> UserResponse:
+@router.post('/login', response_model=UserResponse)
+async def login(user_data: UserLogin):
     """
     Вход в систему. Возвращает access и refresh токены.
     """
@@ -29,8 +29,8 @@ async def login(user_data: UserLogin) -> UserResponse:
     return UserResponse(username=user_data.username, access_token=access, refresh_token=refresh)
 
 
-@router.post('/refresh')
-async def refresh_token(refresh_payload: dict = Depends(get_current_refresh_payload)) -> UserResponse:
+@router.post('/refresh', response_model=UserResponse)
+async def refresh_token(refresh_payload: dict = Depends(get_current_refresh_payload)):
     """
     Эндпоинт для получения нового access/refresh токена по действующему refresh токену.
     """

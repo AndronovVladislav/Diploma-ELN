@@ -1,13 +1,16 @@
 from contextlib import asynccontextmanager
 
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
+from backend.base import BaseError
 from backend.config import settings
 from backend.models.utils import db_helper
 from backend.routes.auth.auth import router as auth_router
 from backend.routes.experiments.experiments import router as experiments_router
+from backend.routes.ontologies.ontologies import router as ontologies_router
 
 
 @asynccontextmanager
@@ -19,6 +22,16 @@ async def lifespan(app: FastAPI):  # pylint: disable=W0621,W0613
 app = FastAPI(lifespan=lifespan)
 app.include_router(auth_router)
 app.include_router(experiments_router)
+app.include_router(ontologies_router)
+
+
+@app.exception_handler(BaseError)
+async def app_exception_handler(request: Request, exc: BaseError) -> JSONResponse:
+    return JSONResponse(
+        status_code=400,
+        content=exc.to_dict()
+    )
+
 
 if settings.uvicorn.debug:
     app.add_middleware(

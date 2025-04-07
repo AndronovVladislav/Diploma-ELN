@@ -27,7 +27,7 @@ class ColumnDetails(BaseModel):
     id: int
     name: str
     ontology: str
-    ontology_element: str
+    ontology_ref: str
 
 
 class LaboratoryExperimentDetails(BaseModel):

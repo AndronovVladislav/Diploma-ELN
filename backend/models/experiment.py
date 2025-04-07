@@ -34,19 +34,11 @@ class Experiment(Base):
         'polymorphic_identity': 'base'
     }
 
-class Ontology(Base):
-    __tablename__ = 'ontologies'
-
-    name: Mapped[str]
-    label: Mapped[str]
-
 
 class Column(Base):
     name: Mapped[str]
-    ontology_element: Mapped[str]
-
-    ontology_id: Mapped[int] = mapped_column(ForeignKey('ontologies.id', ondelete='RESTRICT'))
-    ontology: Mapped['Ontology'] = relationship()
+    ontology: Mapped[str]
+    ontology_ref: Mapped[str]
 
     experiment_id: Mapped[int] = mapped_column(ForeignKey('laboratory_experiments.id', ondelete='CASCADE'))
 
@@ -74,6 +66,7 @@ class LaboratoryExperiment(Experiment):
     __mapper_args__ = {
         'polymorphic_identity': ExperimentKind.LABORATORY
     }
+
 
 class SchemaKind(StrEnum):
     INPUT = 'input'

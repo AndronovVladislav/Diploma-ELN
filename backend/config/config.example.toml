@@ -1,0 +1,31 @@
+[uvi]
+host = ""
+port = 0
+workers = 0
+timeout = 0
+debug = false
+
+[db]
+host = ""
+port = 0
+user = ""
+password = ""
+db = ""
+echo = false
+echo_pool = false
+pool_size = 0
+max_overflow = 0
+
+[neo4j]
+host = ""
+port = 0
+user = ""
+password = ""
+db = ""
+
+[jwt]
+algorithm = ""
+access_token_expire_minutes = 0
+private_key_path = ""
+public_key_path = ""
+refresh_token_expire_minutes = 0

@@ -7,7 +7,7 @@ from sqlalchemy.orm import selectinload
 
 from backend.common.enums import ExperimentKind
 from backend.models import User
-from backend.models.experiment import LaboratoryExperiment, Column, Experiment
+from backend.models.experiment import LaboratoryExperiment, Experiment
 from backend.models.utils import connection
 from backend.schemas.experiments.data import LaboratoryExperimentDetails
 from backend.services.experiments.relational.utils import to_dict, construct_lab_experiment
@@ -45,7 +45,7 @@ async def get_lab_experiment_data(experiment_id: int, session: AsyncSession) -> 
         .options(
             selectinload(LaboratoryExperiment.info),
             selectinload(LaboratoryExperiment.measurements),
-            selectinload(LaboratoryExperiment.columns).selectinload(Column.ontology),
+            selectinload(LaboratoryExperiment.columns),
         )
         .filter_by(id=experiment_id)
     )
