@@ -7,17 +7,17 @@ from sqlalchemy import NullPool, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
-from backend.common.enums import Role, ExperimentKind
+from backend.common.enums import Role
 from backend.config import settings
 from backend.main import app
 from backend.models import User
-from backend.models.experiment import LaboratoryExperiment, Column, Measurement, Ontology
+from backend.models.experiment import LaboratoryExperiment, Column, Measurement
 from backend.models.utils import connection
 from backend.models.utils import db_helper
 from backend.routes.auth.utils import hash_password
 
 engine = create_async_engine(
-    url=settings.db.url,
+    url=settings.db.url.get_secret_value(),
     echo=True,
     echo_pool=True,
     poolclass=NullPool,
@@ -77,21 +77,7 @@ async def user() -> User:
 
 
 @pytest.fixture
-async def ontology() -> Ontology:
-    """Создаёт онтологию в БД перед тестом"""
-
-    @connection
-    async def create_ontology(session: AsyncSession) -> Ontology:
-        ontology = Ontology(name='OM2', label='...')
-        session.add(ontology)
-
-        return ontology
-
-    return await create_ontology()
-
-
-@pytest.fixture
-async def lab_experiment(user: User, ontology: Ontology) -> LaboratoryExperiment:
+async def lab_experiment(user: User) -> LaboratoryExperiment:
     """Создаёт лабораторный эксперимент в БД перед тестом"""
 
     @connection
@@ -106,9 +92,9 @@ async def lab_experiment(user: User, ontology: Ontology) -> LaboratoryExperiment
 
         column = Column(
             name='Temperature',
-            ontology_element='degreeCelsius',
+            ontology_ref='degreeCelsius',
             experiment_id=experiment.id,
-            ontology_id=ontology.id,
+            ontology='OM2',
         )
         session.add(column)
         await session.flush()

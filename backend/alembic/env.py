@@ -24,9 +24,9 @@ if config.config_file_name is not None:
 # target_metadata = mymodel.Base.metadata
 target_metadata = Base.metadata
 
-# other values from the config, defined by the needs of env.py,
+# other values from the config, defined by the needs of config.py,
 # can be acquired:
-config.set_main_option("sqlalchemy.url", settings.db.url)
+config.set_main_option("sqlalchemy.url", settings.db.url.get_secret_value())
 
 
 def run_migrations_offline() -> None:
@@ -76,7 +76,7 @@ async def run_migrations_online() -> None:
 
     """
     connectable = create_async_engine(
-        settings.db.url,
+        settings.db.url.get_secret_value(),
         poolclass=pool.NullPool,
     )
 
