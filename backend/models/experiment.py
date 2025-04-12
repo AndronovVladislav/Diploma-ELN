@@ -61,7 +61,7 @@ class LaboratoryExperiment(Experiment):
     measurements: Mapped[list['Measurement']] = relationship(cascade='all, delete-orphan', passive_deletes=True)
     columns: Mapped[list['Column']] = relationship(cascade='all, delete-orphan', passive_deletes=True)
 
-    info: Mapped['Experiment'] = relationship(passive_deletes=True)
+    info: Mapped['Experiment'] = relationship(post_update=True, passive_deletes=True)
 
     __mapper_args__ = {
         'polymorphic_identity': ExperimentKind.LABORATORY

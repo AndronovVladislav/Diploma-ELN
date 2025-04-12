@@ -2,7 +2,7 @@ from typing import Annotated
 
 from pydantic import BaseModel, Field
 
-from backend.schemas.ontologies.om2.common import SelectOnlyEnglishVersion, SelectOnlyFirst
+from backend.schemas.ontologies.common import SelectOnlyEnglishVersion, SelectOnlyFirst
 
 
 class Unit(BaseModel):

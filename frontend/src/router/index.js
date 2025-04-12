@@ -1,7 +1,6 @@
 import AppLayout from '@/layout/AppLayout.vue';
 import { createRouter, createWebHistory } from 'vue-router';
 import { useCoreStore } from '@/stores/core';
-import LabExperiment from '@/views/Editors/LabExperiment/LabExperiment.vue';
 
 const router = createRouter({
     history: createWebHistory(),
@@ -17,8 +16,23 @@ const router = createRouter({
                 },
                 {
                     path: '/experiment/:id',
-                    component: LabExperiment,
+                    component: () => import('@/views/Editors/LabExperiment/LabExperiment.vue'),
                     props: true
+                },
+                {
+                    path: '/ontology',
+                    name: 'ontology',
+                    component: () => import('@/views/OntologyDetails/OntologyList.vue')
+                },
+                {
+                    path: '/ontology/details/om2',
+                    name: 'OM2Details',
+                    component: () => import('@/views/OntologyDetails/OM2Details.vue')
+                },
+                {
+                    path: '/ontology/details/chebi',
+                    name: 'ChEBIDetails',
+                    component: () => import('@/views/OntologyDetails/ChEBIDetails.vue')
                 },
                 {
                     path: '/uikit/formlayout',
@@ -109,13 +123,18 @@ const router = createRouter({
                     path: '/documentation',
                     name: 'documentation',
                     component: () => import('@/sakai/views/pages/Documentation.vue')
+                },
+                {
+                    path: '/support',
+                    name: 'support',
+                    component: () => import('@/views/pages/Support.vue')
                 }
             ]
         },
         {
-            path: '/pages/notfound',
+            path: '/notfound',
             name: 'notfound',
-            component: () => import('@/sakai/views/pages/NotFound.vue')
+            component: () => import('@/views/pages/NotFound.vue')
         },
         {
             path: '/auth/login',
@@ -139,6 +158,10 @@ const router = createRouter({
             path: '/auth/error',
             name: 'error',
             component: () => import('@/views/Utils/Error.vue')
+        },
+        {
+            path: '/:pathMatch(.*)*',
+            redirect: '/notfound'
         }
     ]
 });

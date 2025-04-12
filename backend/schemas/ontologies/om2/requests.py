@@ -2,12 +2,7 @@ from typing import Annotated
 
 from pydantic import BaseModel, Field
 
-from backend.schemas.ontologies.om2.common import SelectOnlyEnglishVersion
-
-
-class CreateOntologyRequest(BaseModel):
-    name: str
-    label: str
+from backend.schemas.ontologies.common import SelectOnlyEnglishVersion
 
 
 class UnitShortDetails(BaseModel):

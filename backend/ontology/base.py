@@ -31,8 +31,9 @@ class CypherCondition:
 class CypherQueryBuilder:
     def __init__(self) -> None:
         self._match_clauses: list[str] = []
-        self._where_clause: CypherCondition | None = []
+        self._where_clause: CypherCondition | None = None
         self._return_clause: str | None = None
+        self._limit_clause: int | None = None
 
     def match(self, pattern: str) -> Self:
         self._match_clauses.append(pattern)
@@ -42,7 +43,7 @@ class CypherQueryBuilder:
         if self._where_clause is None:
             self._where_clause = condition
         else:
-            self._where_clause = self._where_clause & condition
+            self._where_clause &= condition
         return self
 
     def return_(self, return_expr: str) -> Self:
@@ -52,10 +53,15 @@ class CypherQueryBuilder:
         else:
             raise ExactlyOneReturnClauseException
 
+    def limit(self, n: int) -> Self:
+        self._limit_clause = n
+        return self
+
     def clear(self) -> None:
         self._match_clauses = []
         self._where_clause = None
         self._return_clause = None
+        self._limit_clause = None
 
     def build(self) -> str:
         query_parts: list[str] = []
@@ -73,6 +79,9 @@ class CypherQueryBuilder:
             query_parts.append(return_str)
         else:
             raise ExactlyOneReturnClauseException
+
+        if self._limit_clause is not None:
+            query_parts.append(f'LIMIT {self._limit_clause}')
 
         self.clear()
         return '\n'.join(query_parts)

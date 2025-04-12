@@ -9,7 +9,6 @@ test-run:
 	ENV_TYPE=testing poetry run pytest --lf
 
 test-down:
-	ENV_TYPE=testing PYTHONPATH=$(shell dirname $(shell pwd)) poetry run alembic downgrade base
 	docker-compose -f ../docker-compose.test.yml down
 
 test: test-db

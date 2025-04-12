@@ -4,7 +4,7 @@ import router from '@/router';
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
-    timeout: 5000,
+    timeout: 30000,
 });
 
 const TOKEN_REFRESH_URL = '/auth/refresh';
@@ -25,10 +25,9 @@ api.interceptors.response.use(response => response, async error => {
     const originalRequest = error.config;
     const coreStore = useCoreStore();
 
-    if (error.response.status === 401 && !error.request.baseURL.includes(TOKEN_REFRESH_URL)) {
-
+    if (error.response?.status === 401 && !error.request.baseURL.includes(TOKEN_REFRESH_URL)) {
         try {
-            const response = await api.post('/auth/refresh', {
+            const response = await api.post(TOKEN_REFRESH_URL, {
                 refresh_token: coreStore.refresh_token
             });
 
@@ -40,7 +39,7 @@ api.interceptors.response.use(response => response, async error => {
         } catch (refreshError) {
             coreStore.access_token = null;
             coreStore.refresh_token = null;
-            router.push('/auth/login');
+            await router.push('/auth/login');
         }
     }
 
