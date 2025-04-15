@@ -12,9 +12,9 @@
 
                     <div class="text-center">
                         <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">
-                            Добро пожаловать в AlChem!
+                            Welcome to AlChem!
                         </div>
-                        <span class="text-muted-color font-medium">Зарегистрируйтесь, чтобы продолжить</span>
+                        <span class="text-muted-color font-medium">Sign up to continue</span>
                     </div>
 
                     <div>
@@ -32,7 +32,7 @@
                                     class="block text-surface-900 dark:text-surface-0 text-base font-medium"
                                     for="username"
                                 >
-                                    Имя пользователя
+                                    Username
                                 </label>
                             </FloatLabel>
                         </InputGroup>
@@ -53,11 +53,35 @@
                                 </Password>
                                 <label class="block text-surface-900 dark:text-surface-0 text-base font-medium"
                                        for="password">
-                                    Пароль
+                                    Password
                                 </label>
                             </FloatLabel>
                         </InputGroup>
-                        <Button class="w-full" label="Зарегистрироваться" @click="signUp"></Button>
+
+                        <div class="my-4 flex flex-col">
+                            <InputGroup>
+                                <InputGroupAddon>
+                                    <i class="pi pi-lock"></i>
+                                </InputGroupAddon>
+                                <FloatLabel variant="on">
+                                    <Password
+                                        v-model="confirmPassword"
+                                        :feedback="false"
+                                        :toggleMask="true"
+                                        class="mb-4"
+                                        fluid
+                                        inputId="confirmPassword"
+                                    >
+                                    </Password>
+                                    <label class="block text-surface-900 dark:text-surface-0 text-base font-medium"
+                                           for="confirmPassword">
+                                        Confirm password
+                                    </label>
+                                </FloatLabel>
+                            </InputGroup>
+                            <div v-if="passwordError" class="text-red-500 text-sm mb-4">{{ passwordError }}</div>
+                        </div>
+                        <Button class="w-full" label="Sign up" @click="signUp"></Button>
                     </div>
                 </div>
             </div>
@@ -68,23 +92,47 @@
 <script lang="ts" setup>
 import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
 import { ref } from 'vue';
-import { FloatLabel, InputGroup, InputGroupAddon, InputText } from 'primevue';
+import { FloatLabel, InputGroup, InputGroupAddon, InputText, Password } from 'primevue';
 import api from '@/api/axios';
 import router from '@/router';
+import { useNotifier } from '@/composables/useNotifier';
+
+const Notifier = useNotifier();
 
 const username = ref('');
 const password = ref('');
+const confirmPassword = ref('');
+const passwordError = ref<string | null>(null);
 
 async function signUp() {
+    passwordError.value = null;
+
+    if (password.value.length < 12) {
+        passwordError.value = 'Пароль должен содержать минимум 12 символов';
+        return;
+    }
+
+    if (password.value !== confirmPassword.value) {
+        passwordError.value = 'Пароли не совпадают';
+        return;
+    }
+
     try {
-        await api.post('/auth/signup', {
+        const response = await api.post('/auth/signup', {
             username: username.value,
             password: password.value,
             role: 'researcher'
         });
-        await router.push('/auth/login');
+        if (response.status === 201) {
+            Notifier.success({ detail: 'Вы успешно зарегистрированы!' });
+            await router.push('/auth/login');
+        }
     } catch (error) {
-        console.error(error);
+        if (error.response && error.response.status === 409) {
+            Notifier.error({ detail: 'Пользователь с таким именем уже существует' });
+        } else {
+            console.error(error);
+        }
     }
 }
 </script>
