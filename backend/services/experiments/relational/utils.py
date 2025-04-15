@@ -54,7 +54,7 @@ def construct_lab_experiment(experiment: LaboratoryExperiment) -> LaboratoryExpe
         description=experiment.info.description,
         measurements=table,
         columns=[
-            ColumnDetails(id=i, name=col.name, ontology=col.ontology.name, ontology_ref=col.ontology_ref)
+            ColumnDetails(id=i, name=col.name, ontology=col.ontology, ontology_ref=col.ontology_ref)
             for i, col in enumerate(experiment.columns)
         ],
     )

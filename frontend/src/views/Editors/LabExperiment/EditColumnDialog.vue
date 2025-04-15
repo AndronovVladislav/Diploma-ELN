@@ -10,8 +10,8 @@
                 <InputText id="ontology" v-model="editedColumn.ontology" class="w-full" />
             </div>
             <div class="field flex flex-col gap-2 w-full">
-                <label for="ontology_element">Элемент онтологии</label>
-                <InputText id="ontology_element" v-model="editedColumn.ontology_element" class="w-full" />
+                <label for="ontology_ref">Элемент онтологии</label>
+                <InputText id="ontology_ref" v-model="editedColumn.ontology_ref" class="w-full" />
             </div>
         </div>
         <template #footer>

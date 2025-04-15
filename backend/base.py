@@ -2,7 +2,7 @@ import abc
 
 from backend.config import settings
 
-ONTOLOGIES_MAPPING = settings.ontologies.model_dump()
+ONTOLOGIES_MAPPING = {k.lower(): v for k, v in settings.ontologies.model_dump().items()}
 
 
 class BaseError(Exception, abc.ABC):

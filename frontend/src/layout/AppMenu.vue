@@ -11,12 +11,30 @@ const model = ref([
         ]
     },
     {
+        label: 'Help',
+        items: [
+            { label: 'Ontologies', icon: 'pi pi-book', to: '/ontology' },
+            {
+                label: 'Get Started',
+                items: [
+                    {
+                        label: 'Documentation',
+                        icon: 'pi pi-fw pi-book',
+                        to: '/documentation'
+                    },
+                    {
+                        label: 'View Source',
+                        icon: 'pi pi-fw pi-github',
+                        url: 'https://github.com/AndronovVladislav/Diploma-ELN',
+                        target: '_blank'
+                    }
+                ]
+            }
+        ]
+    },
+    {
         label: 'Documentation',
         items: [
-            {
-                label: 'Home',
-                items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/' }]
-            },
             {
                 label: 'UI Components',
                 items: [
@@ -77,22 +95,6 @@ const model = ref([
                         label: 'Empty',
                         icon: 'pi pi-fw pi-circle-off',
                         to: '/pages/empty'
-                    }
-                ]
-            },
-            {
-                label: 'Get Started',
-                items: [
-                    {
-                        label: 'Documentation',
-                        icon: 'pi pi-fw pi-book',
-                        to: '/documentation'
-                    },
-                    {
-                        label: 'View Source',
-                        icon: 'pi pi-fw pi-github',
-                        url: 'https://github.com/primefaces/sakai-vue',
-                        target: '_blank'
                     }
                 ]
             }

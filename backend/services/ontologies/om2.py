@@ -41,12 +41,13 @@ class OM2OntologyMissing(OntologiesRelatedError):
 
 
 @cache
-def get_match_all_units_query() -> str:
+def get_match_all_units_query(limit: int) -> str:
     if ONTOLOGY_NAME in ONTOLOGIES_MAPPING:
         return (
             builder
             .match(f'(n:{'|'.join(ALL_UNIT_LABELS)})-[:HASDIMENSION]->(m)')
             .where(CypherCondition(f'n:{ONTOLOGIES_MAPPING[ONTOLOGY_NAME]}'))
+            .limit(limit)
             .return_(f'n AS {NODE_KEY}, m.label AS {DIMENSION_KEY}')
             .build()
         )
@@ -54,6 +55,6 @@ def get_match_all_units_query() -> str:
 
 
 @connection
-async def get_all_units_short_details(session: AsyncSession) -> list[UnitShortDetails]:
+async def get_units_short_details(limit: int, session: AsyncSession) -> list[UnitShortDetails]:
     return [UnitShortDetails.model_validate({**unit.data()[NODE_KEY], DIMENSION_KEY: unit.data()[DIMENSION_KEY]})
-            async for unit in await session.run(get_match_all_units_query())]
+            async for unit in await session.run(get_match_all_units_query(limit))]

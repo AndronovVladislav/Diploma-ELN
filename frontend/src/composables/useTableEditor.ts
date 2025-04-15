@@ -51,7 +51,7 @@ export function useTableEditor(
     };
 
     const addRow = () => {
-        const newRow: RowData = {};
+        const newRow: RowData = {row: data.value.length};
         columns.value.forEach(col => {
             newRow[col.name] = '';
         });

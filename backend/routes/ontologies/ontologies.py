@@ -1,7 +1,10 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
-from backend.schemas.ontologies.om2.requests import UnitShortDetails
-from backend.services.ontologies.om2 import get_all_units_short_details as get_all_om2_units_short_details
+from backend.base import ONTOLOGIES_MAPPING
+from backend.schemas.ontologies.chebi.requests import UnitShortDetails as ChEBIUnitShortDetails
+from backend.schemas.ontologies.om2.requests import UnitShortDetails as OM2UnitShortDetails
+from backend.services.ontologies.chebi import get_units_short_details as get_chebi_units_short_details
+from backend.services.ontologies.om2 import get_units_short_details as get_om2_units_short_details
 from backend.services.ontologies.ontologies import (
     get_ontologies_names as get_ontologies_names_service,
 )
@@ -14,7 +17,18 @@ async def get_ontologies_names():
     return get_ontologies_names_service()
 
 
-@router.get('/om2', response_model=list[UnitShortDetails])
-async def get_om2_units_short_details():
-    result = await get_all_om2_units_short_details()
+@router.get('/details/{ontology}',
+            response_model=list[OM2UnitShortDetails | ChEBIUnitShortDetails],
+            response_model_by_alias=False,
+            )
+async def get_ontology_details(ontology: str, limit: int = 1500):
+    if ontology not in ONTOLOGIES_MAPPING:
+        raise HTTPException(status_code=404, detail=f'Unknown ontology {ontology}')
+
+    result = []
+    match ontology:
+        case 'om2':
+            result = await get_om2_units_short_details(limit=limit)
+        case 'chebi':
+            result = await get_chebi_units_short_details(limit=limit)
     return result

@@ -24,4 +24,8 @@ FROM nginx:stable-alpine AS stable
 
 COPY --from=build /app/dist /etc/nginx/html/
 
+COPY config.nginx /etc/nginx/conf.d/default.conf
+COPY ssl /etc/nginx/ssl
+
+
 CMD ["nginx", "-g", "daemon off;"]

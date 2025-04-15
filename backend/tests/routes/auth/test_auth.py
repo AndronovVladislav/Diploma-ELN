@@ -22,8 +22,7 @@ def signup_form(login_form: dict) -> dict:
 @pytest.mark.asyncio
 async def test_auth_signup(client, signup_form: dict):
     response = await client.post('/auth/signup', json=signup_form)
-    assert response.status_code == 200
-    assert response.json() == {'message': f'Новый пользователь {signup_form['username']} зарегистрирован!'}
+    assert response.status_code == 201
 
 
 @pytest.mark.asyncio

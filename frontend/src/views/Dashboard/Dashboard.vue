@@ -1,8 +1,7 @@
 <template>
     <div class="card w-full">
         <h1 class="text-3xl font-bold mb-4 flex items-center">
-            <i class="pi pi-chart-line mr-3 text-blue-500"></i>
-            Панель управления
+            Эксперименты
         </h1>
 
         <div class="flex justify-between items-center mb-4">

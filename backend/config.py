@@ -18,7 +18,7 @@ def get_config_file() -> Path:
         case 'stable':
             filename += '.stable'
         case 'testing':
-            filename += '.test'
+            filename += '.testing'
         case _:
             filename += '.dev'
 
