@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 
 class ColumnOntologicalDescription(BaseModel):
@@ -28,6 +28,11 @@ class ColumnDetails(BaseModel):
     name: str
     ontology: str
     ontology_ref: str
+    is_main: bool
+
+    @field_validator('ontology')
+    def lowercase_ontology(cls, v: str) -> str:
+        return v.lower()
 
 
 class LaboratoryExperimentDetails(BaseModel):

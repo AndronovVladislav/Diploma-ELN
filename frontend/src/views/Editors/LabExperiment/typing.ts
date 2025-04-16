@@ -3,4 +3,5 @@ export interface Column {
     name: string;
     ontology: string;
     ontology_ref: string;
+    is_main: boolean;
 }

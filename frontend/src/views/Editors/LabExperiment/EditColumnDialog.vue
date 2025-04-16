@@ -1,5 +1,5 @@
 <template>
-    <Dialog :visible="visible" modal class="w-1/2" header="Настройки столбца">
+    <Dialog :visible="visible" modal class="w-1/2" header="Настройки столбца" @update:visible="emit('update:visible', false)">
         <div v-if="column" class="flex flex-col gap-4 w-full">
             <div class="field flex flex-col gap-2 w-full">
                 <label for="column_name">Название столбца</label>
@@ -15,7 +15,7 @@
             </div>
         </div>
         <template #footer>
-            <Button label="Отмена" icon="pi pi-times" class="p-button-text" @click="emit('close')" />
+            <Button label="Отмена" icon="pi pi-times" class="p-button-text" @click="emit('update:visible', false)" />
             <Button label="Сохранить" icon="pi pi-check" @click="handleSave" />
         </template>
     </Dialog>
@@ -35,7 +35,7 @@ const props = defineProps<Props>();
 
 const emit = defineEmits<{
     (e: 'update', updated: Column): void;
-    (e: 'close'): void;
+    (e: 'update:visible', visible: boolean): void;
 }>();
 
 const editedColumn = ref<Column>(props.column);

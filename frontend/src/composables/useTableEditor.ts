@@ -22,7 +22,8 @@ export function useTableEditor(
             id: id,
             name: `column_${id}`,
             ontology: '',
-            ontology_element: ''
+            ontology_ref: '',
+            is_main: false
         };
         columns.value.push(newColumn);
 
@@ -51,7 +52,7 @@ export function useTableEditor(
     };
 
     const addRow = () => {
-        const newRow: RowData = {row: data.value.length};
+        const newRow: RowData = { row: data.value.length.toString() };
         columns.value.forEach(col => {
             newRow[col.name] = '';
         });

@@ -54,9 +54,16 @@ def construct_lab_experiment(experiment: LaboratoryExperiment) -> LaboratoryExpe
         description=experiment.info.description,
         measurements=table,
         columns=[
-            ColumnDetails(id=i, name=col.name, ontology=col.ontology, ontology_ref=col.ontology_ref)
-            for i, col in enumerate(experiment.columns)
+            ColumnDetails(
+                id=col.id,
+                name=col.name,
+                ontology=col.ontology,
+                ontology_ref=col.ontology_ref,
+                is_main=col.is_main,
+            )
+            for col in experiment.columns
         ],
     )
 
+    result.columns.sort(key=lambda c: c.id)
     return result
