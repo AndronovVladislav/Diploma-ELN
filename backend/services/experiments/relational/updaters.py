@@ -3,7 +3,6 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from backend.base import ONTOLOGIES_MAPPING
 from backend.common.enums import ExperimentKind
 from backend.models.experiment import LaboratoryExperiment, Column, Measurement, Experiment
 from backend.models.utils import connection
@@ -74,13 +73,15 @@ async def update_columns(experiment: LaboratoryExperiment, columns: list[dict], 
 
         if existing:
             existing.ontology_ref = col_data['ontology_ref']
-            existing.ontology = ONTOLOGIES_MAPPING[col_data['ontology']]
+            existing.ontology = col_data['ontology']
+            existing.is_main = col_data['is_main']
         else:
             experiment.columns.append(Column(
                 name=col_data['name'],
                 ontology_ref=col_data['ontology_ref'],
-                ontology=ONTOLOGIES_MAPPING[col_data['ontology']],
+                ontology=col_data['ontology'],
                 experiment_id=experiment.id,
+                is_main=col_data['is_main'],
             ))
 
     await session.flush()

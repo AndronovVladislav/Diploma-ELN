@@ -17,6 +17,12 @@
                     <div class="flex items-center justify-between">
                         <span>{{ col.name }}</span>
                         <div class="flex items-center gap-1">
+                            <Button
+                                :icon="col.name === props.mainColumn ? 'pi pi-star-fill' : 'pi pi-star'"
+                                class="p-button-text p-button-sm"
+                                @click="emit('update:mainColumn', col.name)"
+                                :aria-label="col.name === props.mainColumn ? 'Главный столбец' : 'Сделать главным'"
+                            />
                             <Menu :ref="el => columnMenus[col.id] = el" :model="getColumnMenuItems(col)" popup />
                             <Button
                                 icon="pi pi-ellipsis-v"
@@ -56,13 +62,15 @@ import { ref } from 'vue';
 import { RowData } from '@/typing';
 
 const emit = defineEmits<{
-    (e: 'update:columns', value: Column[]): void;
-    (e: 'update:data', value: RowData[]): void;
+    (e: 'update:columns', value: Column[]): void
+    (e: 'update:data', value: RowData[]): void
+    (e: 'update:mainColumn', value: string): void
 }>();
 
 interface Props {
     columns: Column[];
     data: RowData[];
+    mainColumn: string;
 }
 
 const props = defineProps<Props>();

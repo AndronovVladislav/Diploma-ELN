@@ -1,6 +1,6 @@
 from enum import StrEnum
 
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, relationship, mapped_column, declared_attr
 
@@ -39,6 +39,7 @@ class Column(Base):
     name: Mapped[str]
     ontology: Mapped[str]
     ontology_ref: Mapped[str]
+    is_main: Mapped[bool] = mapped_column(default=False, server_default=text('false'))
 
     experiment_id: Mapped[int] = mapped_column(ForeignKey('laboratory_experiments.id', ondelete='CASCADE'))
 

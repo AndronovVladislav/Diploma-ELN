@@ -5,33 +5,71 @@
 
     <div v-else class="flex flex-col gap-4">
         <Button v-if="isChanged" label="Сохранить изменения" icon="pi pi-save" class="w-fit" @click="saveChanges" />
-        <Editor v-model:description="description" />
-        <Table v-model:columns="columns" v-model:data="measurements" />
+        <Panel toggleable>
+            <template #header>
+                <div>
+                    <span class="text-xl font-bold">Description</span>
+                </div>
+            </template>
+            <Editor v-model:description="description" />
+        </Panel>
+        <Panel toggleable>
+            <template #header>
+                <div>
+                    <span class="text-xl font-bold">Measurements</span>
+                </div>
+            </template>
+            <Table v-model:columns="columns" v-model:data="measurements" v-model:mainColumn="mainColumnName" />
+        </Panel>
+        <Panel toggleable collapsed>
+            <template #header>
+                <div>
+                    <span class="text-xl font-bold">Charts</span>
+                </div>
+            </template>
+            <Charts :mainColumn="mainColumnName" :data="measurements" />
+        </Panel>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { onBeforeMount, onBeforeUnmount, ref, watchEffect } from 'vue';
+import { computed, onBeforeMount, onBeforeUnmount, ref, watchEffect } from 'vue';
 import Editor from '@/components/Editor.vue';
 import api from '@/api/axios';
 import Table from '@/views/Editors/LabExperiment/Table.vue';
 import ProgressSpinner from 'primevue/progressspinner';
 import { Button } from 'primevue';
 import { useNotifier } from '@/composables/useNotifier';
+import Charts from '@/views/Editors/LabExperiment/Charts.vue';
+import { Column } from '@/views/Editors/LabExperiment/typing';
 
-const props = defineProps<{ id: string }>();
+interface Props {
+    id: string;
+}
+
+const props = defineProps<Props>();
 const Notifier = useNotifier();
 
 const description = ref('');
-const columns = ref([]);
+const columns = ref<Column[]>([]);
 const measurements = ref([]);
 
 const originalDescription = ref('');
-const originalColumns = ref([]);
+const originalColumns = ref<Column[]>([]);
 const originalMeasurements = ref([]);
 
 const isLoading = ref(true);
 const isChanged = ref(false);
+
+const mainColumnName = computed({
+        get: () => columns.value.find(c => c.is_main)?.name ?? '',
+        set: (value: string) => {
+            columns.value.forEach(c => {
+                c.is_main = c.name === value;
+            });
+        }
+    }
+);
 
 async function fetchExperiment(id: string) {
     try {
@@ -89,9 +127,9 @@ async function saveChanges() {
         originalColumns.value = JSON.parse(JSON.stringify(columns.value));
         originalMeasurements.value = JSON.parse(JSON.stringify(measurements.value));
         isChanged.value = false;
-        Notifier.success('Изменения сохранены');
+        Notifier.success({ detail: 'Изменения сохранены' });
     } catch (error) {
-        Notifier.error('Не удалось сохранить изменения');
+        Notifier.error({ detail: 'Не удалось сохранить изменения' });
     }
 }
 
