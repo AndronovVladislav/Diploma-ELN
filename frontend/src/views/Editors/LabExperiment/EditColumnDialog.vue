@@ -49,6 +49,6 @@ const handleSave = () => {
     if (editedColumn.value) {
         emit('update', editedColumn.value);
     }
-    emit('close');
+    emit('update:visible', false);
 };
 </script>
