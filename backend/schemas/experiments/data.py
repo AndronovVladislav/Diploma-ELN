@@ -36,6 +36,7 @@ class ColumnDetails(BaseModel):
 
 
 class LaboratoryExperimentDetails(BaseModel):
+    id: int
     name: str
     description: str
 

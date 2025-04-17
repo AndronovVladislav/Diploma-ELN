@@ -128,6 +128,11 @@ const router = createRouter({
                     path: '/support',
                     name: 'support',
                     component: () => import('@/views/pages/Support.vue')
+                },
+                {
+                    path: '/explore',
+                    name: 'explore',
+                    component: () => import('@/views/Explore.vue')
                 }
             ]
         },

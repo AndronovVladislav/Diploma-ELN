@@ -61,7 +61,7 @@ function getChartOptions(column: string) {
                 callbacks: {
                     title: (context: any) => {
                         const y = context[0].raw;
-                        return `${props.mainColumn}: ${y}`
+                        return `${props.mainColumn}: ${y}`;
                     },
                     label: (context: any) => {
                         const x = context.label;

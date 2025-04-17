@@ -3,7 +3,6 @@ import { computed, ref, watch } from 'vue';
 import { Experiment, ExperimentKind, FileSystem, Folder, SimplifiedView } from '@/views/Dashboard/typing';
 import { findParent, getFullPath, getSuggestedFolders } from '@/utils/fileSystem';
 import api from '@/api/axios';
-import { useCoreStore } from '@/stores/core';
 
 interface DialogState {
     visible: boolean;
@@ -50,11 +49,9 @@ export const useDashboardStore = defineStore('dashboard',
             },
             async fetchExperimentFS() {
                 try {
-                    const coreStore = useCoreStore();
                     const params = new URLSearchParams();
                     const desired_keys = ['id', 'kind'];
 
-                    params.append('username', coreStore.username!);
                     for (const key of desired_keys) {
                         params.append('desired_keys', key);
                     }

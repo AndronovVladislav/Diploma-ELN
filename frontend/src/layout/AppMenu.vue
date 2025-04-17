@@ -7,7 +7,8 @@ const model = ref([
     {
         label: 'AlChem pages',
         items: [
-            { label: 'Main', icon: 'pi pi-home', 'to': '/' }
+            { label: 'Main', icon: 'pi pi-home', 'to': '/' },
+            { label: 'Explore', icon: 'pi pi-chart-bar', 'to': '/explore' }
         ]
     },
     {
@@ -67,7 +68,7 @@ const model = ref([
                             {
                                 label: 'Login',
                                 icon: 'pi pi-fw pi-sign-in',
-                                to: '/auth/login'
+                                to: '/auth/signin'
                             },
                             {
                                 label: 'Error',
