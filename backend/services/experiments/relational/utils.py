@@ -50,6 +50,7 @@ def construct_lab_experiment(experiment: LaboratoryExperiment) -> LaboratoryExpe
     table = pivot_measurements(experiment.measurements, experiment.columns)
 
     result = LaboratoryExperimentDetails(
+        id=experiment.id,
         name=experiment.info.name,
         description=experiment.info.description,
         measurements=table,

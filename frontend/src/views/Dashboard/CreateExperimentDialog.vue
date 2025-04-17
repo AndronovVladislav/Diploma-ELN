@@ -72,6 +72,7 @@ import { ref } from 'vue';
 import { useDashboardStore } from '@/stores/dashboard';
 import { Experiment, ExperimentKind, Folder, SimplifiedView } from '@/views/Dashboard/typing';
 import { findById } from '@/utils/fileSystem';
+import api from '@/api/axios';
 
 const dashboardStore = useDashboardStore();
 
@@ -93,23 +94,32 @@ function onHide() {
     selectedFolder.value = null;
 }
 
-function onCreateExperiment() {
-    const newExperiment: Experiment = {
-        id: crypto.randomUUID(),
-        path: experimentName.value,
-        createdAt: new Date().toISOString(),
-        kind: selectedKind.value
-    };
+async function onCreateExperiment() {
+    try {
+        const response = await api.post('/experiment', {
+            path: `/${selectedFolder.value?.path}/${experimentName.value}`,
+            kind: selectedKind.value
+        });
 
-    if (selectedFolder.value) {
-        const parentFolder = findById(dashboardStore.experimentFS, selectedFolder.value.id) as Folder;
-        if (parentFolder) {
-            parentFolder.children.push(newExperiment);
+        const newExperiment: Experiment = {
+            id: response.data.id,
+            path: experimentName.value,
+            createdAt: new Date().toISOString(),
+            kind: selectedKind.value
+        };
+
+        if (selectedFolder.value) {
+            const parentFolder = findById(dashboardStore.experimentFS, selectedFolder.value.id) as Folder;
+            if (parentFolder) {
+                parentFolder.children.push(newExperiment);
+            }
+        } else {
+            dashboardStore.experimentFS.push(newExperiment);
         }
-    } else {
-        dashboardStore.experimentFS.push(newExperiment);
-    }
 
-    onHide();
+        onHide();
+    } catch (error) {
+        console.error(error);
+    }
 }
 </script>
