@@ -8,18 +8,8 @@ from backend.common.enums import ExperimentKind
 from backend.models.base import Base, NonUpdatableNow, UpdatableNow, Id
 
 
-class Experiment(Base):
-    """
-    Базовые поля, общие для всех экспериментов.
-    """
-    user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'))
-
+class PathMixin:
     path: Mapped[str]
-    description: Mapped[str]
-    kind: Mapped[ExperimentKind] = mapped_column()
-
-    created_at: Mapped[NonUpdatableNow]
-    updated_at: Mapped[UpdatableNow]
 
     @property
     def name(self) -> str:
@@ -28,6 +18,19 @@ class Experiment(Base):
     @name.setter
     def name(self, new_name: str) -> None:
         self.path = '/'.join((self.path.split('/')[:-1], new_name))
+
+
+class Experiment(Base, PathMixin):
+    """
+    Базовые поля, общие для всех экспериментов.
+    """
+    user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'))
+
+    description: Mapped[str]
+    kind: Mapped[ExperimentKind] = mapped_column()
+
+    created_at: Mapped[NonUpdatableNow]
+    updated_at: Mapped[UpdatableNow]
 
     __mapper_args__ = {
         'polymorphic_on': kind,
@@ -81,9 +84,7 @@ class Schema(Base):
     data: Mapped[dict] = mapped_column(JSONB)
 
 
-class SchemaLinkedTable(Base):
-    __abstract__ = True
-
+class SchemaLinkedTableMixin:
     input_id: Mapped[Id] = mapped_column(ForeignKey('schemas.id', ondelete='RESTRICT'))
     output_id: Mapped[Id] = mapped_column(ForeignKey('schemas.id', ondelete='RESTRICT'))
     parameters_id: Mapped[Id] = mapped_column(ForeignKey('schemas.id', ondelete='RESTRICT'))
@@ -110,11 +111,11 @@ class SchemaLinkedTable(Base):
         return relationship('Schema', foreign_keys=[cls.context_id])
 
 
-class ComputationalExperimentTemplate(SchemaLinkedTable):
+class ComputationalExperimentTemplate(Base, SchemaLinkedTableMixin, PathMixin):
     experiments: Mapped[list['ComputationalExperiment']] = relationship(back_populates='template')
 
 
-class ComputationalExperimentData(SchemaLinkedTable):
+class ComputationalExperimentData(Base, SchemaLinkedTableMixin):
     experiment_id: Mapped[Id] = mapped_column(ForeignKey('computational_experiments.id', ondelete='CASCADE'))
     experiment: Mapped['ComputationalExperiment'] = relationship(back_populates='data', passive_deletes=True)
 
