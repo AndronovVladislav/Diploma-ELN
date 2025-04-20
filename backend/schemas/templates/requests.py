@@ -2,9 +2,19 @@ import re
 
 from pydantic import BaseModel, field_validator, RootModel
 
+from backend.base import ONTOLOGIES_MAPPING
+
 
 def is_ontology_ref(value: str) -> bool:
-    return bool(re.match(r'^[a-zA-Z0-9_\-]+:[a-zA-Z0-9_\-]+$', value))
+    match_obj = re.match(r'^(?P<ontology>[a-zA-Z0-9_\-]+):(?P<ontology_ref>[a-zA-Z0-9_\-]+)$', value)
+
+    if not bool(match_obj):
+        return False
+
+    if match_obj['ontology'] not in ONTOLOGIES_MAPPING:
+        return False
+
+    return True
 
 
 class TemplateSchemaData(RootModel[dict[str, str]]):
