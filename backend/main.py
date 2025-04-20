@@ -11,6 +11,7 @@ from backend.models.utils import db_helper
 from backend.routes.auth.auth import router as auth_router
 from backend.routes.experiments.experiments import router as experiments_router
 from backend.routes.ontologies.ontologies import router as ontologies_router
+from backend.routes.templates.templates import router as templates_router
 
 
 @asynccontextmanager
@@ -23,6 +24,7 @@ app = FastAPI(lifespan=lifespan)
 app.include_router(auth_router)
 app.include_router(experiments_router)
 app.include_router(ontologies_router)
+app.include_router(templates_router)
 
 
 @app.exception_handler(BaseError)

@@ -3,10 +3,11 @@ import re
 from functools import partial
 from typing import Annotated
 
+from sqlalchemy import BigInteger, Identity
 from sqlalchemy import text, MetaData, TIMESTAMP
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-Id = Annotated[int, mapped_column(primary_key=True)]
+Id = Annotated[int, mapped_column(BigInteger, Identity(), primary_key=True)]
 NonUpdatableNow = Annotated[
     datetime.datetime,
     mapped_column(TIMESTAMP(timezone=True), server_default=text("TIMEZONE('utc', now())")),

@@ -25,8 +25,8 @@ def upgrade() -> None:
                     sa.Column('surname', sa.String(), nullable=False),
                     sa.Column('registered_at', sa.DateTime(), server_default=sa.text("TIMEZONE('utc', now())"),
                               nullable=False),
-                    sa.Column('user_id', sa.Integer(), nullable=False),
-                    sa.Column('id', sa.Integer(), nullable=False),
+                    sa.Column('user_id', sa.BigInteger(), nullable=False),
+                    sa.Column('id', sa.BigInteger(), server_default=sa.Identity(always=False), nullable=False),
                     sa.ForeignKeyConstraint(['user_id'], ['users.id'], name=op.f('fk_profiles_user_id_users')),
                     sa.PrimaryKeyConstraint('id', name=op.f('pk_profiles'))
                     )
