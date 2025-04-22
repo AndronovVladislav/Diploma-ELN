@@ -1,4 +1,4 @@
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, Response
 from neo4j import AsyncSession as NeoSession
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,7 +14,8 @@ from backend.services.experiments.relational.utils import to_dict
 
 builder = CypherQueryBuilder()
 TEMPLATE_NOT_FOUND_MESSAGE = 'Шаблон вычислительного эксперимента с таким id не найден'
-OTHER_TEMPLATE_UPDATING_MESSAGE = 'Нельзя удалить чужой эксперимент'
+OTHER_TEMPLATE_UPDATING_MESSAGE = 'Нельзя редактировать чужой шаблон'
+OTHER_TEMPLATE_DELETING_MESSAGE = 'Нельзя удалить чужой шаблон'
 
 
 @neo4j_connection
@@ -92,6 +93,7 @@ async def get_template(template_id: int, session: AsyncSession) -> Computational
             selectinload(ComputationalExperimentTemplate.output),
             selectinload(ComputationalExperimentTemplate.parameters),
             selectinload(ComputationalExperimentTemplate.context),
+            selectinload(ComputationalExperimentTemplate.experiments),
         )
         .where(ComputationalExperimentTemplate.id == template_id)
     )
@@ -143,8 +145,19 @@ async def update_user_template(update: UpdateTemplateRequest,
         context=template.context.data,
     )
 
-    # for key in SchemaKind:
-    #     if key in update_data:
-    #         new_value = Schema(type=key, data=update_data[key])
-    #         session.add(new_value)
-    #         setattr(template, key, Schema(update_data[key]))
+
+@connection
+async def delete_template(template_id: int, user: User, session: AsyncSession) -> Response:
+    template = await get_template(template_id, session)
+
+    if template.user_id != user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=OTHER_TEMPLATE_DELETING_MESSAGE)
+
+    if not len(template.experiments):
+        await session.delete(template)
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+    return Response(
+        status_code=status.HTTP_403_FORBIDDEN,
+        content='Нельзя удалить шаблон, к которому привязаны эксперименты',
+    )

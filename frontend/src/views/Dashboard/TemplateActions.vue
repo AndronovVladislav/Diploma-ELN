@@ -11,8 +11,8 @@ import { Button } from 'primevue';
 import { Template } from '@/views/Dashboard/typing';
 import { useDashboard } from '@/composables/useDashboard';
 import { findById, removeFromFS } from '@/utils/fileSystem';
-
-const { selectedTemplate, templateFS, moveTemplateDialog } = useDashboard();
+import api from '@/api/axios';
+import { useNotifier } from '@/composables/useNotifier';
 
 interface TemplateActionProps {
     templateId: string;
@@ -20,12 +20,22 @@ interface TemplateActionProps {
 
 const props = defineProps<TemplateActionProps>();
 
+const { selectedTemplate, templateFS, moveTemplateDialog } = useDashboard();
+const Notifier = useNotifier();
+
 const moveTemplate = () => {
     selectedTemplate.value = findById(templateFS.value, props.templateId) as Template;
     moveTemplateDialog.value.visible = true;
 };
 
-const deleteTemplate = () => {
+const deleteTemplate = async () => {
+    try {
+        await api.delete(`template/${props.templateId}`);
+    } catch (error) {
+        console.error('Ошибка при удалении эксперимента:', error);
+        Notifier.error({ detail: error instanceof Error ? error.message : 'Неизвестная ошибка' });
+    }
+
     removeFromFS(templateFS.value, props.templateId);
 };
 </script>

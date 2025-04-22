@@ -1,6 +1,6 @@
 import re
 
-from pydantic import BaseModel, field_validator, RootModel, ConfigDict
+from pydantic import BaseModel, field_validator, RootModel
 
 from backend.base import ONTOLOGIES_MAPPING
 

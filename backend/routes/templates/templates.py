@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response
 
 from backend.models import User
 from backend.routes.auth.validation import get_current_auth_user
@@ -9,7 +9,8 @@ from backend.services.templates.templates import (
     create_user_template as create_user_template_service,
     get_user_template as get_user_templates_service,
     get_template_details as get_template_details_service,
-    update_user_template as update_user_template_service
+    update_user_template as update_user_template_service,
+    delete_template as delete_template_service,
 )
 
 router = APIRouter(prefix='/template', tags=['Computational Experiment Templates'])
@@ -36,3 +37,8 @@ async def update_user_template(payload: UpdateTemplateRequest,
                                user: User = Depends(get_current_auth_user),
                                ):
     return await update_user_template_service(payload, template_id, user)
+
+
+@router.delete('/{template_id}', response_class=Response)
+async def delete_template(template_id: int, user: User = Depends(get_current_auth_user)):
+    return await delete_template_service(template_id, user)
