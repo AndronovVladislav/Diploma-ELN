@@ -1,6 +1,6 @@
 import re
 
-from pydantic import BaseModel, field_validator, RootModel
+from pydantic import BaseModel, field_validator, RootModel, ConfigDict
 
 from backend.base import ONTOLOGIES_MAPPING
 
@@ -28,7 +28,7 @@ class TemplateSchemaData(RootModel[dict[str, str]]):
         return value
 
 
-class TemplateCreateRequest(BaseModel):
+class CreateTemplateRequest(BaseModel):
     path: str
 
     input: TemplateSchemaData
@@ -37,9 +37,5 @@ class TemplateCreateRequest(BaseModel):
     context: dict[str, str]
 
 
-class TemplateCreateResponse(BaseModel):
-    id: int
-    input_id: int
-    output_id: int
-    parameters_id: int
-    context_id: int
+class UpdateTemplateRequest(BaseModel):
+    path: str

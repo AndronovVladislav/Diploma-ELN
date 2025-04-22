@@ -1,16 +1,19 @@
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, Response
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from backend.common.enums import ExperimentKind
+from backend.models import User
 from backend.models.experiment import LaboratoryExperiment, Column, Measurement, Experiment
 from backend.models.utils import connection
 from backend.schemas.experiments.data import LaboratoryExperimentDetails
 from backend.schemas.experiments.requests import UpdateLaboratoryExperimentRequest
 from backend.services.experiments.relational.utils import check_ontologies, construct_lab_experiment
 
-INFORMATIONAL_ATTRIBUTES = {'data', 'description'}
+INFORMATIONAL_ATTRIBUTES = {'data', 'description', 'path'}
+EXPERIMENT_NOT_FOUND_MESSAGE = 'Эксперимент с таким id не найден'
+OTHER_EXPERIMENT_DELETING_MESSAGE = 'Нельзя удалить чужой эксперимент'
 
 
 @connection
@@ -20,7 +23,7 @@ async def update_experiment_data(experiment_id: int,
                                  ) -> LaboratoryExperimentDetails | None:
     experiment = await session.get(Experiment, experiment_id)
     if not experiment:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Эксперимент с таким id не найден')
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=EXPERIMENT_NOT_FOUND_MESSAGE)
 
     match experiment.kind:
         case ExperimentKind.LABORATORY:
@@ -42,10 +45,6 @@ async def update_lab_experiment_data(experiment_id: int,
     )
 
     experiment = (await session.execute(q)).scalar_one_or_none()
-    if not experiment:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail='Лабораторный эксперимент с таким id не найден',
-                            )
 
     update_data = update.model_dump(exclude_unset=True)
     for attr in INFORMATIONAL_ATTRIBUTES:
@@ -109,3 +108,18 @@ def update_measurements(experiment: LaboratoryExperiment, measurements: list[dic
     for (row, col), value in incoming_measurements.items():
         if (row, col) not in existing_measurements or existing_measurements[(row, col)].value != value:
             experiment.measurements.append(Measurement(row=row, column=col, value=value))
+
+
+@connection
+async def delete_experiment(experiment_id: int, user: User, session: AsyncSession) -> Response:
+    q = select(Experiment).filter_by(id=experiment_id)
+    experiment = (await session.execute(q)).scalar_one_or_none()
+
+    if not experiment:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=EXPERIMENT_NOT_FOUND_MESSAGE)
+
+    if experiment.user_id != user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=OTHER_EXPERIMENT_DELETING_MESSAGE)
+
+    await session.delete(experiment)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

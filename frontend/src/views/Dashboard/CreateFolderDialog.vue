@@ -1,5 +1,5 @@
 <template>
-    <Dialog v-model:visible="visibleModel" class="w-fit" header="Создать папку" modal>
+    <Dialog v-model:visible="props.visibleModel.visible" class="w-fit" header="Создать папку" modal>
         <div class="flex flex-col justify-center items-end gap-2">
             <div class="card flex flex-col justify-center gap-2">
                 <InputGroup>
@@ -19,7 +19,7 @@
                     <FloatLabel variant="on">
                         <Select id="folderLocation"
                                 v-model="selectedFolderLocation"
-                                :options="dashboardStore.formattedFolders(ExperimentKind.ANY).value"
+                                :options="formattedFolders(props.fs).value.concat([{path: '/', id: '-1'}])"
                                 class="w-full"
                                 optionLabel="path"
                         />
@@ -29,7 +29,7 @@
             </div>
         </div>
         <template #footer>
-            <Button class="p-button-secondary" label="Отмена" @click="visibleModel = false" />
+            <Button class="p-button-secondary" label="Отмена" @click="props.visibleModel.visible = false" />
             <Button :disabled="!newFolderName" class="p-button-primary" label="Создать" @click="createFolder" />
         </template>
     </Dialog>
@@ -38,13 +38,17 @@
 <script lang="ts" setup>
 import { Button, Dialog, FloatLabel, InputGroup, InputGroupAddon, InputText, Select } from 'primevue';
 import { ref } from 'vue';
-
+import { FileSystem, Folder, SimplifiedView } from '@/views/Dashboard/typing';
 import { findById } from '@/utils/fileSystem';
-import { ExperimentKind, Folder, SimplifiedView } from '@/views/Dashboard/typing';
-import { useDashboardStore } from '@/stores/dashboard';
+import { DialogState, useDashboard } from '@/composables/useDashboard';
 
-const dashboardStore = useDashboardStore();
-const visibleModel = dashboardStore.getVisibleModel(dashboardStore.createFolderDialog);
+interface Props {
+    fs: FileSystem;
+    visibleModel: DialogState;
+}
+
+const props = defineProps<Props>();
+const { formattedFolders } = useDashboard();
 
 const newFolderName = ref('');
 const selectedFolderLocation = ref<SimplifiedView | null>(null);
@@ -60,15 +64,15 @@ const createFolder = () => {
     };
 
     if (selectedFolderLocation.value) {
-        const parentFolder = findById(dashboardStore.experimentFS, selectedFolderLocation.value.id) as Folder;
+        const parentFolder = findById(props.fs, selectedFolderLocation.value.id) as Folder;
         if (parentFolder) {
             parentFolder.children.push(newFolder);
+        } else if (selectedFolderLocation.value.id === '-1') {
+            props.fs.push(newFolder);
         }
-    } else {
-        dashboardStore.experimentFS.push(newFolder);
     }
 
-    visibleModel.value = false;
+    props.visibleModel.visible = false;
 };
 </script>
 

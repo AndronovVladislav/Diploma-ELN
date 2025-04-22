@@ -1,8 +1,8 @@
 <template>
     <div class="mb-6">
         <TreeTable
-            v-if="dashboardStore.experimentFS"
-            :value="dashboardStore.experimentFS"
+            v-if="experimentFS"
+            :value="experimentFS"
             class="w-full"
             data-key="path"
         >
@@ -37,6 +37,14 @@
                 </template>
             </Column>
         </TreeTable>
+
+        <CreateExperimentDialog />
+        <CreateFolderDialog :fs="experimentFS" :visible-model="createExperimentsFolderDialog" />
+        <MoveDialog
+            :fs="experimentFS"
+            :visible-model="moveExperimentDialog"
+            :selected-item="selectedExperiment"
+        />
     </div>
 </template>
 
@@ -45,10 +53,13 @@ import { Button, Column, TreeTable } from 'primevue';
 
 import ExperimentActions from '@/views/Dashboard/ExperimentActions.vue';
 import { ExperimentKind } from '@/views/Dashboard/typing';
-import { useDashboardStore } from '@/stores/dashboard';
+import { useDashboard } from '@/composables/useDashboard';
 import router from '@/router';
+import CreateFolderDialog from '@/views/Dashboard/CreateFolderDialog.vue';
+import MoveDialog from '@/views/Dashboard/MoveDialog.vue';
+import CreateExperimentDialog from '@/views/Dashboard/CreateExperimentDialog.vue';
 
-const dashboardStore = useDashboardStore();
+const { experimentFS, moveExperimentDialog, selectedExperiment, createExperimentsFolderDialog } = useDashboard();
 
 const goToExperiment = (id: string) => {
     if (!id) return;

@@ -8,10 +8,13 @@
 
 <script lang="ts" setup>
 import { Experiment } from '@/views/Dashboard/typing';
-import { useDashboardStore } from '@/stores/dashboard';
-import { findById, removeExperiment } from '@/utils/fileSystem';
+import { useDashboard } from '@/composables/useDashboard';
+import { findById, removeFromFS } from '@/utils/fileSystem';
+import api from '@/api/axios';
+import { useNotifier } from '@/composables/useNotifier';
 
-const dashboardStore = useDashboardStore();
+const { selectedExperiment, experimentFS, moveExperimentDialog } = useDashboard();
+const Notifier = useNotifier();
 
 interface ExperimentActionProps {
     experimentId: string;
@@ -20,11 +23,17 @@ interface ExperimentActionProps {
 const props = defineProps<ExperimentActionProps>();
 
 const moveExperiment = () => {
-    dashboardStore.selectedExperiment = findById(dashboardStore.experimentFS, props.experimentId) as Experiment;
-    dashboardStore.moveExperimentDialog.visible = true;
+    selectedExperiment.value = findById(experimentFS.value, props.experimentId) as Experiment;
+    moveExperimentDialog.value.visible = true;
 };
 
-const deleteExperiment = () => {
-    removeExperiment(dashboardStore.experimentFS, props.experimentId);
+const deleteExperiment = async () => {
+    try {
+        await api.delete(`experiment/${props.experimentId}`);
+        removeFromFS(experimentFS.value, props.experimentId);
+    } catch (error) {
+        console.error('Ошибка при удалении эксперимента:', error);
+        Notifier.error({ detail: error instanceof Error ? error.message : 'Неизвестная ошибка' });
+    }
 };
 </script>

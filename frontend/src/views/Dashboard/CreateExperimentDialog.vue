@@ -49,7 +49,7 @@
                     <Select
                         id="experimentFolder"
                         v-model="selectedFolder"
-                        :options="dashboardStore.formattedFolders(ExperimentKind.ANY).value"
+                        :options="formattedFolders(experimentFS).value.concat([{path: '/', id: '-1'}])"
                         class="w-full"
                         optionLabel="path"
                     />
@@ -69,14 +69,14 @@
 import { Button, Dialog, FloatLabel, InputGroup, InputGroupAddon, InputText, Select } from 'primevue';
 import { ref } from 'vue';
 
-import { useDashboardStore } from '@/stores/dashboard';
+import { useDashboard } from '@/composables/useDashboard';
 import { Experiment, ExperimentKind, Folder, SimplifiedView } from '@/views/Dashboard/typing';
 import { findById } from '@/utils/fileSystem';
 import api from '@/api/axios';
 
-const dashboardStore = useDashboardStore();
+const { getVisibleModel, createExperimentDialog, experimentFS, formattedFolders } = useDashboard();
 
-const visible = dashboardStore.getVisibleModel(dashboardStore.createExperimentDialog);
+const visible = getVisibleModel(createExperimentDialog.value);
 
 const experimentName = ref('');
 const selectedKind = ref(ExperimentKind.LABORATORY);
@@ -96,8 +96,9 @@ function onHide() {
 
 async function onCreateExperiment() {
     try {
+        const prefix = selectedFolder.value?.path === '/' ? '' : `/${selectedFolder.value?.path}`;
         const response = await api.post('/experiment', {
-            path: `/${selectedFolder.value?.path}/${experimentName.value}`,
+            path: `${prefix}/${experimentName.value}`,
             kind: selectedKind.value
         });
 
@@ -109,12 +110,12 @@ async function onCreateExperiment() {
         };
 
         if (selectedFolder.value) {
-            const parentFolder = findById(dashboardStore.experimentFS, selectedFolder.value.id) as Folder;
+            const parentFolder = findById(experimentFS.value, selectedFolder.value.id) as Folder;
             if (parentFolder) {
                 parentFolder.children.push(newExperiment);
+            } else if (selectedFolder.value.id === '-1') {
+                experimentFS.value.push(newExperiment);
             }
-        } else {
-            dashboardStore.experimentFS.push(newExperiment);
         }
 
         onHide();

@@ -1,13 +1,20 @@
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 from neo4j import AsyncSession as NeoSession
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
+from backend.models import User
 from backend.models.experiment import Schema, SchemaKind, ComputationalExperimentTemplate
 from backend.models.utils import connection
 from backend.ontology.base import connection as neo4j_connection, CypherQueryBuilder, CypherCondition
-from backend.schemas.templates.requests import TemplateCreateResponse, TemplateCreateRequest
+from backend.schemas.templates.data import TemplateDetails
+from backend.schemas.templates.requests import CreateTemplateRequest, UpdateTemplateRequest
+from backend.services.experiments.relational.utils import to_dict
 
 builder = CypherQueryBuilder()
+TEMPLATE_NOT_FOUND_MESSAGE = 'Шаблон вычислительного эксперимента с таким id не найден'
+OTHER_TEMPLATE_UPDATING_MESSAGE = 'Нельзя удалить чужой эксперимент'
 
 
 @neo4j_connection
@@ -30,9 +37,10 @@ async def validate_all_ontology_uris_exist(uris: set[str], session: NeoSession) 
 
 
 @connection
-async def create_computational_template(payload: TemplateCreateRequest,
-                                        session: AsyncSession,
-                                        ) -> TemplateCreateResponse:
+async def create_user_template(user: User,
+                               payload: CreateTemplateRequest,
+                               session: AsyncSession,
+                               ) -> TemplateDetails:
     template_input = payload.input.model_dump()
     template_output = payload.output.model_dump()
     template_parameters = payload.parameters.model_dump()
@@ -48,6 +56,7 @@ async def create_computational_template(payload: TemplateCreateRequest,
     await session.flush()
 
     template = ComputationalExperimentTemplate(
+        user_id=user.id,
         path=payload.path,
         input_id=input_schema.id,
         output_id=output_schema.id,
@@ -58,10 +67,84 @@ async def create_computational_template(payload: TemplateCreateRequest,
     session.add(template)
     await session.flush()
 
-    return TemplateCreateResponse(
+    return TemplateDetails(
         id=template.id,
-        input_id=input_schema.id,
-        output_id=output_schema.id,
-        parameters_id=parameters_schema.id,
-        context_id=context_schema.id
+        path=template.path,
+        input=input_schema.data,
+        output=output_schema.data,
+        parameters=parameters_schema.data,
+        context=context_schema.data
     )
+
+
+@connection
+async def get_user_template(user: User, session: AsyncSession) -> list[dict]:
+    q = select(ComputationalExperimentTemplate).where(User.id == user.id)
+    result = (await session.execute(q)).scalars().all()
+    return [to_dict(template) for template in result]
+
+
+async def get_template(template_id: int, session: AsyncSession) -> ComputationalExperimentTemplate:
+    q = (
+        select(ComputationalExperimentTemplate)
+        .options(
+            selectinload(ComputationalExperimentTemplate.input),
+            selectinload(ComputationalExperimentTemplate.output),
+            selectinload(ComputationalExperimentTemplate.parameters),
+            selectinload(ComputationalExperimentTemplate.context),
+        )
+        .where(ComputationalExperimentTemplate.id == template_id)
+    )
+
+    template = (await session.execute(q)).scalar_one_or_none()
+
+    if template is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=TEMPLATE_NOT_FOUND_MESSAGE)
+
+    return template
+
+
+@connection
+async def get_template_details(template_id: int, session: AsyncSession) -> TemplateDetails:
+    template = await get_template(template_id, session)
+
+    return TemplateDetails(
+        id=template.id,
+        path=template.path,
+        input=template.input.data,
+        output=template.output.data,
+        parameters=template.parameters.data,
+        context=template.context.data,
+    )
+
+
+@connection
+async def update_user_template(update: UpdateTemplateRequest,
+                               template_id: int,
+                               user: User,
+                               session: AsyncSession,
+                               ) -> TemplateDetails:
+    template = await get_template(template_id, session)
+
+    if template.user_id != user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=OTHER_TEMPLATE_UPDATING_MESSAGE)
+
+    update_data = update.model_dump(exclude_unset=True)
+
+    if 'path' in update_data:
+        template.path = update_data['path']
+
+    return TemplateDetails(
+        id=template.id,
+        path=template.path,
+        input=template.input.data,
+        output=template.output.data,
+        parameters=template.parameters.data,
+        context=template.context.data,
+    )
+
+    # for key in SchemaKind:
+    #     if key in update_data:
+    #         new_value = Schema(type=key, data=update_data[key])
+    #         session.add(new_value)
+    #         setattr(template, key, Schema(update_data[key]))

@@ -18,6 +18,7 @@ class CreateExperimentRequest(BaseModel):
 class UpdateLaboratoryExperimentRequest(BaseModel):
     name: str = None
     description: str = None
+    path: str = None
 
     measurements: list[Measurement] = None
     columns: list[ColumnDetails] = None
