@@ -31,11 +31,10 @@ const moveTemplate = () => {
 const deleteTemplate = async () => {
     try {
         await api.delete(`template/${props.templateId}`);
+        removeFromFS(templateFS.value, props.templateId);
     } catch (error) {
         console.error('Ошибка при удалении эксперимента:', error);
         Notifier.error({ detail: error instanceof Error ? error.message : 'Неизвестная ошибка' });
     }
-
-    removeFromFS(templateFS.value, props.templateId);
 };
 </script>
