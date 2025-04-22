@@ -1,22 +1,14 @@
-from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from backend.common.enums import ExperimentKind
 from backend.models import User
-from backend.models.experiment import LaboratoryExperiment
+from backend.models.experiment import LaboratoryExperiment, ComputationalExperiment
 from backend.models.utils import connection
-from backend.schemas.experiments.data import LaboratoryExperimentDetails
-from backend.services.experiments.relational.utils import construct_lab_experiment
-
-
-async def create_user_experiment(user: User, path: str, kind: ExperimentKind) -> LaboratoryExperimentDetails:
-    match kind:
-        case ExperimentKind.LABORATORY:
-            return await create_lab_experiment(user, path)
-        case _:
-            raise HTTPException(status_code=status.HTTP_418_IM_A_TEAPOT, detail='Invalid experiment kind')
+from backend.schemas.experiments.data import LaboratoryExperimentDetails, ComputationalExperimentDetails
+from backend.services.experiments.relational.utils import construct_lab_experiment_details, \
+    construct_comp_experiment_details
 
 
 @connection
@@ -33,13 +25,41 @@ async def create_lab_experiment(user: User, path: str, session: AsyncSession) ->
 
     q = (
         select(LaboratoryExperiment)
-        .where(LaboratoryExperiment.id == experiment.id)
         .options(
             selectinload(LaboratoryExperiment.columns),
             selectinload(LaboratoryExperiment.measurements)
         )
+        .where(LaboratoryExperiment.id == experiment.id)
     )
-    result = await session.execute(q)
-    full_experiment = result.scalar_one()
+    full_experiment = (await session.execute(q)).scalar_one()
 
-    return construct_lab_experiment(full_experiment)
+    return construct_lab_experiment_details(full_experiment)
+
+
+@connection
+async def create_comp_experiment(user: User,
+                                 path: str,
+                                 template_id: int,
+                                 session: AsyncSession,
+                                 ) -> ComputationalExperimentDetails:
+    experiment = ComputationalExperiment(
+        user_id=user.id,
+        template_id=template_id,
+        path=path,
+        description='',
+        kind=ExperimentKind.COMPUTATIONAL
+    )
+
+    session.add(experiment)
+    await session.flush()
+
+    q = (
+        select(ComputationalExperiment)
+        .options(
+            selectinload(ComputationalExperiment.data),
+        )
+        .where(ComputationalExperiment.id == experiment.id)
+    )
+    full_experiment = (await session.execute(q)).scalar_one()
+
+    return construct_comp_experiment_details(full_experiment)

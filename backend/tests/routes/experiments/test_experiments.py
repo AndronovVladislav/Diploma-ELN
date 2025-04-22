@@ -6,7 +6,7 @@ from backend.models.experiment import LaboratoryExperiment
 
 
 @pytest.mark.asyncio
-async def test_get_user_experiments(client: AsyncClient, user: User):
+async def test_get_experiments(client: AsyncClient, user: User):
     """Тест получения экспериментов пользователя"""
     response = await client.get("/experiment/",
                                 params={"username": user.username, "desired_keys": ["key1", "key2"]},

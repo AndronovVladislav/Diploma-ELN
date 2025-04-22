@@ -1,5 +1,5 @@
 <template>
-    <Dialog v-model:visible="visibleModel.visible" class="w-1/2" header="Просмотр шаблона" modal>
+    <Dialog v-model:visible="visibleModel.visible" class="w-3/4" header="Просмотр шаблона" modal>
         <TemplateSchemaForm
             v-if="template"
             :name="templateName"

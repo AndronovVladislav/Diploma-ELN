@@ -6,10 +6,10 @@ from backend.routes.experiments.utils import flat_to_tree
 from backend.schemas.templates.data import TemplateDetails
 from backend.schemas.templates.requests import CreateTemplateRequest, UpdateTemplateRequest
 from backend.services.templates.templates import (
-    create_user_template as create_user_template_service,
-    get_user_template as get_user_templates_service,
+    create_template as create_template_service,
+    get_templates as get_templates_service,
     get_template_details as get_template_details_service,
-    update_user_template as update_user_template_service,
+    update_template as update_template_service,
     delete_template as delete_template_service,
 )
 
@@ -17,8 +17,8 @@ router = APIRouter(prefix='/template', tags=['Computational Experiment Templates
 
 
 @router.get('/', response_model=list[dict])
-async def get_user_templates(user: User = Depends(get_current_auth_user)):
-    return flat_to_tree(await get_user_templates_service(user), ['id'])
+async def get_templates(user: User = Depends(get_current_auth_user)):
+    return flat_to_tree(await get_templates_service(user), ['id'])
 
 
 @router.get('/{template_id}', response_model=TemplateDetails)
@@ -27,16 +27,16 @@ async def get_template_details(template_id: int):
 
 
 @router.post('/', response_model=TemplateDetails)
-async def create_user_template(payload: CreateTemplateRequest, user: User = Depends(get_current_auth_user)):
-    return await create_user_template_service(user, payload)
+async def create_template(payload: CreateTemplateRequest, user: User = Depends(get_current_auth_user)):
+    return await create_template_service(user, payload)
 
 
 @router.patch('/{template_id}', response_model=TemplateDetails)
-async def update_user_template(payload: UpdateTemplateRequest,
+async def update_template(payload: UpdateTemplateRequest,
                                template_id: int,
                                user: User = Depends(get_current_auth_user),
                                ):
-    return await update_user_template_service(payload, template_id, user)
+    return await update_template_service(payload, template_id, user)
 
 
 @router.delete('/{template_id}', response_class=Response)

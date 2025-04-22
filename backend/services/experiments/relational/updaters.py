@@ -9,7 +9,7 @@ from backend.models.experiment import LaboratoryExperiment, Column, Measurement,
 from backend.models.utils import connection
 from backend.schemas.experiments.data import LaboratoryExperimentDetails
 from backend.schemas.experiments.requests import UpdateLaboratoryExperimentRequest
-from backend.services.experiments.relational.utils import check_ontologies, construct_lab_experiment
+from backend.services.experiments.relational.utils import check_ontologies, construct_lab_experiment_details
 
 INFORMATIONAL_ATTRIBUTES = {'data', 'description', 'path'}
 EXPERIMENT_NOT_FOUND_MESSAGE = 'Эксперимент с таким id не найден'
@@ -38,7 +38,6 @@ async def update_lab_experiment_data(experiment_id: int,
         select(LaboratoryExperiment)
         .filter_by(id=experiment_id)
         .options(
-            selectinload(LaboratoryExperiment.info),
             selectinload(LaboratoryExperiment.measurements),
             selectinload(LaboratoryExperiment.columns),
         )
@@ -49,7 +48,7 @@ async def update_lab_experiment_data(experiment_id: int,
     update_data = update.model_dump(exclude_unset=True)
     for attr in INFORMATIONAL_ATTRIBUTES:
         if attr in update_data:
-            setattr(experiment.info, attr, update_data[attr])
+            setattr(experiment, attr, update_data[attr])
 
     if 'columns' in update_data:
         await update_columns(experiment, update_data['columns'], session=session)
@@ -57,7 +56,7 @@ async def update_lab_experiment_data(experiment_id: int,
     if 'measurements' in update_data:
         update_measurements(experiment, update_data['measurements'])
 
-    return construct_lab_experiment(experiment)
+    return construct_lab_experiment_details(experiment)
 
 
 async def update_columns(experiment: LaboratoryExperiment, columns: list[dict], session: AsyncSession) -> None:

@@ -7,17 +7,20 @@ from sqlalchemy.orm import selectinload
 
 from backend.common.enums import ExperimentKind
 from backend.models import User
-from backend.models.experiment import LaboratoryExperiment, Experiment
+from backend.models.experiment import LaboratoryExperiment, Experiment, ComputationalExperiment
 from backend.models.utils import connection
 from backend.schemas.experiments.data import LaboratoryExperimentDetails
-from backend.services.experiments.relational.utils import to_dict, construct_lab_experiment
+from backend.services.experiments.relational.utils import to_dict, construct_lab_experiment_details
 
 
 @connection
-async def get_user_experiments(username: str, session: AsyncSession) -> list[dict[str, Any]]:
+async def get_experiments(username: str, session: AsyncSession) -> list[dict[str, Any]]:
     q = (
         select(User)
-        .options(selectinload(User.experiments))
+        .options(selectinload(User.experiments),
+                 selectinload(
+                     User.experiments.of_type(ComputationalExperiment)
+                 ).selectinload(ComputationalExperiment.template))
         .filter_by(username=username)
     )
     user = (await session.execute(q)).scalar_one_or_none()
@@ -43,7 +46,6 @@ async def get_lab_experiment_data(experiment_id: int, session: AsyncSession) -> 
     q = (
         select(LaboratoryExperiment)
         .options(
-            selectinload(LaboratoryExperiment.info),
             selectinload(LaboratoryExperiment.measurements),
             selectinload(LaboratoryExperiment.columns),
         )
@@ -53,4 +55,4 @@ async def get_lab_experiment_data(experiment_id: int, session: AsyncSession) -> 
     if not experiment:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Эксперимент с таким id не найден')
 
-    return construct_lab_experiment(experiment)
+    return construct_lab_experiment_details(experiment)

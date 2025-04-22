@@ -1,6 +1,5 @@
 from pydantic import BaseModel, ConfigDict
 
-from backend.common.enums import ExperimentKind
 from backend.schemas.experiments.data import ColumnDetails
 
 
@@ -10,9 +9,13 @@ class Measurement(BaseModel):
     model_config = ConfigDict(extra='allow')
 
 
-class CreateExperimentRequest(BaseModel):
-    kind: ExperimentKind
+class CreateLaboratoryExperimentRequest(BaseModel):
     path: str
+
+
+class CreateComputationalExperimentRequest(BaseModel):
+    path: str
+    template_id: int
 
 
 class UpdateLaboratoryExperimentRequest(BaseModel):

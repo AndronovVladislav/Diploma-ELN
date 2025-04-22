@@ -10,7 +10,7 @@ from backend.routes.auth.utils import (
     get_user_by_username
 )
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/auth/signin')
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/auth/login')
 
 
 def get_current_token_payload(token: str = Depends(oauth2_scheme)) -> dict:

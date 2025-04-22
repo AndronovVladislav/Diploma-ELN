@@ -56,6 +56,24 @@
                     <label class="block font-bold mb-1" for="experimentFolder">Путь</label>
                 </FloatLabel>
             </InputGroup>
+
+            <div v-if="selectedKind === ExperimentKind.COMPUTATIONAL">
+                <InputGroup>
+                    <InputGroupAddon>
+                        <i class="pi pi-objects-column"></i>
+                    </InputGroupAddon>
+                    <FloatLabel variant="on">
+                        <Select
+                            id="experimentTemplate"
+                            v-model="selectedTemplate"
+                            :options="availableTemplates"
+                            class="w-full"
+                            optionLabel="path"
+                        />
+                        <label for="experimentTemplate">Шаблон</label>
+                    </FloatLabel>
+                </InputGroup>
+            </div>
         </div>
 
         <template #footer>
@@ -66,41 +84,68 @@
 </template>
 
 <script lang="ts" setup>
+import { computed, ref } from 'vue';
 import { Button, Dialog, FloatLabel, InputGroup, InputGroupAddon, InputText, Select } from 'primevue';
-import { ref } from 'vue';
-
 import { useDashboard } from '@/composables/useDashboard';
-import { Experiment, ExperimentKind, Folder, SimplifiedView } from '@/views/Dashboard/typing';
+import { Experiment, ExperimentKind, Folder, SimplifiedView, Template } from '@/views/Dashboard/typing';
 import { findById } from '@/utils/fileSystem';
 import api from '@/api/axios';
 
-const { getVisibleModel, createExperimentDialog, experimentFS, formattedFolders } = useDashboard();
+const { getVisibleModel, createExperimentDialog, experimentFS, formattedFolders, templateFS } = useDashboard();
 
 const visible = getVisibleModel(createExperimentDialog.value);
 
 const experimentName = ref('');
 const selectedKind = ref(ExperimentKind.LABORATORY);
 const selectedFolder = ref<SimplifiedView | null>(null);
+const selectedTemplate = ref<Template | null>(null);
 
 const experimentKinds = [
     { label: 'Лабораторный', value: ExperimentKind.LABORATORY },
     { label: 'Вычислительный', value: ExperimentKind.COMPUTATIONAL }
 ];
 
+const availableTemplates = computed(() => {
+    const all: Template[] = [];
+    const stack = [...templateFS.value];
+    while (stack.length) {
+        const item = stack.pop();
+        if (!item) continue;
+        if ('children' in item && Array.isArray(item.children)) {
+            stack.push(...item.children);
+        } else {
+            all.push(item as Template);
+        }
+    }
+    return all;
+});
+
 function onHide() {
     visible.value = false;
     experimentName.value = '';
     selectedKind.value = ExperimentKind.LABORATORY;
     selectedFolder.value = null;
+    selectedTemplate.value = null;
 }
 
 async function onCreateExperiment() {
     try {
         const prefix = selectedFolder.value?.path === '/' ? '' : `/${selectedFolder.value?.path}`;
-        const response = await api.post('/experiment', {
-            path: `${prefix}/${experimentName.value}`,
-            kind: selectedKind.value
-        });
+        let url = '/experiment';
+        let payload = { path: `${prefix}/${experimentName.value}` };
+
+        if (selectedKind.value === ExperimentKind.COMPUTATIONAL) {
+            if (!selectedTemplate.value) {
+                throw new Error('Необходимо выбрать шаблон для вычислительного эксперимента');
+            }
+
+            url += '/computational';
+            payload = {...payload, template_id: selectedTemplate.value.id};
+        } else {
+            url += '/laboratory';
+        }
+
+        const response = await api.post(url, payload);
 
         const newExperiment: Experiment = {
             id: response.data.id,
