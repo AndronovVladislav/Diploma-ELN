@@ -117,6 +117,7 @@ class ComputationalExperimentTemplate(OwnableMixin, SchemaLinkedTableMixin, Path
 
 
 class ComputationalExperimentData(SchemaLinkedTableMixin, Base):
+    row: Mapped[int]
     experiment_id: Mapped[Id] = mapped_column(ForeignKey('computational_experiments.id', ondelete='CASCADE'))
     experiment: Mapped['ComputationalExperiment'] = relationship(back_populates='data', passive_deletes=True)
 

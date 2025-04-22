@@ -19,9 +19,15 @@ class CreateComputationalExperimentRequest(BaseModel):
 
 
 class UpdateLaboratoryExperimentRequest(BaseModel):
-    name: str = None
     description: str = None
     path: str = None
 
     measurements: list[Measurement] = None
     columns: list[ColumnDetails] = None
+
+
+class UpdateComputationalExperimentRequest(BaseModel):
+    description: str = None
+    path: str = None
+
+    data: list[tuple[dict, dict, dict, dict]] = None

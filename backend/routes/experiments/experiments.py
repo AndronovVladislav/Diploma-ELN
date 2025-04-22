@@ -1,5 +1,3 @@
-from typing import Any
-
 from fastapi import APIRouter, Query, Depends, Response
 
 from backend.models import User
@@ -9,7 +7,7 @@ from backend.schemas.experiments.data import LaboratoryExperimentDetails, Comput
 from backend.schemas.experiments.requests import (
     UpdateLaboratoryExperimentRequest,
     CreateLaboratoryExperimentRequest,
-    CreateComputationalExperimentRequest
+    CreateComputationalExperimentRequest, UpdateComputationalExperimentRequest
 )
 # from backend.services.experiments.graph import import_experiment as import_experiment_service
 from backend.services.experiments.relational.creators import (
@@ -21,8 +19,9 @@ from backend.services.experiments.relational.getters import (
     get_experiment_data as get_experiment_data_service,
 )
 from backend.services.experiments.relational.updaters import (
-    update_experiment_data as update_experiment_data_service,
+    update_lab_experiment_data as update_lab_experiment_data_service,
     delete_experiment as delete_experiment_service,
+    update_comp_experiment_data as update_comp_experiment_data_service,
 )
 
 router = APIRouter(prefix='/experiment', tags=['Experiments'])
@@ -47,14 +46,19 @@ async def create_comp_experiment(request: CreateComputationalExperimentRequest,
     return await create_comp_experiment_service(user, request.path, request.template_id)
 
 
-@router.get('/{experiment_id}', response_model=LaboratoryExperimentDetails | Any)
+@router.get('/{experiment_id}', response_model=LaboratoryExperimentDetails | ComputationalExperimentDetails)
 async def get_experiment_data(experiment_id: int):
     return await get_experiment_data_service(experiment_id)
 
 
-@router.patch('/{experiment_id}', response_model=LaboratoryExperimentDetails)
-async def update_experiment_data(experiment_id: int, update: UpdateLaboratoryExperimentRequest):
-    return await update_experiment_data_service(experiment_id, update)
+@router.patch('/laboratory/{experiment_id}', response_model=LaboratoryExperimentDetails)
+async def update_lab_experiment_data(experiment_id: int, update: UpdateLaboratoryExperimentRequest):
+    return await update_lab_experiment_data_service(experiment_id, update)
+
+
+@router.patch('/computational/{experiment_id}', response_model=ComputationalExperimentDetails)
+async def update_comp_experiment_data(experiment_id: int, update: UpdateComputationalExperimentRequest):
+    return await update_comp_experiment_data_service(experiment_id, update)
 
 
 @router.delete('/{experiment_id}', response_class=Response)

@@ -7,8 +7,11 @@ from backend.models import User
 from backend.models.experiment import LaboratoryExperiment, ComputationalExperiment
 from backend.models.utils import connection
 from backend.schemas.experiments.data import LaboratoryExperimentDetails, ComputationalExperimentDetails
-from backend.services.experiments.relational.utils import construct_lab_experiment_details, \
-    construct_comp_experiment_details
+from backend.services.experiments.relational.getters import get_lab_experiment_data, get_comp_experiment_data
+from backend.services.experiments.relational.utils import (
+    construct_lab_experiment_details,
+    construct_comp_experiment_details,
+)
 
 
 @connection
@@ -23,17 +26,7 @@ async def create_lab_experiment(user: User, path: str, session: AsyncSession) ->
     session.add(experiment)
     await session.flush()
 
-    q = (
-        select(LaboratoryExperiment)
-        .options(
-            selectinload(LaboratoryExperiment.columns),
-            selectinload(LaboratoryExperiment.measurements)
-        )
-        .where(LaboratoryExperiment.id == experiment.id)
-    )
-    full_experiment = (await session.execute(q)).scalar_one()
-
-    return construct_lab_experiment_details(full_experiment)
+    return await get_lab_experiment_data(experiment.id, session)
 
 
 @connection
@@ -53,13 +46,4 @@ async def create_comp_experiment(user: User,
     session.add(experiment)
     await session.flush()
 
-    q = (
-        select(ComputationalExperiment)
-        .options(
-            selectinload(ComputationalExperiment.data),
-        )
-        .where(ComputationalExperiment.id == experiment.id)
-    )
-    full_experiment = (await session.execute(q)).scalar_one()
-
-    return construct_comp_experiment_details(full_experiment)
+    return await get_comp_experiment_data(experiment.id, session)
