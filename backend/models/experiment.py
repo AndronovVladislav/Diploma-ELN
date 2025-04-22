@@ -20,11 +20,14 @@ class PathMixin:
         self.path = '/'.join((self.path.split('/')[:-1], new_name))
 
 
-class Experiment(Base, PathMixin):
+class OwnableMixin:
+    user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'))
+
+
+class Experiment(OwnableMixin, PathMixin, Base):
     """
     Базовые поля, общие для всех экспериментов.
     """
-    user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'))
 
     description: Mapped[str]
     kind: Mapped[ExperimentKind] = mapped_column()
@@ -90,32 +93,32 @@ class SchemaLinkedTableMixin:
     parameters_id: Mapped[Id] = mapped_column(ForeignKey('schemas.id', ondelete='RESTRICT'))
     context_id: Mapped[Id] = mapped_column(ForeignKey('schemas.id', ondelete='RESTRICT'))
 
-    @classmethod
     @declared_attr
+    @classmethod
     def input(cls) -> Mapped['Schema']:
         return relationship('Schema', foreign_keys=[cls.input_id])
 
-    @classmethod
     @declared_attr
+    @classmethod
     def output(cls) -> Mapped['Schema']:
         return relationship('Schema', foreign_keys=[cls.output_id])
 
-    @classmethod
     @declared_attr
+    @classmethod
     def parameters(cls) -> Mapped['Schema']:
         return relationship('Schema', foreign_keys=[cls.parameters_id])
 
-    @classmethod
     @declared_attr
+    @classmethod
     def context(cls) -> Mapped['Schema']:
         return relationship('Schema', foreign_keys=[cls.context_id])
 
 
-class ComputationalExperimentTemplate(Base, SchemaLinkedTableMixin, PathMixin):
+class ComputationalExperimentTemplate(OwnableMixin, SchemaLinkedTableMixin, PathMixin, Base):
     experiments: Mapped[list['ComputationalExperiment']] = relationship(back_populates='template')
 
 
-class ComputationalExperimentData(Base, SchemaLinkedTableMixin):
+class ComputationalExperimentData(SchemaLinkedTableMixin, Base):
     experiment_id: Mapped[Id] = mapped_column(ForeignKey('computational_experiments.id', ondelete='CASCADE'))
     experiment: Mapped['ComputationalExperiment'] = relationship(back_populates='data', passive_deletes=True)
 

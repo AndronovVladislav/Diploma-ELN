@@ -1,6 +1,6 @@
 from typing import Any
 
-from fastapi import APIRouter, Query, Depends
+from fastapi import APIRouter, Query, Depends, Response
 
 from backend.models import User
 from backend.routes.auth.validation import get_current_auth_user
@@ -13,7 +13,10 @@ from backend.services.experiments.relational.getters import (
     get_user_experiments as get_user_experiments_service,
     get_experiment_data as get_experiment_data_service,
 )
-from backend.services.experiments.relational.updaters import update_experiment_data as update_experiment_data_service
+from backend.services.experiments.relational.updaters import (
+    update_experiment_data as update_experiment_data_service,
+    delete_experiment as delete_experiment_service,
+)
 
 router = APIRouter(prefix='/experiment', tags=['Experiments'])
 
@@ -34,8 +37,13 @@ async def get_experiment_data(experiment_id: int):
 
 
 @router.patch('/{experiment_id}', response_model=LaboratoryExperimentDetails)
-async def update_experiment_data(experiment_id: int, experiment: UpdateLaboratoryExperimentRequest):
-    return await update_experiment_data_service(experiment_id, experiment)
+async def update_experiment_data(experiment_id: int, update: UpdateLaboratoryExperimentRequest):
+    return await update_experiment_data_service(experiment_id, update)
+
+
+@router.delete('/{experiment_id}', response_class=Response)
+async def delete_experiment(experiment_id: int):
+    return await delete_experiment_service(experiment_id)
 
 # @router.post('/import')
 # async def import_experiment(experiment: ExperimentDescription) -> Any:  # TODO: написать схему

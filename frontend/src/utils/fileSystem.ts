@@ -1,7 +1,7 @@
-import { ExperimentKind, FileSystem, FileSystemItem, Folder, SimplifiedView } from '@/views/Dashboard/typing';
+import { FileSystem, FileSystemItem, Folder, SimplifiedView } from '@/views/Dashboard/typing';
 import { Optional } from '@/typing';
 
-const traverse = (result: SimplifiedView[], folder: Folder, kind: ExperimentKind) => {
+const traverse = (result: SimplifiedView[], folder: Folder) => {
     let found = false;
 
     if (!folder.children.length) {
@@ -12,7 +12,7 @@ const traverse = (result: SimplifiedView[], folder: Folder, kind: ExperimentKind
     }
 
     for (const child of folder.children) {
-        if ('kind' in child && (kind === ExperimentKind.ANY || child.kind === kind)) {
+        if ('kind' in child) {
             if (!result.some(project => project.id == folder.id)) {
                 result.push({ id: folder.id, path: folder.path });
                 found = true;
@@ -20,7 +20,7 @@ const traverse = (result: SimplifiedView[], folder: Folder, kind: ExperimentKind
             }
         }
 
-        if ('children' in child && traverse(result, child as Folder, kind)) {
+        if ('children' in child && traverse(result, child as Folder)) {
             if (!result.some(project => project.id == folder.id)) {
                 result.push({ id: folder.id, path: folder.path });
                 found = true;
@@ -57,7 +57,7 @@ export const findParent = (root: FileSystem, childId: string): Optional<Folder> 
     return null;
 };
 
-export const removeExperiment = (fs: FileSystem, id: string): boolean => {
+export const removeFromFS = (fs: FileSystem, id: string): boolean => {
     for (const child of fs) {
         if ('children' in child) {
             const index = child.children.findIndex((item: FileSystemItem) => item.id === id);
@@ -65,7 +65,7 @@ export const removeExperiment = (fs: FileSystem, id: string): boolean => {
                 child.children.splice(index, 1);
                 return true;
             } else {
-                if (removeExperiment(child.children as Folder[], id)) return true;
+                if (removeFromFS(child.children as Folder[], id)) return true;
             }
         } else {
             if (child.id === id) {
@@ -77,14 +77,14 @@ export const removeExperiment = (fs: FileSystem, id: string): boolean => {
     return false;
 };
 
-export const getFullPath = (fs: FileSystem, folder: SimplifiedView): string => {
-    const parent = findParent(fs, folder.id);
-    return parent ? `${getFullPath(fs, { id: parent.id, path: parent.path })}/${folder.path}` : folder.path;
+export const getFullPath = (fs: FileSystem, item: SimplifiedView): string => {
+    const parent = findParent(fs, item.id);
+    return parent ? `${getFullPath(fs, { id: parent.id, path: parent.path })}/${item.path}` : `${item.path}`;
 };
 
-export const getSuggestedFolders = (experimentFS: FileSystem, kind: ExperimentKind): SimplifiedView[] => {
+export const getSuggestedFolders = (fs: FileSystem): SimplifiedView[] => {
     const result: SimplifiedView[] = [];
 
-    experimentFS.filter(item => 'children' in item).forEach(folder => traverse(result, folder, kind));
+    fs.filter(item => 'children' in item).forEach(folder => traverse(result, folder));
     return result;
 };

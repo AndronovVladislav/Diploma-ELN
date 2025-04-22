@@ -19,6 +19,16 @@ export interface Folder {
     children: FileSystemItem[];
 }
 
+export interface Template {
+    id: string;
+    path: string;
+
+    input: string;
+    output: string;
+    parameters: string;
+    context: string;
+}
+
 export type SimplifiedView = Pick<Experiment | Folder, 'id' | 'path'>;
-export type FileSystemItem = Folder | Experiment;
+export type FileSystemItem = Folder | Experiment | Template;
 export type FileSystem = FileSystemItem[];
