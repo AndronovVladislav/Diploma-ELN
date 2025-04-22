@@ -6,8 +6,8 @@ from pydantic import BaseModel
 from sqlalchemy import inspect
 
 from backend.base import ONTOLOGIES_MAPPING
-from backend.models.experiment import Column, Measurement, LaboratoryExperiment
-from backend.schemas.experiments.data import LaboratoryExperimentDetails, ColumnDetails
+from backend.models.experiment import Column, Measurement, LaboratoryExperiment, ComputationalExperiment
+from backend.schemas.experiments.data import LaboratoryExperimentDetails, ColumnDetails, ComputationalExperimentDetails
 
 
 class Cell(BaseModel):
@@ -46,13 +46,13 @@ def check_ontologies(columns: list[dict]) -> None:
             )
 
 
-def construct_lab_experiment(experiment: LaboratoryExperiment) -> LaboratoryExperimentDetails:
+def construct_lab_experiment_details(experiment: LaboratoryExperiment) -> LaboratoryExperimentDetails:
     table = pivot_measurements(experiment.measurements, experiment.columns)
 
     result = LaboratoryExperimentDetails(
         id=experiment.id,
-        name=experiment.info.name,
-        description=experiment.info.description,
+        name=experiment.name,
+        description=experiment.description,
         measurements=table,
         columns=[
             ColumnDetails(
@@ -67,4 +67,15 @@ def construct_lab_experiment(experiment: LaboratoryExperiment) -> LaboratoryExpe
     )
 
     result.columns.sort(key=lambda c: c.id)
+    return result
+
+
+def construct_comp_experiment_details(experiment: ComputationalExperiment) -> ComputationalExperimentDetails:
+    result = ComputationalExperimentDetails(
+        id=experiment.id,
+        name=experiment.name,
+        description=experiment.description,
+        data=[(row.input, row.output, row.parameters, row.context) for row in experiment.data],
+    )
+
     return result

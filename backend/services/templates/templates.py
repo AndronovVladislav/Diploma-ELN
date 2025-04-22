@@ -38,10 +38,10 @@ async def validate_all_ontology_uris_exist(uris: set[str], session: NeoSession) 
 
 
 @connection
-async def create_user_template(user: User,
-                               payload: CreateTemplateRequest,
-                               session: AsyncSession,
-                               ) -> TemplateDetails:
+async def create_template(user: User,
+                          payload: CreateTemplateRequest,
+                          session: AsyncSession,
+                          ) -> TemplateDetails:
     template_input = payload.input.model_dump()
     template_output = payload.output.model_dump()
     template_parameters = payload.parameters.model_dump()
@@ -79,7 +79,7 @@ async def create_user_template(user: User,
 
 
 @connection
-async def get_user_template(user: User, session: AsyncSession) -> list[dict]:
+async def get_templates(user: User, session: AsyncSession) -> list[dict]:
     q = select(ComputationalExperimentTemplate).where(User.id == user.id)
     result = (await session.execute(q)).scalars().all()
     return [to_dict(template) for template in result]
@@ -121,11 +121,11 @@ async def get_template_details(template_id: int, session: AsyncSession) -> Templ
 
 
 @connection
-async def update_user_template(update: UpdateTemplateRequest,
-                               template_id: int,
-                               user: User,
-                               session: AsyncSession,
-                               ) -> TemplateDetails:
+async def update_template(update: UpdateTemplateRequest,
+                          template_id: int,
+                          user: User,
+                          session: AsyncSession,
+                          ) -> TemplateDetails:
     template = await get_template(template_id, session)
 
     if template.user_id != user.id:

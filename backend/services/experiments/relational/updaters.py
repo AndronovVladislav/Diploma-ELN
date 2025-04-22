@@ -3,53 +3,42 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from backend.common.enums import ExperimentKind
 from backend.models import User
-from backend.models.experiment import LaboratoryExperiment, Column, Measurement, Experiment
+from backend.models.experiment import LaboratoryExperiment, Column, Measurement, Experiment, ComputationalExperiment, \
+    ComputationalExperimentData
 from backend.models.utils import connection
-from backend.schemas.experiments.data import LaboratoryExperimentDetails
-from backend.schemas.experiments.requests import UpdateLaboratoryExperimentRequest
-from backend.services.experiments.relational.utils import check_ontologies, construct_lab_experiment
+from backend.schemas.experiments.data import LaboratoryExperimentDetails, ComputationalExperimentDetails
+from backend.schemas.experiments.data import Schema, SchemaKind
+from backend.schemas.experiments.requests import UpdateLaboratoryExperimentRequest, UpdateComputationalExperimentRequest
+from backend.services.experiments.relational.common import EXPERIMENT_NOT_FOUND_MESSAGE, \
+    OTHER_EXPERIMENT_DELETING_MESSAGE
+from backend.services.experiments.relational.utils import check_ontologies, construct_lab_experiment_details
 
-INFORMATIONAL_ATTRIBUTES = {'data', 'description', 'path'}
-EXPERIMENT_NOT_FOUND_MESSAGE = 'Эксперимент с таким id не найден'
-OTHER_EXPERIMENT_DELETING_MESSAGE = 'Нельзя удалить чужой эксперимент'
+INFORMATIONAL_ATTRIBUTES = {'description', 'path'}
 
 
 @connection
-async def update_experiment_data(experiment_id: int,
-                                 update: UpdateLaboratoryExperimentRequest,
-                                 session: AsyncSession,
-                                 ) -> LaboratoryExperimentDetails | None:
-    experiment = await session.get(Experiment, experiment_id)
-    if not experiment:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=EXPERIMENT_NOT_FOUND_MESSAGE)
-
-    match experiment.kind:
-        case ExperimentKind.LABORATORY:
-            return await update_lab_experiment_data(experiment_id, update, session=session)
-
-
 async def update_lab_experiment_data(experiment_id: int,
                                      update: UpdateLaboratoryExperimentRequest,
                                      session: AsyncSession,
                                      ) -> LaboratoryExperimentDetails:
     q = (
         select(LaboratoryExperiment)
-        .filter_by(id=experiment_id)
         .options(
-            selectinload(LaboratoryExperiment.info),
             selectinload(LaboratoryExperiment.measurements),
             selectinload(LaboratoryExperiment.columns),
         )
+        .filter_by(id=experiment_id)
     )
 
     experiment = (await session.execute(q)).scalar_one_or_none()
+    if not experiment:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=EXPERIMENT_NOT_FOUND_MESSAGE)
 
     update_data = update.model_dump(exclude_unset=True)
     for attr in INFORMATIONAL_ATTRIBUTES:
         if attr in update_data:
-            setattr(experiment.info, attr, update_data[attr])
+            setattr(experiment, attr, update_data[attr])
 
     if 'columns' in update_data:
         await update_columns(experiment, update_data['columns'], session=session)
@@ -57,7 +46,7 @@ async def update_lab_experiment_data(experiment_id: int,
     if 'measurements' in update_data:
         update_measurements(experiment, update_data['measurements'])
 
-    return construct_lab_experiment(experiment)
+    return construct_lab_experiment_details(experiment)
 
 
 async def update_columns(experiment: LaboratoryExperiment, columns: list[dict], session: AsyncSession) -> None:
@@ -108,6 +97,66 @@ def update_measurements(experiment: LaboratoryExperiment, measurements: list[dic
     for (row, col), value in incoming_measurements.items():
         if (row, col) not in existing_measurements or existing_measurements[(row, col)].value != value:
             experiment.measurements.append(Measurement(row=row, column=col, value=value))
+
+
+@connection
+async def update_comp_experiment_data(experiment_id: int,
+                                      update: UpdateComputationalExperimentRequest,
+                                      session: AsyncSession,
+                                      ) -> ComputationalExperimentDetails:
+    q = (
+        select(ComputationalExperiment)
+        .options(
+            selectinload(ComputationalExperiment.data),
+        )
+        .filter_by(id=experiment_id)
+    )
+
+    experiment = (await session.execute(q)).scalar_one_or_none()
+    if not experiment:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=EXPERIMENT_NOT_FOUND_MESSAGE)
+
+    update_data = update.model_dump(exclude_unset=True)
+    for attr in INFORMATIONAL_ATTRIBUTES:
+        if attr in update_data:
+            setattr(experiment, attr, update_data[attr])
+
+    if 'data' in update_data:
+        existing_data = {d.row: d for d in experiment.data}
+        new_data = []
+
+        for i, (input_data, output_data, parameters_data, context_data) in enumerate(update_data['data']):
+            current = existing_data.get(i)
+
+            if (current and
+                    current.input.data == input_data and
+                    current.output.data == output_data and
+                    current.parameters.data == parameters_data and
+                    current.context.data == context_data
+            ):
+                new_data.append(current)
+            else:
+                input = Schema(type=SchemaKind.INPUT, data=input_data)
+                output = Schema(type=SchemaKind.OUTPUT, data=output_data)
+                parameters = Schema(type=SchemaKind.PARAMETERS, data=parameters_data)
+                context = Schema(type=SchemaKind.CONTEXT, data=context_data)
+
+                session.add_all([input, output, parameters, context])
+                await session.flush()
+
+                new_data.append(
+                    ComputationalExperimentData(
+                        row=i,
+                        experiment_id=experiment.id,
+                        input_id=input.id,
+                        output_id=output.id,
+                        parameters_id=parameters.id,
+                        context_id=context.id,
+                    )
+                )
+
+        experiment.data[:] = new_data
+        await session.flush()
 
 
 @connection

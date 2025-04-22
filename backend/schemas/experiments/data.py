@@ -42,3 +42,11 @@ class LaboratoryExperimentDetails(BaseModel):
 
     measurements: list[dict]
     columns: list[ColumnDetails]
+
+
+class ComputationalExperimentDetails(BaseModel):
+    id: int
+    name: str
+    description: str
+
+    data: list[tuple[dict, dict, dict, dict]]
