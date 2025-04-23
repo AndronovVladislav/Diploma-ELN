@@ -1,0 +1,32 @@
+\documentclass[a4paper,12pt,reqno]{article}
+
+\usepackage{styledoc19}
+\addbibresource{references.bib}
+
+\begin{document}
+    \selectlanguage{russian}
+    \student{БПИ 213}{В. А. Андронов}
+    \supervisor{Доцент департамента \vfill программной инженерии \vfill факультета компьютерных \vfill наук, кандидат \vfill технических наук}{О. В. Максименкова}
+    \project{\input{appendix/rusTitle}\unskip}
+
+    \VKR
+
+    \include{chapters/abstract}
+
+    \section*{\centering Основные определения, термины и сокращения}
+
+    \input{appendix/terms}
+
+    \tableofcontents
+
+    \include{chapters/introduction}
+
+    \include{chapters/chapter1}
+
+    \include{chapters/chapter2}
+
+    \include{chapters/chapter3}
+
+    \include{chapters/footer}
+
+\end{document}

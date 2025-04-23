@@ -1,0 +1,116 @@
+\documentclass[a4paper,12pt,reqno]{article}
+
+\usepackage{styledoc19}
+\addbibresource{references.bib}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+  language=Java,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+
+
+\begin{document} % конец преамбулы, начало документа
+    \docNumber{RU.17701729.12.20-01 ТП 01-1}
+    \docFormat{Текст программы}
+    \student{БПИ 213}{В. А. Андронов}
+    \project{\input{appendix/rusTitle}\unskip}
+    \supervisor{Доцент департамента \vfill программной инженерии \vfill факультета компьютерных \vfill наук, кандидат \vfill технических наук}{О. В. Максименкова}
+
+    \firstPage
+    \newpage
+    \secondPage
+    \newpage
+    \thirdPage
+    \newpage
+
+    \anonsubsection{Структура приложения}
+
+    В данном документе представлено описание структуры репозитория, в котором
+    находится исходный код программы «\input{appendix/rusTitle}\unskip».
+
+    Репозиторий программы находится по ссылке:
+    \hyperlink{https://github.com/AndronovVladislav/Diploma-ELN}{https://github.com/AndronovVladislav/Diploma-ELN}
+
+    Полный текст не приводится в связи с большим объёмом кодовой базы.
+
+    Основная программа находится в папке \texttt{backend} и \texttt{frontend}:
+    
+    \begin{enumerate}
+        \item В папке \texttt{backend/alembic} содержатся настройки инструмента Alembic и миграции базы данных.
+        \item В папке \texttt{backend/models} содержатся конфигурация подключения к базе данных и ORM-модели базы данных, включая эксперименты, пользователей и онтологии, а также код для работы с онтологиями.
+        \item В папке \texttt{backend/routes} содержатся API-маршруты для взаимодействия с клиентской частью.
+        \item В папке \texttt{backend/services} реализована бизнес-логика приложения.
+        \item В папке \texttt{backend/schemas} хранятся pydantic-схемы для валидации входных и выходных данных API.
+        \item В папке \texttt{backend/tests} хранятся юнит и интеграционные тесты.
+        \item В файле \texttt{backend/config.py} находится конфигурация окружения и настройки приложения.
+        \item В файле \texttt{backend/main.py} содержится основная точка входа в серверное приложение.
+    \end{enumerate}
+    
+    Фронтенд приложения расположен в папке \texttt{frontend}:
+
+    \begin{enumerate}
+        \item В папке \texttt{frontend/src/views} содержатся представления страниц и интерфейсов.
+        \item В папке \texttt{frontend/src/components} содержатся переиспользуемые UI-компоненты.
+        \item В папке \texttt{frontend/src/stores} содержатся Pinia-хранилища для управления состоянием приложения.
+        \item В папке \texttt{frontend/src/router} находится конфигурация маршрутов.
+        \item В папке \texttt{frontend/src/api} содержится настройка Axios для взаимодействия с API.
+        \item В файле \texttt{frontend/src/main.ts} находится точка входа в клиентское приложение.
+    \end{enumerate}
+
+    Прочие ресурсы программы:
+
+    \begin{enumerate}
+        \item В файлах \texttt{docker-compose.*.yml} содержится конфигурация контейнеров для развертывания.
+        \item В файле \texttt{.env} хранятся переменные окружения для запуска Docker Compose.
+        \item В файле \texttt{frontend/package.json} содержатся зависимости и скрипты для фронтенда.
+        \item В файле \texttt{backend/pyproject.toml} содержится список зависимостей и настройки инструментов для бэкенда.
+    \end{enumerate}
+    
+    \newpage
+    
+    \subsection*{Внешние зависимости}
+    
+    В проекте используются следующие внешние библиотеки и фреймворки:
+    
+    \begin{enumerate}
+        \item FastAPI — веб-фреймворк для серверной части~\cite{Framework:FastAPI}.
+        \item SQLAlchemy — ORM для работы с базой данных~\cite{Library:SQLAlchemy}.
+        \item Alembic — инструмент управления миграциями~\cite{Library:Alembic}.
+        \item Pydantic — валидация данных в API~\cite{Library:Pydantic}.
+        \item Neo4j — графовая база данных для хранения онтологий~\cite{DB:Neo4j}.
+        \item NeoSemantics — интеграция Neo4j с RDF и семантическими данными~\cite{Library:NeoSemantics}.
+        \item Axios — библиотека для отправки HTTP-запросов во фронтенде~\cite{Library:Axios}.
+        \item Vue.js — фреймворк для клиентской части~\cite{Framework:VueJS}.
+        \item PrimeVue — набор UI-компонентов~\cite{Framework:PrimeVue}.
+        \item Pinia — система управления состоянием~\cite{Library:Pinia}.
+        \item Docker — контейнеризация приложения~\cite{Tool:Docker}.
+        \item Docker Compose — управление многоконтейнерными приложениями~\cite{Tool:DockerCompose}.
+        \item Nginx — обратный прокси-сервер для маршрутизации запросов~\cite{Tool:Nginx}.
+        \item GitHub Actions — CI/CD для автоматизированного развертывания~\cite{Tool:GitHubActions}.
+        \item Pytest — тестирование серверной части~\cite{Library:Pytest}.
+        \item Tailwind CSS — фреймворк для стилизации интерфейсов~\cite{Library:TailwindCSS}.
+        \item Cypher Query Language — язык запросов для Neo4j~\cite{QueryLang:CypherQL}.
+    \end{enumerate}
+    \newpage
+    \printbibliography[title=Список источников, heading=bibintoc]
+
+    \newpage
+    \listRegistration
+
+\end{document} % конец документа
