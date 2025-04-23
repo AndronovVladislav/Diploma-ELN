@@ -7,8 +7,12 @@ from sqlalchemy import inspect
 
 from backend.base import ONTOLOGIES_MAPPING
 from backend.models.experiment import Column, Measurement, LaboratoryExperiment, ComputationalExperiment
-from backend.schemas.experiments.data import LaboratoryExperimentDetails, ColumnDetails, ComputationalExperimentDetails, \
-    ComputationalExperimentRow
+from backend.schemas.experiments.data import (
+    LaboratoryExperimentDetails,
+    ColumnDetails,
+    ComputationalExperimentDetails,
+    ComputationalExperimentRow,
+)
 
 
 class Cell(BaseModel):
