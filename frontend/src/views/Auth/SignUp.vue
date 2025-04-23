@@ -131,6 +131,7 @@ async function signUp() {
         if (error.response && error.response.status === 409) {
             Notifier.error({ detail: 'Пользователь с таким именем уже существует' });
         } else {
+            Notifier.error({ detail: error instanceof Error ? error.message : 'Неизвестная ошибка' });
             console.error(error);
         }
     }

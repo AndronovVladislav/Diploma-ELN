@@ -42,7 +42,7 @@
                     class="w-full"
                     :readonly="readonly"
                 />
-                <label for="inputSchema">Input schema (JSON)</label>
+                <label for="inputSchema">Схема входа</label>
             </FloatLabel>
 
             <FloatLabel variant="on" class="col-span-1">
@@ -54,7 +54,7 @@
                     class="w-full"
                     :readonly="readonly"
                 />
-                <label for="outputSchema">Output schema (JSON)</label>
+                <label for="outputSchema">Схема выхода</label>
             </FloatLabel>
 
             <FloatLabel variant="on" class="col-span-1">
@@ -66,7 +66,7 @@
                     class="w-full"
                     :readonly="readonly"
                 />
-                <label for="parametersSchema">Parameters schema (JSON)</label>
+                <label for="parametersSchema">Схема параметров</label>
             </FloatLabel>
 
             <FloatLabel variant="on" class="col-span-1">
@@ -78,7 +78,7 @@
                     class="w-full"
                     :readonly="readonly"
                 />
-                <label for="contextSchema">Context schema (JSON)</label>
+                <label for="contextSchema">Схема контекста</label>
             </FloatLabel>
         </div>
     </div>

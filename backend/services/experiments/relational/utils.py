@@ -7,7 +7,12 @@ from sqlalchemy import inspect
 
 from backend.base import ONTOLOGIES_MAPPING
 from backend.models.experiment import Column, Measurement, LaboratoryExperiment, ComputationalExperiment
-from backend.schemas.experiments.data import LaboratoryExperimentDetails, ColumnDetails, ComputationalExperimentDetails
+from backend.schemas.experiments.data import (
+    LaboratoryExperimentDetails,
+    ColumnDetails,
+    ComputationalExperimentDetails,
+    ComputationalExperimentRow,
+)
 
 
 class Cell(BaseModel):
@@ -71,11 +76,21 @@ def construct_lab_experiment_details(experiment: LaboratoryExperiment) -> Labora
 
 
 def construct_comp_experiment_details(experiment: ComputationalExperiment) -> ComputationalExperimentDetails:
+    data = [
+        ComputationalExperimentRow(
+            row=row.row,
+            input=row.input.data,
+            output=row.output.data,
+            parameters=row.parameters.data,
+            context=row.context.data,
+        ) for row in experiment.data
+    ]
     result = ComputationalExperimentDetails(
         id=experiment.id,
+        template_id=experiment.template_id,
         name=experiment.name,
         description=experiment.description,
-        data=[(row.input, row.output, row.parameters, row.context) for row in experiment.data],
+        data=data,
     )
 
     return result

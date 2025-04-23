@@ -15,8 +15,13 @@ const router = createRouter({
                     component: () => import('@/views/Dashboard/Dashboard.vue')
                 },
                 {
-                    path: '/experiment/:id',
+                    path: '/experiment/laboratory/:id',
                     component: () => import('@/views/Editors/LabExperiment/LabExperiment.vue'),
+                    props: true
+                },
+                {
+                    path: '/experiment/computational/:id',
+                    component: () => import('@/views/Editors/ComputationalExperiment.vue'),
                     props: true
                 },
                 {

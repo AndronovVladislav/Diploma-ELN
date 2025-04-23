@@ -44,9 +44,18 @@ class LaboratoryExperimentDetails(BaseModel):
     columns: list[ColumnDetails]
 
 
+class ComputationalExperimentRow(BaseModel):
+    row: int
+    input: dict
+    output: dict
+    parameters: dict
+    context: dict
+
+
 class ComputationalExperimentDetails(BaseModel):
     id: int
     name: str
     description: str
+    template_id: int
 
-    data: list[tuple[dict, dict, dict, dict]]
+    data: list[ComputationalExperimentRow]
