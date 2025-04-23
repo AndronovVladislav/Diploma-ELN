@@ -52,18 +52,25 @@
 import { Button, Column, TreeTable } from 'primevue';
 
 import ExperimentActions from '@/views/Dashboard/ExperimentActions.vue';
-import { ExperimentKind } from '@/views/Dashboard/typing';
+import { Experiment, ExperimentKind } from '@/views/Dashboard/typing';
 import { useDashboard } from '@/composables/useDashboard';
 import router from '@/router';
 import CreateFolderDialog from '@/views/Dashboard/CreateFolderDialog.vue';
 import MoveDialog from '@/views/Dashboard/MoveDialog.vue';
 import CreateExperimentDialog from '@/views/Dashboard/CreateExperimentDialog.vue';
+import { findById } from '@/utils/fileSystem';
 
 const { experimentFS, moveExperimentDialog, selectedExperiment, createExperimentsFolderDialog } = useDashboard();
 
-const goToExperiment = (id: string) => {
+const goToExperiment = async (id: string) => {
     if (!id) return;
 
-    router.push(`/experiment/${id}`);
+    const experiment = findById(experimentFS.value, id) as Experiment;
+
+    if (experiment.kind == ExperimentKind.LABORATORY) {
+        await router.push(`/experiment/laboratory/${id}`);
+    } else {
+        await router.push(`/experiment/computational/${id}`);
+    }
 };
 </script>

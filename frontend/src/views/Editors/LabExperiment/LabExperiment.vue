@@ -113,7 +113,7 @@ async function updateExperiment() {
     if (Object.keys(patchPayload).length === 0) return;
 
     try {
-        await api.patch(`/experiment/${props.id}`, patchPayload);
+        await api.patch(`/experiment/laboratory/${props.id}`, patchPayload);
     } catch (error) {
         console.error('Ошибка обновления эксперимента:', error);
         throw error;

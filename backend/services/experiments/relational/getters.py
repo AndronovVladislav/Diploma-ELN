@@ -7,7 +7,8 @@ from sqlalchemy.orm import selectinload
 
 from backend.common.enums import ExperimentKind
 from backend.models import User
-from backend.models.experiment import LaboratoryExperiment, Experiment, ComputationalExperiment
+from backend.models.experiment import LaboratoryExperiment, Experiment, ComputationalExperiment, \
+    ComputationalExperimentData
 from backend.models.utils import connection
 from backend.schemas.experiments.data import LaboratoryExperimentDetails, ComputationalExperimentDetails
 from backend.services.experiments.relational.common import EXPERIMENT_NOT_FOUND_MESSAGE
@@ -72,7 +73,14 @@ async def get_comp_experiment_data(experiment_id: int, session: AsyncSession) ->
         select(ComputationalExperiment)
         .options(
             selectinload(ComputationalExperiment.template),
-            selectinload(ComputationalExperiment.data),
+            selectinload(ComputationalExperiment.data)
+            .selectinload(ComputationalExperimentData.input),
+            selectinload(ComputationalExperiment.data)
+            .selectinload(ComputationalExperimentData.output),
+            selectinload(ComputationalExperiment.data)
+            .selectinload(ComputationalExperimentData.parameters),
+            selectinload(ComputationalExperiment.data)
+            .selectinload(ComputationalExperimentData.context),
         )
         .filter_by(id=experiment_id)
     )
