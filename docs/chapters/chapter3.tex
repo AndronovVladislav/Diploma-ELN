@@ -8,9 +8,9 @@
 
 На верхнем уровне приложение разделяется на три основных слоя:
 \begin{enumerate}
-    \item Клиентская часть — реализована на Vue.js с использованием PrimeVue, Pinia для управления состоянием и Vue Router для маршрутизации.
-    \item Серверная часть — написана на FastAPI, использует SQLAlchemy~\cite{Library:SQLAlchemy} для работы с базой данных, Alembic~\cite{Library:Alembic} для управления миграциями и JWT для аутентификации.
-    \item Базы данных — в качестве реляционной СУБД используется PostgreSQL в которой хранятся все данные пользователей, экспериментов и привязок к онтологиям, а в качестве графовой – Neo4j для хранения полной информации о доступных для использованию онтологиях.
+    \item Клиентская часть -- реализована на Vue.js с использованием PrimeVue, Pinia для управления состоянием и Vue Router для маршрутизации.
+    \item Серверная часть -- написана на FastAPI, использует SQLAlchemy~\cite{Library:SQLAlchemy} для работы с базой данных, Alembic~\cite{Library:Alembic} для управления миграциями и JWT для аутентификации.
+    \item Базы данных -- в качестве реляционной СУБД используется PostgreSQL в которой хранятся все данные пользователей, экспериментов и привязок к онтологиям, а в качестве графовой -- Neo4j для хранения полной информации о доступных для использованию онтологиях.
 \end{enumerate}
 
 % Общая схема архитектуры представлена на рисунке~\ref{fig:architecture}.
@@ -27,9 +27,9 @@
 Для структурирования кода и повышения удобочитаемости используются следующие архитектурные паттерны:
 
 \begin{enumerate}
-    \item MVVM (Model-View-ViewModel) — используется во Vue.js для упрощения двустороннего связывания данных между представлением и логикой.
-    \item ORM (Object-Relational Mapping) — SQLAlchemy используется как ORM для работы с реляционной базой данных PostgreSQL.
-    \item RESTful API — бэкенд реализует REST API, обеспечивающий взаимодействие с клиентской частью и внешними сервисами.
+    \item MVVM (Model-View-ViewModel) -- используется во Vue.js для упрощения двустороннего связывания данных между представлением и логикой.
+    \item ORM (Object-Relational Mapping) -- SQLAlchemy используется как ORM для работы с реляционной базой данных PostgreSQL.
+    \item RESTful API -- бэкенд реализует REST API, обеспечивающий взаимодействие с клиентской частью и внешними сервисами.
 \end{enumerate}
 
 \subsection{Выбор технологий}
@@ -38,7 +38,7 @@
 \begin{enumerate}
     \item Backend: FastAPI, SQLAlchemy, Alembic, Pydantic, JWT.
     \item Frontend: Vue.js, PrimeVue, Pinia, Vue Router, Axios~\cite{Library:Axios}.
-    \item Database: PostgreSQL.
+    \item Database: PostgreSQL, Neo4j.
     \item DevOps: Docker~\cite{Tool:Docker}, Nginx~\cite{Tool:Nginx}, GitHub Actions~\cite{Tool:GitHubActions} для тестов.
 \end{enumerate}
 
@@ -49,43 +49,42 @@
 Кодовая база серверной части организована следующим образом:
 
 \begin{enumerate}
-    \item \texttt{alembic} — пакет с настройками инструмента Alembic и миграциями базы данных.
-    \item \texttt{models} — пакет с ORM-моделями базы данных, описанные с использованием SQLAlchemy, а также кодом для работы с онтологиями.
-    \item \texttt{routes} — пакет с обработчиками HTTP-запросов, организованными в соответствии с REST API.
-    \item \texttt{services} — пакет с бизнес-логикой приложения, отделённой от маршрутов.
-    \item \texttt{schemas} — пакет Pydantic-схемы для валидации входных и выходных данных API.
-    \item \texttt{test} – пакет с тестами.
-    \item \texttt{config.py} — файл конфигурации приложения, загружающий переменные окружения и производящий прочие настройки.
+    \item \texttt{alembic} -- пакет с настройками инструмента Alembic и миграциями базы данных.
+    \item \texttt{models} -- пакет с ORM-моделями базы данных, описанные с использованием SQLAlchemy, а также кодом для работы с онтологиями.
+    \item \texttt{config} -- папка с настройками приложения для трёх разных окружений -- разработки, тестирования и продакшена.
+    \item \texttt{ontology} -- пакет с вспомогательными утилитами для работы с графовой СУБД Neo4j и языком запросов Cypher.
+    \item \texttt{routes} -- пакет с обработчиками HTTP-запросов, организованными в соответствии с REST API.
+    \item \texttt{services} -- пакет с бизнес-логикой приложения, отделённой от маршрутов.
+    \item \texttt{schemas} -- пакет Pydantic-схемы для валидации входных и выходных данных API.
+    \item \texttt{tests} -- пакет с тестами.
+    \item \texttt{config.py} -- файл конфигурации приложения, загружающий переменные окружения и производящий прочие настройки.
 \end{enumerate}
 
 % \todo[inline]{Сделать диаграмму пакетов}
-
-% Общая структура серверного приложения представлена на рисунке~\ref{fig:backend-structure}.
-
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=0.6\linewidth]{backend-structure.png}
-%     \caption{Структура серверной части}
-%     \label{fig:backend-structure}
-% \end{figure}
 
 \subsubsection{Модели базы данных}\label{ORM models}
 
 Данные в приложении хранятся в PostgreSQL. Для работы с базой данных используется ORM SQLAlchemy. Основные сущности базы данных:
 
 \begin{enumerate}
-    \item \texttt{User} — хранит данные о пользователях, включая имя пользователя, хешированный пароль и роль (администратор или исследователь).
-    \item \texttt{Profile} — расширяет информацию о пользователе, включая имя, фамилию и дату регистрации.
-    \item \texttt{Experiment} — базовая таблица для всех экспериментов, содержащая описание, путь к файлу и временные метки.
-    \item \texttt{LaboratoryExperiment} — конкретизация \texttt{Experiment}, привязанная к пользователю и содержащая измерения и описание столбцов.
-    \item \texttt{ComputationalExperiment} — вычислительный эксперимент, связанный с шаблоном и входными/выходными данными.
-    \item \texttt{Measurement} — хранит данные измерений, относящиеся к лабораторному эксперименту.
-    \item \texttt{Ontology} — содержит данные о доступных онтологиях, их названия и метки.
-    \item \texttt{ColumnDescription} — описание столбцов эксперимента с привязкой к онтологиям.
-    \item \texttt{Schema} — хранит JSON-данные входов, выходов, параметров и контекста эксперимента.
-    \item \texttt{SchemaLinkedTable} — абстрактная таблица для связи схем с другими таблицами.
-    \item \texttt{ComputationalExperimentTemplate} — шаблон вычислительного эксперимента, содержащий связанные эксперименты.
-    \item \texttt{ComputationalExperimentData} — данные вычислительного эксперимента, связанные с конкретным экспериментом.
+    \item \texttt{User} -- хранит данные о пользователях.
+    \item \texttt{Profile} -- расширяет информацию о пользователе.
+    \item \texttt{Experiment} -- базовая таблица для всех экспериментов, содержащая описание, путь к файлу и временные метки.
+    \item \texttt{LaboratoryExperiment} -- конкретизация \texttt{Experiment}, привязанная к пользователю и содержащая измерения и описание столбцов.
+    \item \texttt{Measurement} -- хранит данные измерений, относящиеся к лабораторному эксперименту.
+    \item \texttt{Column} -- описание столбцов эксперимента с привязкой к онтологиям.
+    \item \texttt{Schema} -- хранит JSON-данные входов, выходов, параметров и контекста эксперимента.
+    \item \texttt{ComputationalExperiment} -- вычислительный эксперимент, связанный с шаблоном и входными/выходными данными.
+    \item \texttt{ComputationalExperimentTemplate} -- шаблон вычислительного эксперимента, содержащий связанные эксперименты.
+    \item \texttt{ComputationalExperimentData} -- данные вычислительного эксперимента, связанные с конкретным экспериментом.
+\end{enumerate}
+
+Вспомогательные классы, расширяющие возможности основных сущностей или упрощающие работу с ними:
+
+\begin{enumerate}
+    \item \texttt{PathMixin} -- используется для всех сущностей, имеющих поле \texttt{path}.
+    \item \texttt{OwnableMixin} -- используется для всех сущностей, привязанных к пользователю.
+    \item \texttt{SchemaLinkedTableMixin} -- используется для связи таблиц с таблицей схем (\texttt{Schema}).
 \end{enumerate}
 
 \subsubsection{Реализация API для работы с экспериментами}
@@ -95,21 +94,21 @@ API реализовано в соответствии с RESTful-архитек
 \paragraph{Эндпоинты аутентификации}
 
 \begin{enumerate}
-    \item \texttt{POST /auth/signup} — регистрация нового пользователя.
+    \item \texttt{POST /auth/signup} -- регистрация нового пользователя.
     \begin{enumerate}[label=\arabic{enumi}.\arabic*.]
-        \item Входные данные: \texttt{UserSignup} (имя пользователя, пароль).
+        \item Входные данные: \texttt{UserSignup} (имя пользователя, роль, пароль).
         \item Ответ: сообщение о регистрации.
     \end{enumerate}
 
-    \item \texttt{POST /auth/login} — вход в систему.
+    \item \texttt{POST /auth/login} -- вход в систему, возвращает access и refresh токены.
     \begin{enumerate}[label=\arabic{enumi}.\arabic*.]
         \item Входные данные: \texttt{UserLogin} (имя пользователя, пароль).
         \item Ответ: объект \texttt{UserResponse}, содержащий \texttt{access\_token} и \texttt{refresh\_token}.
     \end{enumerate}
 
-    \item \texttt{POST /auth/refresh} — обновление access-токена по refresh-токену.
+    \item \texttt{POST /auth/refresh} -- обновление access/refresh токенов.
     \begin{enumerate}[label=\arabic{enumi}.\arabic*.]
-        \item Входные данные: refresh-токен, переданный в теле запроса.
+        \item Входные данные: refresh-токен.
         \item Ответ: новый \texttt{access\_token} и \texttt{refresh\_token}.
     \end{enumerate}
 \end{enumerate}
@@ -117,68 +116,47 @@ API реализовано в соответствии с RESTful-архитек
 \paragraph{Эндпоинты управления экспериментами}
 
 \begin{enumerate}
-    \item \texttt{GET /experiment/} — получение списка экспериментов пользователя.
+    \item \texttt{GET /experiment/} -- получение списка экспериментов пользователя.
     \begin{enumerate}[label=\arabic{enumi}.\arabic*.]
-        \item Входные параметры: \texttt{username} (имя пользователя), \texttt{desired\_keys} (список ключей).
-        \item Ответ: список словарей с данными экспериментов.
+        \item Входные параметры: \texttt{desired\_keys} (список ключей).
+        \item Ответ: список данных о экспериментах.
     \end{enumerate}
 
-    \item \texttt{GET /experiment/\{experiment\_id\}} — получение данных конкретного эксперимента.
+    \item \texttt{GET /experiment/{experiment\_id}} -- получение данных конкретного эксперимента.
     \begin{enumerate}[label=\arabic{enumi}.\arabic*.]
-        \item Входные параметры: \texttt{experiment\_id} (идентификатор эксперимента), \texttt{kind} (тип эксперимента: лабораторный или вычислительный).
+        \item Входные параметры: \texttt{experiment\_id} (идентификатор эксперимента).
         \item Ответ: данные лабораторного или вычислительного эксперимента.
     \end{enumerate}
 
-    \item \texttt{POST /experiment/import} — импорт эксперимента.
+    \item \texttt{POST /experiment/laboratory} -- создание лабораторного эксперимента.
     \begin{enumerate}[label=\arabic{enumi}.\arabic*.]
-        \item Входные данные: объект \texttt{ExperimentDescription}.
-        \item Ответ: словарь, содержащий описание столбцов эксперимента.
+        \item Входные данные: \texttt{CreateLaboratoryExperimentRequest}.
+        \item Ответ: объект \texttt{LaboratoryExperimentDetails}.
     \end{enumerate}
 
-    \item \texttt{POST /experiment/} — создание нового эксперимента.
+    \item \texttt{POST /experiment/computational} -- создание вычислительного эксперимента.
     \begin{enumerate}[label=\arabic{enumi}.\arabic*.]
-        \item Входные данные: объект \texttt{ExperimentCreate} (название, описание, пользователь).
-        \item Ответ: объект \texttt{ExperimentRead} с ID и атрибутами созданного эксперимента.
+        \item Входные данные: \texttt{CreateComputationalExperimentRequest}.
+        \item Ответ: объект \texttt{ComputationalExperimentDetails}.
     \end{enumerate}
 
-    \item \texttt{PUT /experiment/\{experiment\_id\}} — обновление данных эксперимента.
+    \item \texttt{PATCH /experiment/laboratory/{experiment\_id}} -- обновление лабораторного эксперимента.
     \begin{enumerate}[label=\arabic{enumi}.\arabic*.]
         \item Входные параметры: \texttt{experiment\_id} (идентификатор эксперимента).
-        \item Входные данные: объект \texttt{ExperimentUpdate} (новое описание, новые параметры).
-        \item Ответ: обновлённый объект \texttt{ExperimentRead}.
+        \item Входные данные: \texttt{UpdateLaboratoryExperimentRequest}.
+        \item Ответ: обновленные данные лабораторного эксперимента.
     \end{enumerate}
 
-    \item \texttt{DELETE /experiment/\{experiment\_id\}} — удаление эксперимента.
+    \item \texttt{PATCH /experiment/computational/{experiment\_id}} -- обновление вычислительного эксперимента.
     \begin{enumerate}[label=\arabic{enumi}.\arabic*.]
         \item Входные параметры: \texttt{experiment\_id} (идентификатор эксперимента).
-        \item Ответ: сообщение об успешном удалении.
-    \end{enumerate}
-\end{enumerate}
-
-\paragraph{Эндпоинты управления пользователями}
-
-\begin{enumerate}
-    \item \texttt{GET /users/} — получение списка пользователей.
-    \begin{enumerate}[label=\arabic{enumi}.\arabic*.]
-        \item Ответ: список пользователей с базовой информацией.
+        \item Входные данные: \texttt{UpdateComputationalExperimentRequest}.
+        \item Ответ: обновленные данные вычислительного эксперимента.
     \end{enumerate}
 
-    \item \texttt{GET /users/\{user\_id\}} — получение информации о конкретном пользователе.
+    \item \texttt{DELETE /experiment/{experiment\_id}} -- удаление эксперимента.
     \begin{enumerate}[label=\arabic{enumi}.\arabic*.]
-        \item Входные параметры: \texttt{user\_id} (идентификатор пользователя).
-        \item Ответ: объект \texttt{UserResponse}, содержащий имя, роль и мета-данные.
-    \end{enumerate}
-
-    \item \texttt{PUT /users/\{user\_id\}} — обновление данных пользователя.
-    \begin{enumerate}[label=\arabic{enumi}.\arabic*.]
-        \item Входные параметры: \texttt{user\_id} (идентификатор пользователя).
-        \item Входные данные: объект \texttt{UserUpdate} (новые параметры профиля).
-        \item Ответ: обновлённый объект \texttt{UserResponse}.
-    \end{enumerate}
-
-    \item \texttt{DELETE /users/\{user\_id\}} — удаление пользователя.
-    \begin{enumerate}[label=\arabic{enumi}.\arabic*.]
-        \item Входные параметры: \texttt{user\_id} (идентификатор пользователя).
+        \item Входные параметры: \texttt{experiment\_id} (идентификатор эксперимента).
         \item Ответ: сообщение об успешном удалении.
     \end{enumerate}
 \end{enumerate}
@@ -186,27 +164,49 @@ API реализовано в соответствии с RESTful-архитек
 \paragraph{Эндпоинты работы с онтологиями}
 
 \begin{enumerate}
-    \item \texttt{GET /ontology/} — получение списка доступных онтологий.
+    \item \texttt{GET /ontology/} -- получение списка доступных онтологий.
     \begin{enumerate}[label=\arabic{enumi}.\arabic*.]
-        \item Ответ: список объектов \texttt{Ontology}, содержащих названия и идентификаторы онтологий.
+        \item Ответ: список всех онтологий с базовой информацией.
     \end{enumerate}
 
-    \item \texttt{POST /ontology/} — добавление новой онтологии.
+    \item \texttt{GET /ontology/details/{ontology}} -- получение подробной информации о конкретной онтологии.
     \begin{enumerate}[label=\arabic{enumi}.\arabic*.]
-        \item Входные данные: объект \texttt{OntologyCreate} (название, описание, формат).
-        \item Ответ: объект \texttt{OntologyRead} с ID новой онтологии.
+        \item Входные параметры: \texttt{ontology} (имя онтологии), \texttt{limit} (ограничение на количество элементов).
+        \item Ответ: подробности об указанной онтологии.
+    \end{enumerate}
+\end{enumerate}
+
+\paragraph{Эндпоинты работы с шаблонами вычислительных экспериментов}
+
+\begin{enumerate}
+    \item \texttt{GET /template/} -- получение списка шаблонов вычислительных экспериментов.
+    \begin{enumerate}[label=\arabic{enumi}.\arabic*.]
+        \item Ответ: список доступных шаблонов.
     \end{enumerate}
 
-    \item \texttt{GET /ontology/\{ontology\_id\}} — получение информации о конкретной онтологии.
+    \item \texttt{POST /template/} -- создание нового шаблона для вычислительного эксперимента.
     \begin{enumerate}[label=\arabic{enumi}.\arabic*.]
-        \item Входные параметры: \texttt{ontology\_id} (идентификатор онтологии).
-        \item Ответ: объект \texttt{OntologyRead}, содержащий детали онтологии.
+        \item Входные данные: \texttt{CreateTemplateRequest}.
+        \item Ответ: объект \texttt{TemplateDetails} (данные созданного шаблона).
     \end{enumerate}
 
-    \item \texttt{DELETE /ontology/\{ontology\_id\}} — удаление онтологии.
+    \item \texttt{GET /template/{template\_id}} -- получение данных конкретного шаблона.
     \begin{enumerate}[label=\arabic{enumi}.\arabic*.]
-        \item Входные параметры: \texttt{ontology\_id} (идентификатор онтологии).
-        \item Ответ: сообщение об успешном удалении.
+        \item Входные параметры: \texttt{template\_id} (идентификатор шаблона).
+        \item Ответ: данные шаблона.
+    \end{enumerate}
+
+    \item \texttt{PATCH /template/{template\_id}} -- обновление шаблона.
+    \begin{enumerate}[label=\arabic{enumi}.\arabic*.]
+        \item Входные параметры: \texttt{template\_id} (идентификатор шаблона).
+        \item Входные данные: \texttt{UpdateTemplateRequest}.
+        \item Ответ: обновленные данные шаблона.
+    \end{enumerate}
+
+    \item \texttt{DELETE /template/{template\_id}} -- удаление шаблона.
+    \begin{enumerate}[label=\arabic{enumi}.\arabic*.]
+        \item Входные параметры: \texttt{template\_id} (идентификатор шаблона).
+        \item Ответ: сообщение об успешном удалении шаблона.
     \end{enumerate}
 \end{enumerate}
 
@@ -250,22 +250,23 @@ RETURN u.name
 
 Основные технологии, применяемые во фронтенде:
 \begin{enumerate}
-    \item Vue.js — фреймворк для разработки пользовательских интерфейсов.
-    \item PrimeVue — библиотека UI-компонентов.
-    \item Pinia — инструмент для управления состоянием.
-    \item Vue Router — система маршрутизации.
-    \item Axios — библиотека для работы с API.
+    \item Vue.js -- фреймворк для разработки пользовательских интерфейсов.
+    \item PrimeVue -- библиотека UI-компонентов.
+    \item Pinia -- инструмент для управления состоянием.
+    \item Vue Router -- система маршрутизации.
+    \item Axios -- библиотека для работы с API.
 \end{enumerate}
 
 Фронтенд структурирован следующим образом:
 \begin{enumerate}
-    \item \texttt{src/main.ts} — точка входа в приложение.
-    \item \texttt{src/router/index.ts} — маршрутизация внутри приложения.
-    \item \texttt{src/stores/} — хранилища состояния (Pinia).
-    \item \texttt{src/components/} — простые компоненты.
-    \item \texttt{src/api/axios.ts} — конфигурация отправки API-запросов.
-    \item \texttt{src/views/} — представления страниц.
-    \item \texttt{src/layout/} — компоненты макета.
+    \item \texttt{src/main.ts} -- точка входа в приложение.
+    \item \texttt{src/router/index.ts} -- маршрутизация внутри приложения.
+    \item \texttt{src/stores/} -- хранилища состояния (Pinia).
+    \item \texttt{src/components/} -- простые компоненты.
+    \item \texttt{src/composable/} -- утилиты и композиции для переиспользуемой логики.
+    \item \texttt{src/api/axios.ts} -- конфигурация отправки API-запросов.
+    \item \texttt{src/views/} -- представления страниц.
+    \item \texttt{src/layout/} -- компоненты макета.
 \end{enumerate}
 
 \subsubsection{Компоненты и представления}
@@ -275,47 +276,56 @@ RETURN u.name
 \paragraph{Компоненты}
 
 \begin{enumerate}
-    \item \texttt{Editor} — компонент редактора текста, используемый для ввода описаний экспериментов.
+    \item \texttt{Editor} -- компонент редактора текста, используемый для ввода описаний экспериментов.
     \begin{enumerate}[label=\arabic{enumi}.\arabic*.]
         \item Входные параметры: \texttt{description} (текст описания).
         \item Выходные параметры: обновленный текст.
     \end{enumerate}
 
-    \item \texttt{FloatingConfigurator} — компонент конфигуратора, который позволяет изменять настройки отображения данных.
+    \item \texttt{FloatingConfigurator} -- компонент конфигуратора, который позволяет изменять настройки отображения данных.
     \begin{enumerate}[label=\arabic{enumi}.\arabic*.]
         \item Входные параметры: \texttt{settings} (объект параметров конфигурации).
         \item Выходные параметры: обновленный объект конфигурации.
     \end{enumerate}
-
-    \item \texttt{Table} — компонент таблицы для отображения результатов измерений.
-    \begin{enumerate}[label=\arabic{enumi}.\arabic*.]
-        \item Входные параметры: \texttt{columns} (информация о столбцах), \texttt{data} (информация о ячейках).
-        \item Выходные параметры: отредактированные данные.
-    \end{enumerate}
+\end{enumerate}
+\item \texttt{Table} -- компонент таблицы для отображения результатов измерений.
+\begin{enumerate}[label=\arabic{enumi}.\arabic*.]
+    \item Входные параметры: \texttt{columns} (информация о столбцах), \texttt{data} (информация о ячейках).
+    \item Выходные параметры: отредактированные данные.
 \end{enumerate}
 
 \paragraph{Представления}
 
 \begin{enumerate}
-    \item \texttt{Auth/SignIn} — страница входа в систему.
-    \item \texttt{Auth/SignUp} — страница регистрации нового пользователя.
-    \item \texttt{Dashboard/CreateExperimentDialog} — диалог создания нового эксперимента.
-    \item \texttt{Dashboard/CreateFolderDialog} — диалог создания новой папки.
-    \item \texttt{Dashboard/Dashboard} — главная страница панели управления.
-    \item \texttt{Dashboard/ExperimentActions} — панель действий над экспериментом (удаление, перемещение и т.д.).
-    \item \texttt{Dashboard/ExperimentTable} — таблица всех доступных экспериментов.
-    \item \texttt{Dashboard/MoveExperimentDialog} — диалог перемещения эксперимента в другую папку.
-    \item \texttt{Editors/LabExperiment} — интерфейс редактирования лабораторного эксперимента.
-    \item \texttt{Editors/CompExperiment} — интерфейс редактирования лабораторного эксперимента.
-    \item \texttt{Utils/AccessDenied} — страница ошибки доступа.
-    \item \texttt{Utils/Error} — страница общей ошибки.
+    \item \texttt{Auth/SignIn} -- страница входа в систему.
+    \item \texttt{Auth/SignUp} -- страница регистрации нового пользователя.
+    \item \texttt{Dashboard/CreateExperimentDialog} -- диалог создания нового эксперимента.
+    \item \texttt{Dashboard/CreateFolderDialog} -- диалог создания новой папки.
+    \item \texttt{Dashboard/Dashboard} -- главная страница дашборда.
+    \item \texttt{Dashboard/ExperimentActions} -- панель действий над экспериментом (удаление, перемещение и т.д.).
+    \item \texttt{Dashboard/ExperimentTable} -- таблица всех доступных экспериментов.
+    \item \texttt{Dashboard/MoveDialog} -- диалог перемещения эксперимента или шаблона в другую папку.
+    \item \texttt{Dashboard/TemplateTable} -- таблица всех доступных шаблонов вычислительных экспериментов.
+    \item \texttt{Dashboard/TemplateActions} -- панель действий над шаблоном (удаление, перемещение и т.д.)
+    \item \texttt{Dashboard/TemplateSchemaForm} -- встраиваемый компонент для просмотра схем шаблона вычислительного эксперимента.
+    \item \texttt{Dashboard/ViewTemplate} -- диалог для просмотра схем шаблона вычислительного эксперимента.
+    \item \texttt{Editors/LabExperiment/Charts} -- компонент для отображения графиков, связанных с данными лабораторного эксперимента.
+    \item \texttt{Editors/LabExperiment/EditColumnDialog} -- компонент для редактирования столбцов лабораторного эксперимента.
+    \item \texttt{Editors/LabExperiment/Table} -- компонент для отображения таблицы данных лабораторного эксперимента.
+    \item \texttt{Editors/LabExperiment/LabExperiment} -- основной компонент для редактирования и отображения лабораторного эксперимента, включая описание и таблицы.
+    \item \texttt{Editors/ComputationalExperiment} -- стораница редактирования вычислительного эксперимента.
+    \item \texttt{Utils/AccessDenied} -- страница ошибки доступа.
+    \item \texttt{Utils/Error} -- страница общей ошибки.
+    \item \texttt{Utils/NotFound} -- страница общей ошибки.
+    \item \texttt{Utils/Support} -- страница с контактной информацией.
+    \item \texttt{Explore} -- страница для сравнения данных нескольких лабораторных экспериментов с одинаковыми столбцами.
 \end{enumerate}
 
-Кроме самописных компонентов, для создания пользовательского интерфейса используются компоненты PrimeVue. В том числе главные элементы интерфейса организованы построены с помощью:
+Кроме самописных компонентов, для создания пользовательского интерфейса используются компоненты PrimeVue. В том числе общие элементы интерфейса организованы построены с помощью:
 
 \begin{enumerate}
-    \item \texttt{AppLayout} — основной макет приложения, содержащий боковое меню (\texttt{AppSidebar}), навигационную панель (\texttt{AppTopbar}) и футер (подвал) (\texttt{AppFooter}).
-    \item \texttt{AppMenu} — навигационное меню, содержащее основные ссылки.
+    \item \texttt{AppLayout} -- основной макет приложения, содержащий боковое меню (\texttt{AppSidebar}), навигационную панель (\texttt{AppTopbar}) и футер (подвал) (\texttt{AppFooter}).
+    \item \texttt{AppMenu} -- навигационное меню, содержащее основные ссылки.
 \end{enumerate}
 
 Все эти компоненты и представления работают вместе, формируя клиентскую часть приложения и обеспечивая удобный пользовательский интерфейс.
@@ -325,16 +335,21 @@ RETURN u.name
 Веб-приложение использует систему маршрутизации Vue Router. Ниже приведены основные маршруты:
 
 \begin{enumerate}
-    \item \texttt{/} — главная страница (панель управления экспериментами).
-    \item \texttt{/auth/accessdenied} — страница ошибки доступа.
-    \item \texttt{/auth/error} — страница общей ошибки.
-    \item \texttt{/auth/login} — страница входа в систему.
-    \item \texttt{/auth/signup} — страница регистрации нового пользователя.
-    \item \texttt{/documentation} — страница документации.
-    \item \texttt{/experiment/\{id\}} — страница просмотра и редактирования конкретного эксперимента.
+    \item \texttt{/} -- главная страница (панель управления экспериментами).
+    \item \texttt{/experiment/laboratory/\{id\}} -- страница редактирования лабораторного эксперимента.
+    \item \texttt{/experiment/computational/\{id\}} -- страница редактирования вычислительного эксперимента.
+    \item \texttt{/ontology} -- страница списка онтологий.
+    \item \texttt{/ontology/details/om2} -- страница подробной информации о онтологии OM2.
+    \item \texttt{/ontology/details/chebi} -- страница подробной информации о онтологии ChEBI.
+    \item \texttt{/support} -- страница c контактной информацией.
+    \item \texttt{/explore} -- страница для сравнения данных нескольких лабораторных экспериментов.
+    \item \texttt{/notfound} -- страница общей ошибки.
+    \item \texttt{/auth/signin} -- страница входа.
+    \item \texttt{/auth/signup} -- страница регистрации нового пользователя.
+    \item \texttt{/auth/accessdenied} -- страница ошибки доступа.
 \end{enumerate}
 
-Каждый маршрут связан с соответствующим представлением во фронтенде и управляется Vue Router.
+Каждый маршрут связан с соответствующим представлением во фронтенде и управляется Vue Router, а переход на любой маршрут, не перечисленный выше, приведёт к переходу на страницу общей ошибки.
 
 \subsubsection{Управление состоянием}
 
@@ -350,8 +365,8 @@ RETURN u.name
 Приложение использует два хранилища:
 
 \begin{enumerate}
-    \item \texttt{src/stores/core.ts} — отвечает за глобальные настройки интерфейса и данные пользователя, которые могут потребоваться в любой части приложения.
-    \item \texttt{src/stores/dashboard.ts} — хранит данные и методы, согласованный доступ к которым необходим в разных компонентах, составляющих панель управления.
+    \item \texttt{src/stores/core.ts} -- отвечает за глобальные настройки интерфейса и данные пользователя, которые могут потребоваться в любой части приложения.
+%    \item \texttt{src/stores/dashboard.ts} -- хранит данные и методы, согласованный доступ к которым необходим в разных компонентах, составляющих панель управления.
 \end{enumerate}
 
 \subsubsection{Взаимодействие с API}
@@ -366,11 +381,12 @@ RETURN u.name
 
 Редактирование экспериментов является одной из ключевых функций веб-приложения. В системе предусмотрены отдельные представления для работы с лабораторными и вычислительными экспериментами. Пользователь может изменять описание эксперимента, редактировать параметры и вносить изменения в таблицу результатов.
 
-Редактирование лабораторного эксперимента осуществляется через интерфейс, содержащий текстовый редактор и таблицу данных (представлен на рисунке \ref{pic:lab_experiment_editor}). Пользователь может изменять структуру эксперимента, добавлять или удалять столбцы, а также управлять привязками к онтологиям. 
+Редактирование лабораторного эксперимента осуществляется через интерфейс, содержащий текстовый редактор и таблицу данных (представлен на рисунке \ref{pic:lab_experiment_editor}). Пользователь может изменять структуру эксперимента, добавлять или удалять столбцы, а также управлять привязками к онтологиям.
 
-% Для вычислительных экспериментов предусмотрены дополнительные возможности, такие как редактирование входных данных, параметров модели и контекстной информации. Система автоматически проверяет корректность введённых значений и обеспечивает привязку данных к соответствующим онтологическим сущностям.
+Для вычислительных экспериментов предусмотрены дополнительные возможности, такие как редактирование входных данных, параметров модели и контекстной информации.
+%Система автоматически проверяет корректность введённых значений и обеспечивает привязку данных к соответствующим онтологическим сущностям.
 
-Редактирование доступно только владельцам эксперимента, а изменения сохраняются в базе данных и могут быть восстановлены в случае необходимости.
+Редактирование доступно только владельцам эксперимента.
 
 \begin{figure}[H]
     \centering
@@ -384,9 +400,9 @@ RETURN u.name
 
 Таблица результатов измерений является важной частью экспериментов, позволяя пользователю фиксировать и анализировать полученные данные. Каждая колонка таблицы может быть связана с определённой онтологией, что позволяет обеспечить корректную интерпретацию данных.
 
-При создании или редактировании эксперимента пользователь может задать для каждого столбца его тип, единицы измерения и соответствующую онтологическую метку. Это облегчает обмен данными с другими системами. Отображение таблицы реализовано в виде интерактивного компонента, который позволяет пользователям сортировать, фильтровать и редактировать данные.
+При редактировании эксперимента пользователь может задать для каждого столбца его онтологию и элемент онтологии, который этот столбец репрезентует. Это облегчает обмен данными с другими системами. Отображение таблицы реализовано в виде интерактивного компонента, который позволяет пользователям редактировать данные.
 
-Привязка к онтологиям делает работу с экспериментами более структурированной и помогает избежать ошибок, связанных с некорректными единицами измерения или несовместимыми форматами данных.
+%Привязка к онтологиям делает работу с экспериментами более структурированной и помогает избежать ошибок, связанных с некорректными единицами измерения или несовместимыми форматами данных.
 
 \subsubsection{Адаптивность и мобильная версия}
 
@@ -439,8 +455,9 @@ Alembic используется для управления схемой баз
 
 \subsubsection{Способы привязки данных к онтологиям}
 
-Каждый столбец таблицы измерений может быть связан с онтологией (рис. \ref{pic:linked_to_ontology_column}), обеспечивая стандартную интерпретацию данных. Связь осуществляется через таблицу \\
-\texttt{ontology\_descriptions}, содержащую идентификатор эксперимента, имя параметра и ссылку на соответствующую сущность в онтологии. Такое автоматизированное сопоставление данных снижает вероятность ошибок при интерпретации.
+Каждый столбец таблицы измерений может быть связан с онтологией (рис. \ref{pic:linked_to_ontology_column}), обеспечивая стандартную интерпретацию данных.
+Связь осуществляется через указание для столбца псевдонима онтологии и элемента онтологии, зарегистрированной в приложении под этим псеводонимом.
+Такое автоматизированное сопоставление данных снижает вероятность ошибок при интерпретации.
 
 \begin{figure}[H]
     \centering
@@ -454,8 +471,8 @@ Alembic используется для управления схемой баз
 
 Приложение поддерживает две онтологии:
 \begin{enumerate}
-    \item OM2 — онтология физических величин и единиц измерения.
-    \item СhEBI — онтология химических соединений.
+    \item OM2 -- онтология физических величин и единиц измерения.
+    \item СhEBI -- онтология химических соединений.
 \end{enumerate}
 
 \subsubsection{Возможности расширения онтологической поддержки}
@@ -496,10 +513,10 @@ Alembic используется для управления схемой баз
 
 В продуктовом окружении приложение разворачивается с помощью Docker Compose, который управляет следующими сервисами:
 \begin{enumerate}
-    \item backend — контейнер с серверной частью.
-    \item frontend — контейнер с обратным прокси-сервером для работы с клиентом.
-    \item db — контейнер с PostgreSQL.
-    \item neo4j — контейнер с Neo4j.
+    \item backend -- контейнер с серверной частью.
+    \item frontend -- контейнер с обратным прокси-сервером для работы с клиентом.
+    \item db -- контейнер с PostgreSQL.
+    \item neo4j -- контейнер с Neo4j.
 \end{enumerate}
 
 \subsubsection{Настройка Nginx как обратного прокси}
@@ -511,6 +528,89 @@ Alembic используется для управления схемой баз
     \item Проксирование API-запросов на бэкенд.
     \item Кеширование статических файлов.
 \end{enumerate}
+
+\subsubsection{Запуск приложения}
+
+Для запуска приложения необходимо предварительно заполнить конфигурационные файлы и воспользоваться системой контейнеризации Docker Compose. Это обеспечивает воспроизводимость окружения и облегчает развёртывание как на локальной машине, так и на сервере.
+
+\paragraph{Заполнение конфигурации} \mbox{}\\
+
+Перед запуском требуется создать или отредактировать файлы переменных окружения для всех компонентов.
+Для этого используются файлы \texttt{.env} в корне проекта и в директории \texttt{backend/config}.
+В них указываются параметры подключения к базам данных, секретные ключи, настройки портов и прочие параметры.
+Пример содержимого файла \texttt{.env} в листинге~\ref{lst:config_all}.
+\begin{lstlisting}[frame=single, basicstyle=\footnotesize\ttfamily, label={lst:config_all}, caption={Заполнение конфигурационного файла всего приложения},captionpos=b, breaklines=true, breakatwhitespace=true, language=bash]
+PG_USER=postgres
+PG_PASSWORD=123
+PG_DB=postgres
+
+NEO4J_USER=neo4j
+NEO4J_PASSWORD=123
+\end{lstlisting}
+
+Для запуска серверного приложения требуется создание в директории \texttt{backend/config} файла \texttt{config.stable.toml}, в котором нужно в формате TOML определить по крайней мере параметры \texttt{db.host}, \texttt{db.password}, \texttt{neo4j.host}, \texttt{neo4j.password}.
+Также необходимо зарегистрировать онтологии по следующему принципу: секция \texttt{ontologies} представляет собой отображение, где ключ являются псевдонимом онтологий, которое затем может быть использовано в клиентском приложении, а значением – название метки, которая должна быть у каждого элемента онтологии.
+Таким образом, если есть в секции \texttt{ontologies} пара, например, (OM2, om2UniqueLabel) приложение будет интерпретировать всякий результат запроса в Neo4j с меткой om2UniqueLabel как элемент онтологии OM2.
+
+Пример содержимого файла \texttt{backend/config/config.stable.toml} в листинге~\ref{lst:config_backend}.
+\begin{lstlisting}[frame=single, basicstyle=\footnotesize\ttfamily, label={lst:config_backend}, caption={Заполнение конфигурационного файла серверного приложения},captionpos=b, breaklines=true, breakatwhitespace=true, language=toml]
+[uvi]
+host = ""
+port = 0
+workers = 0
+timeout = 0
+debug = false
+
+[db]
+port = 0
+user = ""
+database = ""
+echo = false
+echo_pool = false
+pool_size = 0
+max_overflow = 0
+host = ""
+password = ""
+
+[neo4j]
+port = 0
+user = ""
+db = ""
+host = ""
+password = ""
+
+[jwt]
+algorithm = ""
+access_token_expire_minutes = 0
+private_key_path = ""
+public_key_path = ""
+refresh_token_expire_minutes = 0
+
+[ontologies]
+OM2 = '__OntologyOM2__'
+ChEBI = '__OntologyChEBI__'
+\end{lstlisting}
+
+\paragraph{Запуск с помощью Docker Compose} \mbox{}\\
+
+После настройки переменных окружения приложение запускается одной командой: \texttt{docker-compose up --build}.
+Эта команда соберёт и запустит все необходимые сервисы: серверную часть, клиентскую часть, базы данных PostgreSQL и Neo4j, а также Nginx для проксирования запросов.
+
+Для запуска в фоновом режиме можно использовать флаг \texttt{-d}: \texttt{docker-compose up --build -d}.
+
+\paragraph{Дополнительные команды} \mbox{}\\
+
+Для управления жизненным циклом приложения используются стандартные команды Docker Compose:
+\begin{itemize}
+    \item Остановить сервисы: \texttt{docker-compose down}
+    \item Перезапустить сервисы: \texttt{docker-compose restart}
+    \item Просмотреть логи: \texttt{docker-compose logs -f}
+\end{itemize}
+
+\paragraph{Доступ к приложению} \mbox{}\\
+
+После успешного запуска приложение становится доступно по адресу, указанному в настройках Nginx (по умолчанию \texttt{http://localhost/}).
+Все компоненты приложения взаимодействуют друг с другом через внутреннюю сеть Docker Compose.
 
 \anonsubsection{Выводы по главе}
 

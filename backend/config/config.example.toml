@@ -6,22 +6,22 @@ timeout = 0
 debug = false
 
 [db]
-host = ""
 port = 0
 user = ""
-password = ""
-db = ""
+database = ""
 echo = false
 echo_pool = false
 pool_size = 0
 max_overflow = 0
+host = ""
+password = ""
 
 [neo4j]
-host = ""
 port = 0
 user = ""
-password = ""
 db = ""
+host = ""
+password = ""
 
 [jwt]
 algorithm = ""
@@ -29,3 +29,7 @@ access_token_expire_minutes = 0
 private_key_path = ""
 public_key_path = ""
 refresh_token_expire_minutes = 0
+
+[ontologies]
+OM2 = '__OntologyOM2__'
+ChEBI = '__OntologyChEBI__'
