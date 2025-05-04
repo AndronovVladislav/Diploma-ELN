@@ -13,6 +13,7 @@ import { useDashboard } from '@/composables/useDashboard';
 import { findById, removeFromFS } from '@/utils/fileSystem';
 import api from '@/api/axios';
 import { useNotifier } from '@/composables/useNotifier';
+import { AxiosError } from 'axios';
 
 interface TemplateActionProps {
     templateId: string;
@@ -34,7 +35,7 @@ const deleteTemplate = async () => {
         removeFromFS(templateFS.value, props.templateId);
     } catch (error) {
         console.error('Ошибка при удалении эксперимента:', error);
-        Notifier.error({ detail: error instanceof Error ? error.message : 'Неизвестная ошибка' });
+        Notifier.error({ detail: error instanceof AxiosError && error.response ? error.response.data : 'Неизвестная ошибка' });
     }
 };
 </script>

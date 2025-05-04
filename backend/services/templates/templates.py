@@ -1,5 +1,4 @@
 from fastapi import HTTPException, status, Response
-from neo4j import AsyncSession as NeoSession
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -7,34 +6,14 @@ from sqlalchemy.orm import selectinload
 from backend.models import User
 from backend.models.experiment import Schema, SchemaKind, ComputationalExperimentTemplate
 from backend.models.utils import connection
-from backend.ontology.base import connection as neo4j_connection, CypherQueryBuilder, CypherCondition
+from backend.ontology.base import validate_all_ontology_uris_exist
 from backend.schemas.templates.data import TemplateDetails
 from backend.schemas.templates.requests import CreateTemplateRequest, UpdateTemplateRequest
 from backend.services.experiments.relational.utils import to_dict
 
-builder = CypherQueryBuilder()
 TEMPLATE_NOT_FOUND_MESSAGE = 'Шаблон вычислительного эксперимента с таким id не найден'
 OTHER_TEMPLATE_UPDATING_MESSAGE = 'Нельзя редактировать чужой шаблон'
 OTHER_TEMPLATE_DELETING_MESSAGE = 'Нельзя удалить чужой шаблон'
-
-
-@neo4j_connection
-async def validate_all_ontology_uris_exist(uris: set[str], session: NeoSession) -> None:
-    q = (
-        builder
-        .match('(n)')
-        .where(CypherCondition('n.uri IN $uris'))
-        .return_('n.uri AS uri')
-        .build()
-    )
-    result = await session.run(q, {'uris': list(uris)})
-    found_uris = {row['uri'] async for row in result}
-    missing = uris - found_uris
-    if missing:
-        raise HTTPException(
-            status_code=422,
-            detail=f'Следующие URI не найдены в онтологиях: {sorted(missing)}'
-        )
 
 
 @connection

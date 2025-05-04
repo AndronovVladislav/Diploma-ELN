@@ -65,7 +65,7 @@ async def update_columns(experiment: LaboratoryExperiment, columns: list[dict], 
 
     experiment.columns[:] = [col for col in experiment.columns if col.name in incoming_names]
 
-    check_ontologies(columns)
+    await check_ontologies(columns)
     for col_data in columns:
         existing = current_columns.get(col_data['name'])
 
@@ -220,5 +220,5 @@ async def delete_experiment(experiment_id: int, user: User, session: AsyncSessio
     if experiment.user_id != user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=OTHER_EXPERIMENT_DELETING_MESSAGE)
 
-    await session.delete(experiment)
+    # await session.delete(experiment)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

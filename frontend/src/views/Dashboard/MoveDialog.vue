@@ -19,7 +19,7 @@
 <script lang="ts" setup>
 import { Button, Dialog, Select } from 'primevue';
 import { ref, watch } from 'vue';
-import { Experiment, FileSystem, Folder, SimplifiedView, Template } from '@/views/Dashboard/typing';
+import { Experiment, ExperimentKind, FileSystem, Folder, SimplifiedView, Template } from '@/views/Dashboard/typing';
 import { DialogState, useDashboard } from '@/composables/useDashboard';
 import { findById, getFullPath, removeFromFS } from '@/utils/fileSystem';
 import api from '@/api/axios';
@@ -60,7 +60,9 @@ const confirmMove = async () => {
 
     try {
         const newPath = '/' + getFullPath(props.fs, props.selectedItem);
-        const url = 'kind' in props.selectedItem ? 'experiment' : 'template';
+        const url = 'kind' in props.selectedItem
+            ? `experiment/${props.selectedItem.kind === ExperimentKind.LABORATORY ? 'laboratory' : 'computational'}`
+            : 'template';
         await api.patch(`${url}/${props.selectedItem.id}`, { path: newPath });
     } catch (error) {
         console.error('Ошибка при перемещении:', error);

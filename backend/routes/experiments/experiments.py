@@ -62,8 +62,8 @@ async def update_comp_experiment_data(experiment_id: int, update: UpdateComputat
 
 
 @router.delete('/{experiment_id}', response_class=Response)
-async def delete_experiment(experiment_id: int):
-    return await delete_experiment_service(experiment_id)
+async def delete_experiment(experiment_id: int, user: User = Depends(get_current_auth_user)):
+    return await delete_experiment_service(experiment_id, user)
 
 # @router.post('/import')
 # async def import_experiment(experiment: ExperimentDescription) -> Any:  # TODO: написать схему
