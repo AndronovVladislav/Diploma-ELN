@@ -42,6 +42,7 @@ import { Button } from 'primevue';
 import { useNotifier } from '@/composables/useNotifier';
 import Charts from '@/views/Editors/LabExperiment/Charts.vue';
 import { Column } from '@/views/Editors/LabExperiment/typing';
+import { AxiosError } from 'axios';
 
 interface Props {
     id: string;
@@ -129,7 +130,7 @@ async function saveChanges() {
         isChanged.value = false;
         Notifier.success({ detail: 'Изменения сохранены' });
     } catch (error) {
-        Notifier.error({ detail: 'Не удалось сохранить изменения' });
+        Notifier.error({ detail: error instanceof AxiosError && error.response ? error.response.data.detail : 'Неизвестная ошибка' });
     }
 }
 

@@ -125,7 +125,7 @@ async function signUp() {
         });
         if (response.status === 201) {
             Notifier.success({ detail: 'Вы успешно зарегистрированы!' });
-            await router.push('/auth/login');
+            await router.push('/auth/signin');
         }
     } catch (error) {
         if (error.response && error.response.status === 409) {

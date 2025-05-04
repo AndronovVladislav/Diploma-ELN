@@ -31,6 +31,7 @@ const deleteExperiment = async () => {
     try {
         await api.delete(`experiment/${props.experimentId}`);
         removeFromFS(experimentFS.value, props.experimentId);
+        Notifier.success({ detail: 'Эксперимент удалён' });
     } catch (error) {
         console.error('Ошибка при удалении эксперимента:', error);
         Notifier.error({ detail: error instanceof Error ? error.message : 'Неизвестная ошибка' });

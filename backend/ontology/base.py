@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 from typing import Annotated, AsyncIterator, Self
 
+from fastapi import HTTPException
 from neo4j import AsyncGraphDatabase, AsyncSession
 
 from backend.base import CypherRelatedError
@@ -110,6 +111,7 @@ db_helper = Neo4jHelper(
     user=settings.neo4j.user,
     password=settings.neo4j.password.get_secret_value(),
 )
+builder = CypherQueryBuilder()
 
 
 def connection(method):
@@ -124,3 +126,22 @@ def connection(method):
                 await session.close()
 
     return wrapper
+
+
+@connection
+async def validate_all_ontology_uris_exist(uris: set[str], session: AsyncSession) -> None:
+    q = (
+        builder
+        .match('(n)')
+        .where(CypherCondition('n.uri IN $uris'))
+        .return_('n.uri AS uri')
+        .build()
+    )
+    result = await session.run(q, {'uris': list(uris)})
+    found_uris = {row['uri'] async for row in result}
+    missing = uris - found_uris
+    if missing:
+        raise HTTPException(
+            status_code=422,
+            detail=f'Следующие URI не найдены в онтологиях: {sorted(missing)}'
+        )

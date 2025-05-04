@@ -65,7 +65,7 @@ async def update_columns(experiment: LaboratoryExperiment, columns: list[dict], 
 
     experiment.columns[:] = [col for col in experiment.columns if col.name in incoming_names]
 
-    check_ontologies(columns)
+    await check_ontologies(columns)
     for col_data in columns:
         existing = current_columns.get(col_data['name'])
 
