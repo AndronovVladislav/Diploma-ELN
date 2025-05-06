@@ -4,7 +4,7 @@ from sqlalchemy import String, ForeignKey
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 
 from backend.common.enums import Role
-from backend.models.base import Base, NonUpdatableNow, Id
+from backend.models.base import Base, NonUpdatableNow, UpdatableNow, Id
 
 if TYPE_CHECKING:
     from backend.models.experiment import Experiment
@@ -22,9 +22,12 @@ class User(Base):
 
 
 class Profile(Base):
-    name: Mapped[str]
-    surname: Mapped[str]
-    registered_at: Mapped[NonUpdatableNow]
+    name: Mapped[str | None] = mapped_column(default=None)
+    surname: Mapped[str | None] = mapped_column(default=None)
+    registered_at: Mapped[NonUpdatableNow | None] = mapped_column(default=None)
+    position: Mapped[str | None] = mapped_column(default=None)
+    email: Mapped[str | None] = mapped_column(default=None)
+    last_login: Mapped[UpdatableNow | None] = mapped_column(default=None)
 
-    user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'))
+    user_id: Mapped[Id] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'))
     user: Mapped['User'] = relationship(back_populates='profile')

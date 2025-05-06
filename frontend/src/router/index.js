@@ -40,6 +40,11 @@ const router = createRouter({
                     component: () => import('@/views/OntologyDetails/ChEBIDetails.vue')
                 },
                 {
+                    path: '/profile',
+                    name: 'profile',
+                    component: () => import('@/views/Profile.vue')
+                },
+                {
                     path: '/uikit/formlayout',
                     name: 'formlayout',
                     component: () => import('@/sakai/views/uikit/FormLayout.vue')

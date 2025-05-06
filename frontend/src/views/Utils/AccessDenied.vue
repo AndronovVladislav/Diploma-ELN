@@ -22,7 +22,7 @@ import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
                         <span class="text-muted-color mb-8">Для получения доступа к системе авторизуйтесь</span>
                         <img alt="Access denied" class="mb-8" src="/demo/images/access/asset-access.svg" width="80%" />
                         <div class="col-span-12 mt-8 text-center">
-                            <Button as="router-link" label="Войти в систему" to="/auth/login" />
+                            <Button as="router-link" label="Войти в систему" to="/auth/signin" />
                         </div>
                     </div>
                 </div>

@@ -33,9 +33,9 @@ async def create_template(payload: CreateTemplateRequest, user: User = Depends(g
 
 @router.patch('/{template_id}', response_model=TemplateDetails)
 async def update_template(payload: UpdateTemplateRequest,
-                               template_id: int,
-                               user: User = Depends(get_current_auth_user),
-                               ):
+                          template_id: int,
+                          user: User = Depends(get_current_auth_user),
+                          ):
     return await update_template_service(payload, template_id, user)
 
 

@@ -1,10 +1,3 @@
-<script setup>
-import { useLayout } from '@/layout/composables/layout';
-import AppConfigurator from './AppConfigurator.vue';
-
-const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
-</script>
-
 <template>
     <div class="layout-topbar">
         <div class="layout-topbar-logo-container">
@@ -51,7 +44,7 @@ const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
 <!--                        <i class="pi pi-inbox"></i>-->
 <!--                        <span>Messages</span>-->
 <!--                    </button>-->
-                    <button class="layout-topbar-action" type="button">
+                    <button class="layout-topbar-action" type="button" @click="goToProfile">
                         <i class="pi pi-user"></i>
                         <span>Profile</span>
                     </button>
@@ -60,3 +53,16 @@ const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
         </div>
     </div>
 </template>
+
+
+<script setup lang="ts">
+import { useLayout } from '@/layout/composables/layout';
+import AppConfigurator from './AppConfigurator.vue';
+import router from '@/router';
+
+const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
+
+async function goToProfile() {
+    await router.push('/profile')
+}
+</script>

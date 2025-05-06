@@ -55,7 +55,7 @@ export function useDashboard() {
                 params.append('desired_keys', key);
             }
 
-            const response = await api.get<FileSystem>(`experiment/?${params.toString()}`);
+            const response = await api.get<FileSystem>(`/experiment/?${params.toString()}`);
             experimentFS.value = response.data;
         } catch (error) {
             console.error('Ошибка загрузки experimentFS:', error);
@@ -64,7 +64,7 @@ export function useDashboard() {
 
     async function fetchTemplateFS() {
         try {
-            const response = await api.get<FileSystem>(`template/`);
+            const response = await api.get<FileSystem>(`/template/`);
             templateFS.value = response.data;
         } catch (error) {
             console.error('Ошибка загрузки templateFS:', error);
