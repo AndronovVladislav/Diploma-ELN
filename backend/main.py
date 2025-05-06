@@ -12,6 +12,7 @@ from backend.routes.auth.auth import router as auth_router
 from backend.routes.experiments.experiments import router as experiments_router
 from backend.routes.ontologies.ontologies import router as ontologies_router
 from backend.routes.templates.templates import router as templates_router
+from backend.routes.user import router as user_router
 
 
 @asynccontextmanager
@@ -25,12 +26,13 @@ app.include_router(auth_router)
 app.include_router(experiments_router)
 app.include_router(ontologies_router)
 app.include_router(templates_router)
+app.include_router(user_router)
 
 
 @app.exception_handler(BaseError)
 async def app_exception_handler(request: Request, exc: BaseError) -> JSONResponse:
     return JSONResponse(
-        status_code=400,
+        status_code=500,
         content=exc.to_dict()
     )
 

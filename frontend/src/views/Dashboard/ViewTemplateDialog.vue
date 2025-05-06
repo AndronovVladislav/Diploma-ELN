@@ -44,7 +44,7 @@ watch(() => props.templateId, async (id) => {
     }
 
     try {
-        const response = await api.get(`template/${id}`);
+        const response = await api.get(`/template/${id}`);
         template.value = response.data;
     } catch (error) {
         console.error('Ошибка загрузки шаблона:', error);

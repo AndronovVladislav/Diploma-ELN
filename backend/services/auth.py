@@ -2,6 +2,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.models import User
+from backend.models.user import Profile
 from backend.models.utils import connection
 from backend.routes.auth.utils import (
     get_user_by_username,
@@ -28,6 +29,10 @@ async def signup(user_data: UserSignup, session: AsyncSession) -> User:
         role=user_data.role,
     )
     session.add(new_user)
+    await session.flush()
+
+    user_profile = Profile(user_id=new_user.id)
+    session.add(user_profile)
     return new_user
 
 

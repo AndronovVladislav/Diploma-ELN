@@ -220,7 +220,7 @@ onMounted(async () => {
         params.append('desired_keys', key);
     }
 
-    const response = await api.get<FileSystem>(`experiment/?${params.toString()}`);
+    const response = await api.get<FileSystem>(`/experiment/?${params.toString()}`);
     const flattenedExperiments = flatten(response.data);
     experimentOptions.value = flattenedExperiments.map((exp: any) => ({ label: exp.path, id: Number(exp.id) }));
 });

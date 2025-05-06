@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from backend.common.enums import Role
 
@@ -11,8 +11,7 @@ class UserSignup(BaseModel):
     role: Role = Field(description='Роль')
     password: str = Field(description='Пароль пользователя')
 
-    class Config:
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class UserLogin(BaseModel):

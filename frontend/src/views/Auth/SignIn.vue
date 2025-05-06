@@ -89,6 +89,7 @@ import { FloatLabel, InputGroup, InputGroupAddon, InputText } from 'primevue';
 import api from '@/api/axios';
 import { useCoreStore } from '@/stores/core';
 import router from '@/router';
+import { AxiosError } from 'axios';
 
 const username = ref('');
 const password = ref('');
@@ -105,6 +106,7 @@ async function signIn() {
         await router.push('/');
     } catch (error) {
         console.error(error);
+        Notifier.error({ detail: error instanceof AxiosError && error.response ? error.response.data : 'Неизвестная ошибка' });
     }
 }
 
