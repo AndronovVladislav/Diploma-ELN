@@ -47,5 +47,4 @@ async def edit_profile(update: UpdateProfileRequest, user: User, session: AsyncS
     for k, v in update_data.items():
         setattr(profile, k, v)
 
-    # await session.commit()
     return await get_profile(user)
