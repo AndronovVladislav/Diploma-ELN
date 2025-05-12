@@ -1,20 +1,25 @@
+from enum import StrEnum
 from typing import Any
 
 import polars as pl
 from fastapi import HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy import inspect
-from sqlalchemy.util import await_only
 
 from backend.base import ONTOLOGIES_MAPPING
-from backend.models.experiment import Column, Measurement, LaboratoryExperiment, ComputationalExperiment
+from backend.models.experiment import Column, Measurement, LaboratoryExperiment, ComputationalExperiment, SchemaKind
 from backend.ontology.base import validate_all_ontology_uris_exist
 from backend.schemas.experiments.data import (
     LaboratoryExperimentDetails,
     ColumnDetails,
     ComputationalExperimentDetails,
-    ComputationalExperimentRow,
+    ComputationalExperimentRow, ComputationalExperimentTemplate,
 )
+
+
+class ExportType(StrEnum):
+    JSON = 'json'
+    XML = 'xml'
 
 
 class Cell(BaseModel):
@@ -54,6 +59,14 @@ async def check_ontologies(columns: list[dict]) -> None:
     await validate_all_ontology_uris_exist({col['ontology_ref'] for col in columns})
 
 
+def validate_schema(data: dict, schema: dict, kind: SchemaKind) -> None:
+    if set(data.keys()) != set(schema.keys()):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f'{kind} data keys do not match template schema: expected {set(schema.keys())}, got {set(data.keys())}'
+        )
+
+
 def construct_lab_experiment_details(experiment: LaboratoryExperiment) -> LaboratoryExperimentDetails:
     table = pivot_measurements(experiment.measurements, experiment.columns)
 
@@ -90,7 +103,12 @@ def construct_comp_experiment_details(experiment: ComputationalExperiment) -> Co
     ]
     result = ComputationalExperimentDetails(
         id=experiment.id,
-        template_id=experiment.template_id,
+        template=ComputationalExperimentTemplate(
+            input=experiment.template.input.data,
+            output=experiment.template.output.data,
+            parameters=experiment.template.parameters.data,
+            context=experiment.template.context.data,
+        ),
         name=experiment.name,
         description=experiment.description,
         data=data,

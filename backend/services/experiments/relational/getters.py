@@ -1,6 +1,9 @@
+from io import BytesIO
 from typing import Any
 
+from dicttoxml import dicttoxml
 from fastapi import HTTPException, status
+from fastapi.responses import StreamingResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -11,7 +14,7 @@ from backend.models.experiment import (
     LaboratoryExperiment,
     Experiment,
     ComputationalExperiment,
-    ComputationalExperimentData,
+    ComputationalExperimentData, ComputationalExperimentTemplate,
 )
 from backend.models.utils import connection
 from backend.schemas.experiments.data import LaboratoryExperimentDetails, ComputationalExperimentDetails
@@ -19,7 +22,7 @@ from backend.services.experiments.relational.common import EXPERIMENT_NOT_FOUND_
 from backend.services.experiments.relational.utils import (
     to_dict,
     construct_lab_experiment_details,
-    construct_comp_experiment_details,
+    construct_comp_experiment_details, ExportType,
 )
 
 
@@ -76,7 +79,14 @@ async def get_comp_experiment_data(experiment_id: int, session: AsyncSession) ->
     q = (
         select(ComputationalExperiment)
         .options(
-            selectinload(ComputationalExperiment.template),
+            selectinload(ComputationalExperiment.template)
+            .selectinload(ComputationalExperimentTemplate.input),
+            selectinload(ComputationalExperiment.template)
+            .selectinload(ComputationalExperimentTemplate.output),
+            selectinload(ComputationalExperiment.template)
+            .selectinload(ComputationalExperimentTemplate.parameters),
+            selectinload(ComputationalExperiment.template)
+            .selectinload(ComputationalExperimentTemplate.context),
             selectinload(ComputationalExperiment.data)
             .selectinload(ComputationalExperimentData.input),
             selectinload(ComputationalExperiment.data)
@@ -93,3 +103,49 @@ async def get_comp_experiment_data(experiment_id: int, session: AsyncSession) ->
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=EXPERIMENT_NOT_FOUND_MESSAGE)
 
     return construct_comp_experiment_details(experiment)
+
+
+@connection
+async def export_experiment_data(experiment_id: int,
+                                 export_type: ExportType,
+                                 session: AsyncSession,
+                                 ) -> StreamingResponse:
+    q = select(Experiment).where(Experiment.id == experiment_id)
+
+    experiment = (await session.execute(q)).scalar_one_or_none()
+
+    if not experiment:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=EXPERIMENT_NOT_FOUND_MESSAGE)
+
+    data = None
+
+    match experiment.kind:
+        case ExperimentKind.LABORATORY:
+            data = await get_lab_experiment_data(experiment_id, session)
+        case ExperimentKind.COMPUTATIONAL:
+            data = await get_comp_experiment_data(experiment_id, session)
+
+    intermediate_result = None
+
+    match export_type:
+        case ExportType.JSON:
+            intermediate_result = data.model_dump_json().encode()
+        case ExportType.XML:
+            intermediate_result = data.model_dump()
+            intermediate_result = dicttoxml(intermediate_result, attr_type=False)
+
+    converted_result = BytesIO()
+    converted_result.write(intermediate_result)
+    converted_result.seek(0)
+
+    filename = (
+        f'{'Laboratory' if experiment.kind == ExperimentKind.LABORATORY else 'Computational'} Experiment'
+        f'{experiment.id}.{export_type}'
+    )
+    return StreamingResponse(
+        converted_result,
+        media_type='text/plain',
+        headers={
+            'Content-Disposition': f'attachment; filename="{filename}"'
+        }
+    )

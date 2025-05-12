@@ -1,26 +1,4 @@
-from typing import Annotated
-
 from pydantic import BaseModel, field_validator
-
-
-class ColumnOntologicalDescription(BaseModel):
-    key: Annotated[str, 'A symbol or label of desired ontological type.']
-    ontology: str
-
-
-class OntologicalDescription(BaseModel):
-    primary_key: Annotated[str, 'A unique column in each row.'
-                                'URI of each value from this column will be requested from database.']
-    columns: dict[str, ColumnOntologicalDescription]
-
-
-class HeadersDescription(BaseModel):
-    ontological_description: OntologicalDescription
-
-
-class ExperimentDescription(BaseModel):
-    headers: HeadersDescription
-    body: Annotated[dict, 'Any dict compatible with polars']
 
 
 class ColumnDetails(BaseModel):
@@ -44,18 +22,25 @@ class LaboratoryExperimentDetails(BaseModel):
     columns: list[ColumnDetails]
 
 
-class ComputationalExperimentRow(BaseModel):
-    row: int
+class Schema(BaseModel):
     input: dict
     output: dict
     parameters: dict
     context: dict
 
 
+class ComputationalExperimentRow(Schema):
+    row: int
+
+
+class ComputationalExperimentTemplate(Schema):
+    pass
+
+
 class ComputationalExperimentDetails(BaseModel):
     id: int
     name: str
     description: str
-    template_id: int
+    template: ComputationalExperimentTemplate
 
     data: list[ComputationalExperimentRow]
