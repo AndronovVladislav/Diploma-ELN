@@ -1,7 +1,6 @@
 from typing import Any
 
-from pydantic import BaseModel
-from pydantic import ConfigDict
+from pydantic import BaseModel, ConfigDict
 
 from backend.schemas.experiments.data import ColumnDetails
 

@@ -14,7 +14,8 @@ from backend.models.experiment import (
     LaboratoryExperiment,
     Experiment,
     ComputationalExperiment,
-    ComputationalExperimentData, ComputationalExperimentTemplate,
+    ComputationalExperimentData,
+    ComputationalExperimentTemplate,
 )
 from backend.models.utils import connection
 from backend.schemas.experiments.data import LaboratoryExperimentDetails, ComputationalExperimentDetails
@@ -22,7 +23,8 @@ from backend.services.experiments.relational.common import EXPERIMENT_NOT_FOUND_
 from backend.services.experiments.relational.utils import (
     to_dict,
     construct_lab_experiment_details,
-    construct_comp_experiment_details, ExportType,
+    construct_comp_experiment_details,
+    ExportType,
 )
 
 
