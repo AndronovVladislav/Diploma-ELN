@@ -22,7 +22,7 @@ from backend.services.experiments.relational.common import (
     OTHER_EXPERIMENT_DELETING_MESSAGE,
 )
 from backend.services.experiments.relational.utils import check_ontologies, construct_lab_experiment_details, \
-    construct_comp_experiment_details
+    construct_comp_experiment_details, validate_schema
 
 INFORMATIONAL_ATTRIBUTES = {'description', 'path'}
 
@@ -199,14 +199,6 @@ async def update_comp_experiment_data(experiment_id: int,
     experiment = (await session.execute(q)).scalar_one_or_none()
 
     return construct_comp_experiment_details(experiment)
-
-
-def validate_schema(data: dict, schema: dict, kind: SchemaKind) -> None:
-    if set(data.keys()) != set(schema.keys()):
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f'{kind} data keys do not match template schema: expected {set(schema.keys())}, got {set(data.keys())}'
-        )
 
 
 @connection

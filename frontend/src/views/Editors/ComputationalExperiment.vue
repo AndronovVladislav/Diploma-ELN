@@ -142,9 +142,8 @@ async function fetchExperiment(id: string) {
         originalDescription.value = description.value;
         originalData.value = JSON.parse(JSON.stringify(data.value));
 
-        if (response.data.template_id) {
-            const tmplResponse = await api.get(`/template/${response.data.template_id}`);
-            template.value = tmplResponse.data;
+        if (response.data.template) {
+            template.value = response.data.template;
 
             schemas.value = {
                 input: JSON.stringify(template.value?.input ?? {}, null, 2),

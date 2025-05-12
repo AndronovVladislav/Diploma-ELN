@@ -56,8 +56,7 @@ class Measurement(Base):
     """
     row: Mapped[int]
     column: Mapped[int] = mapped_column(ForeignKey('columns.id', ondelete='CASCADE'))
-    value: Mapped[
-        str]  # TODO: возможно такой тип будет проблемой, но пока он такой не забывать парсить в порядке [(float | bool), str]
+    value: Mapped[str]
 
     experiment_id: Mapped[int] = mapped_column(ForeignKey('laboratory_experiments.id', ondelete='CASCADE'))
 
