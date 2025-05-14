@@ -1,15 +1,17 @@
 import pytest
 from httpx import AsyncClient
 
-from backend.models import User
 from backend.models.experiment import LaboratoryExperiment
 
 
 @pytest.mark.asyncio
-async def test_get_experiments(client: AsyncClient, user: User):
+async def test_get_experiments(client: AsyncClient, access_token: str):
     """Тест получения экспериментов пользователя"""
+    headers = {'Authorization': f'Bearer {access_token}'}
+
     response = await client.get("/experiment/",
-                                params={"username": user.username, "desired_keys": ["key1", "key2"]},
+                                params={"desired_keys": ["key1", "key2"]},
+                                headers=headers,
                                 )
     assert response.status_code == 200
     assert isinstance(response.json(), list)

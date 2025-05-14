@@ -2,6 +2,7 @@ from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+from starlette import status
 
 from backend.models import User
 from backend.models.user import Profile
@@ -19,7 +20,10 @@ async def get_profile(user: User, session: AsyncSession) -> ProfileResponse:
         .where(User.id == user.id)
     )
 
-    result = (await session.execute(q)).scalar_one()
+    result = (await session.execute(q)).scalar_one_or_none()
+
+    if not result:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Пользователь с таким id не найден')
 
     return ProfileResponse(
         username=result.username,
@@ -40,11 +44,11 @@ async def edit_profile(update: UpdateProfileRequest, user: User, session: AsyncS
     profile = (await session.execute(q)).scalar_one_or_none()
 
     if not profile:
-        raise HTTPException(status_code=404, detail='Пользователь не найден')
+        raise HTTPException(status_code=404, detail='Пользователь с таким id не найден')
 
     update_data = update.model_dump(exclude_unset=True)
 
     for k, v in update_data.items():
         setattr(profile, k, v)
 
-    return await get_profile(user)
+    return await get_profile(user, session=session)
