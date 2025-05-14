@@ -41,7 +41,7 @@ class UpdateLaboratoryExperimentRequest(BaseModel):
     path: str = None
 
     measurements: list[Measurement] = None
-    columns: list[ColumnDetails] = None
+    columns: list[ImportColumn] = None
 
 
 class UpdateComputationalExperimentRequest(BaseModel):

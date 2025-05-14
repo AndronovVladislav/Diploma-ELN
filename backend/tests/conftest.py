@@ -1,3 +1,4 @@
+from datetime import timedelta
 from typing import AsyncIterator
 
 import pytest
@@ -7,14 +8,22 @@ from sqlalchemy import NullPool, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
-from backend.common.enums import Role
+from backend.common.enums import Role, ExperimentKind
 from backend.config import settings
 from backend.main import app
 from backend.models import User
-from backend.models.experiment import LaboratoryExperiment, Column, Measurement
+from backend.models.experiment import (
+    LaboratoryExperiment,
+    Column,
+    Measurement,
+    ComputationalExperiment,
+    Schema,
+    SchemaKind,
+    ComputationalExperimentTemplate,
+)
 from backend.models.utils import connection
 from backend.models.utils import db_helper
-from backend.routes.auth.utils import hash_password
+from backend.routes.auth.utils import hash_password, create_jwt, TokenType
 
 engine = create_async_engine(
     url=settings.db.url.get_secret_value(),
@@ -77,6 +86,18 @@ async def user() -> User:
 
 
 @pytest.fixture
+def access_token(user: User) -> str:
+    """Создаёт валидный access-токен"""
+    return create_jwt(user.username, TokenType.ACCESS, timedelta(minutes=1))
+
+
+@pytest.fixture
+def refresh_token(user: User) -> str:
+    """Создаёт валидный refresh-токен"""
+    return create_jwt(user.username, TokenType.REFRESH, timedelta(minutes=5))
+
+
+@pytest.fixture
 async def lab_experiment(user: User) -> LaboratoryExperiment:
     """Создаёт лабораторный эксперимент в БД перед тестом"""
 
@@ -105,3 +126,42 @@ async def lab_experiment(user: User) -> LaboratoryExperiment:
         return experiment
 
     return await create_lab_experiment()
+
+
+@pytest.fixture
+async def comp_experiment(user: User) -> ComputationalExperiment:
+    """Создаёт вычислительный эксперимент в БД перед тестом"""
+
+    @connection
+    async def create_comp_experiment(session: AsyncSession) -> ComputationalExperiment:
+        input_schema = Schema(type=SchemaKind.INPUT, data={'input': 1})
+        output_schema = Schema(type=SchemaKind.OUTPUT, data={'output': 2})
+        params_schema = Schema(type=SchemaKind.PARAMETERS, data={'parameters': 3})
+        context_schema = Schema(type=SchemaKind.CONTEXT, data={'context': 4})
+        session.add_all([input_schema, output_schema, params_schema, context_schema])
+        await session.flush()
+
+        comp_template = ComputationalExperimentTemplate(
+            user_id=user.id,
+            path='/tests/template_1',
+            input_id=input_schema.id,
+            output_id=output_schema.id,
+            parameters_id=params_schema.id,
+            context_id=context_schema.id,
+        )
+        session.add(comp_template)
+        await session.flush()
+
+        experiment = ComputationalExperiment(
+            user_id=user.id,
+            template_id=comp_template.id,
+            path='/tests/comp_exp_1',
+            description='Test Computational Experiment',
+            kind=ExperimentKind.COMPUTATIONAL,
+        )
+        session.add(experiment)
+        await session.flush()
+
+        return experiment
+
+    return await create_comp_experiment()

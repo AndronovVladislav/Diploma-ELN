@@ -11,6 +11,7 @@ from backend.schemas.templates.data import TemplateDetails
 from backend.schemas.templates.requests import CreateTemplateRequest, UpdateTemplateRequest
 from backend.services.experiments.relational.utils import to_dict
 
+TEMPLATE_NOT_UNIQUE_PATH = 'Шаблон вычислительного эксперимента с таким путём уже существует'
 TEMPLATE_NOT_FOUND_MESSAGE = 'Шаблон вычислительного эксперимента с таким id не найден'
 OTHER_TEMPLATE_UPDATING_MESSAGE = 'Нельзя редактировать чужой шаблон'
 OTHER_TEMPLATE_DELETING_MESSAGE = 'Нельзя удалить чужой шаблон'
@@ -21,6 +22,11 @@ async def create_template(user: User,
                           payload: CreateTemplateRequest,
                           session: AsyncSession,
                           ) -> TemplateDetails:
+    q = select(ComputationalExperimentTemplate).where(ComputationalExperimentTemplate.path == payload.path)
+    template = (await session.execute(q)).scalar_one_or_none()
+    if template:
+        raise HTTPException(status_code=400, detail=TEMPLATE_NOT_UNIQUE_PATH)
+
     template_input = payload.input.model_dump()
     template_output = payload.output.model_dump()
     template_parameters = payload.parameters.model_dump()
