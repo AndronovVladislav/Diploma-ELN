@@ -90,10 +90,13 @@ import api from '@/api/axios';
 import { useCoreStore } from '@/stores/core';
 import router from '@/router';
 import { AxiosError } from 'axios';
+import { useNotifier } from '@/composables/useNotifier';
 
 const username = ref('');
 const password = ref('');
 const coreStore = useCoreStore();
+
+const Notifier = useNotifier();
 
 async function signIn() {
     try {
