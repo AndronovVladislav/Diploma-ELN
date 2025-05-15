@@ -31,16 +31,3 @@ async def test_get_experiment_data_laboratory(client: AsyncClient, lab_experimen
     assert len(data["measurements"]) > 0
     assert data["columns"][0]["name"] == "Temperature"
     assert data["columns"][0]["ontology_ref"] == "degreeCelsius"
-
-# FIXME: переделать импорт экспериментов и тест
-# @pytest.mark.asyncio
-# async def test_import_experiment(client: AsyncClient):
-#     """Тест импорта эксперимента"""
-#     payload = {
-#         "name": "Test Experiment",
-#         "description": "A sample experiment",
-#         "columns": [{"name": "Temperature", "unit": "Celsius"}]
-#     }
-#     response = await client.post("/experiment/import", json=payload)
-#     assert response.status_code == 200
-#     assert isinstance(response.json(), dict)
